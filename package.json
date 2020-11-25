@@ -1,0 +1,26 @@
+{
+  "name": "fe-gui",
+  "version": "1.0.0",
+  "description": "Front-end project GUI manager",
+  "main": "start.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Peter-Win/fe-gui.git"
+  },
+  "keywords": [
+    "front-end",
+    "GUI"
+  ],
+  "author": "PeterWin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Peter-Win/fe-gui/issues"
+  },
+  "homepage": "https://github.com/Peter-Win/fe-gui#readme",
+  "dependencies": {
+    "ws": "^7.4.0"
+  }
+}
