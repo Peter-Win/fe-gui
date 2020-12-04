@@ -1,0 +1,60 @@
+html, body, div, input, select, ul, li, span {margin: 0; padding: 0;}
+body { color: #001; font-family: Arial; font-size: 16px; }
+h1 { margin: 0; padding: 0; font-size: 130%; color: coral; }
+
+.global-part {
+    display: none;
+}
+
+.disabled {
+    color: #888;
+}
+
+.flex-horiz {
+    display: flex;
+}
+
+/* Блок элементов формы. Элементы расположены в колонку. Слева наименование.  */
+.horiz-ctrl-block {
+    display: flex;
+    flex-direction: column;
+}
+.horiz-ctrl-block > div {
+    padding: 0.3em 0;
+}
+.horiz-ctrl-block .title {
+    display: inline-block;
+    width: 6em;
+    text-align: right;
+    padding-right: .5em;
+}
+
+.bricks-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.bricks-row .rn-ctrl {
+    width: 15em;
+    border: thin solid silver;
+    border-radius: 5px;
+    margin-right: .5em;
+}
+.bricks-row .title {
+    display: block;
+    font-weight: bold;
+    background: #DDD;
+    padding: .2em .5em;
+}
+.rn-radiobox label {
+    margin: .4em .5em;
+    display: block;
+}
+
+.rn-ctrl[data-type=CheckNpmName] { margin-left: .7em;}
+.rn-ctrl[data-name=description] input { width: 40em;}
+.stack-warning {
+    margin: 1em 0 0.5em 0;
+    font-size: 90%;
+    color: #555;
+}

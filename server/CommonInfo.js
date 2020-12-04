@@ -1,8 +1,12 @@
 const path = require('path')
+const {getRootPath} = require('./fileUtils')
 const {wsSend} = require('./wsServer')
 
 class CommonInfo {
-    static _globalStatus = "" // load
+    static glbStLoad = 'load'
+    static glbStInit = 'init'
+    static glbStError = 'error'
+    static _globalStatus = "" // glbSt*
     static getGlobalStatus() {
         return CommonInfo._globalStatus
     }
@@ -14,7 +18,7 @@ class CommonInfo {
     }
 
     static info = {
-        folderName: path.basename(path.normalize(path.join(__dirname, '..', '..')))
+        folderName: path.basename(getRootPath())
     }
     static send() {
         wsSend('commonInfo', CommonInfo.info)

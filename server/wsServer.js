@@ -35,7 +35,7 @@ const wsOn = (id, handler) => {
     if (!list) {
         msgHandlers[id] = [handler]
     } else {
-        if (!list.contains(handler)) {
+        if (!list.find(item => item === handler)) {
             list.push(handler)
         }
     }

@@ -3,18 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <title>Front-End GUI</title>
+    <link href="style.css" rel="stylesheet"/>
     <script src="vendor/jquery.js"></script>
     <script src="vendor/radon2.js"></script>
     <script src="polyfill.js"></script>
+    <script src="checkNpmName.js"></script>
     <script src="main.js"></script>
 </head>
-<body>
-<div id="root"></div>
+<body class="rn-page" data-name="main">
+<div id="glbStatus_unknown" class="global-part">
+    <h1>Invalid Global Status</h1>
+    <div>Status ID = <span id="unknown_status"></span></div>
+</div>
 
-<script id="TmGlbState_load" type="text/html">
+<div id="glbStatus_load" class="global-part">
+    <h1>Loading...</h1>
+</div>
+
+<div id="glbStatus_error" class="global-part">
+    <h1>Error detected</h1>
+    <button class="j-retry">Retry</button>
+    <div class="j-info"></div>
+</div>
+
+<div id="glbStatus_init" class="global-part">
+    <h1>Create project <b class="j-folder-name"></b></h1>
+    <form class="rn-form" name="init" data-type="Init">
+        <div class="horiz-ctrl-block">
+            <div class="flex-horiz">
+                <div class="rn-ctrl" data-name="name" data-type="String"
+                     data-title="Name" data-maxlength="200">
+                    <b class="rn-validator" data-type="Regexp" data-regexp="/^[-_a-z\d\.]*$/"
+                       data-msg="Invalid character"></b>
+                </div>
+                <div class="rn-ctrl" data-type="CheckNpmName"></div>
+            </div>
+            <div class="rn-ctrl" data-name="description" data-type="String"
+                 data-title="Description"></div>
+        </div>
+        <div class="stack-warning">
+            <b>Attention!</b> Choose your technology stack carefully.
+            These settings cannot be changed after the application is generated.
+        </div>
+        <div class="bricks-row">
+            <div class="rn-ctrl" data-name="bundler" data-type="Radiobox" data-title="Module Bundler"
+                 data-options="g_bundler" data-option_value="#" data-option_label="#" data-value0="webpack"
+                 data-radio_tm="TmRadioItem"
+            ></div>
+            <div class="rn-ctrl" data-name="packageManager" data-type="Radiobox" data-title="Package Manager"
+                 data-options="g_packageManager" data-option_value="#" data-option_label="#" data-value0="Yarn"
+                 data-radio_tm="TmRadioItem"
+            ></div>
+            <div class="rn-ctrl" data-name="language" data-type="Radiobox" data-title="Programming Language"
+                 data-options="g_language" data-option_value="#" data-option_label="#" data-value0="TypeScript"
+                 data-radio_tm="TmRadioItem"
+            ></div>
+            <div class="rn-ctrl" data-name="transpiler" data-type="Radiobox" data-title="Transpiler"
+                 data-options="g_transpiler" data-value0="Babel" data-option_label="value"
+                 data-radio_tm="TmRadioItem"
+            ></div>
+            <div class="rn-ctrl" data-name="framework" data-type="Radiobox" data-title="Framework"
+                 data-options="g_framework" data-value0="React" data-option_label="#" data-option_value="#"
+                 data-radio_tm="TmRadioItem"
+            ></div>
+        </div>
+    </form>
+</div>
+<script>
+    var g_bundler = ["webpack"];
+    var g_packageManager = ['Yarn', 'NPM'];
+    var g_language = ["TypeScript", "JavaScript"];
+    var g_transpiler = [
+        {value: 'Babel'},
+        {value: 'TypeScript'},
+    ];
+    var g_framework = ['None', 'React'];
+</script>
+
+<!-- Templates -->
+<script id="TmPre" type="text/html">
+    <pre>{{text}}</pre>
+</script>
+<script id="TmCtrlString" type="text/html">
     <div>
-        <h1>Loading...</h1>
+        <span class="title">{{title}}</span>
+        <input type="{{input_type}}" name="{{name}}"
+               {{#maxlength}}maxlength="{{maxlength}}" {{/maxlength}}
+        {{#placeholder}}placeholder="{{placeholder}}"{{/placeholder}} />
     </div>
+</script>
+<script id="TmCtrlRadiobox" type="text/html">
+    <div>
+        <span class="title">{{title}}</span>
+        <div class="rn-radiobox" style="display:inline-block"></div>
+    </div>
+</script>
+<script id="TmRadioItem" type="text/html">
+    <div>
+        {{^disabled}}
+        <label><input type="radio" name="{{name}}" value="{{value}}"/> {{label}}</label>
+        {{/disabled}}
+        {{#disabled}}
+        <label>
+            <input type="radio" name="{{name}}" value="{{value}}" disabled/>
+            <span class="disabled">{{label}}</span>
+        </label>
+        {{/disabled}}
+    </div>
+</script>
+<script id="TmCtrlCheckNpmName" type="text/html">
+    <span></span>
+</script>
+<script id="TmNpmNameTaken" type="text/html">
+    <span style="color: red">Already taken</span>
+</script>
+<script id="TmNpmNameFree" type="text/html">
+    <span style="color: green">Free!</span>
 </script>
 </body>
 </html>

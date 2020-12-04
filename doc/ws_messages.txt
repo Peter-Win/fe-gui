@@ -1,0 +1,18 @@
+Messages
+
+commonInfo: object - Common information
+  folderName: string - project root folder name.
+
+errorAsJson: object - Global error of application
+  code: string
+  path: string
+
+globalStatus: string - Global status of application
+  load | init | error
+
+searchPackage: string - Search package by name
+
+searchPackageResponse: object
+  name: string
+  package?: {name,version,description,...} see npmSearch.js
+  error?: string
