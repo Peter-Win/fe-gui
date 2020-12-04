@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Front-End GUI</title>
+    <link href="ctrl.css" rel="stylesheet"/>
     <link href="style.css" rel="stylesheet"/>
     <script src="vendor/jquery.js"></script>
     <script src="vendor/radon2.js"></script>
@@ -13,22 +14,27 @@
 <body class="rn-page" data-name="main">
 <div id="glbStatus_unknown" class="global-part">
     <h1>Invalid Global Status</h1>
-    <div>Status ID = <span id="unknown_status"></span></div>
+    <div class="page-content">
+        Status ID = <span id="unknown_status"></span>
+    </div>
 </div>
 
 <div id="glbStatus_load" class="global-part">
     <h1>Loading...</h1>
+    <div class="page-content"></div>
 </div>
 
 <div id="glbStatus_error" class="global-part">
     <h1>Error detected</h1>
-    <button class="j-retry">Retry</button>
-    <div class="j-info"></div>
+    <div class="page-content">
+        <button class="j-retry">Retry</button>
+        <div class="j-info"></div>
+    </div>
 </div>
 
 <div id="glbStatus_init" class="global-part">
     <h1>Create project <b class="j-folder-name"></b></h1>
-    <form class="rn-form" name="init" data-type="Init">
+    <form class="rn-form page-content" name="init" data-type="Init">
         <div class="horiz-ctrl-block">
             <div class="flex-horiz">
                 <div class="rn-ctrl" data-name="name" data-type="String"
@@ -66,6 +72,14 @@
                  data-options="g_framework" data-value0="React" data-option_label="#" data-option_value="#"
                  data-radio_tm="TmRadioItem"
             ></div>
+            <div>
+                <div class="title">Styles</div>
+                <div class="rn-ctrl" data-name="styleCss" data-type="Checkbox" data-title="CSS" data-value0="1"></div>
+                <div class="rn-ctrl" data-name="styleLess" data-type="Checkbox" data-title="LESS"></div>
+            </div>
+        </div>
+        <div class="buttons-box">
+        <button type="submit" class="rn-submit">Start</button>
         </div>
     </form>
 </div>
@@ -111,6 +125,13 @@
         {{/disabled}}
     </div>
 </script>
+<script id='TmCtrlCheckbox' type='text/html'>
+    <div>
+        <label><input type='checkbox' name='{{name}}'>{{title}}</label>
+    </div>
+</script>
+
+
 <script id="TmCtrlCheckNpmName" type="text/html">
     <span></span>
 </script>

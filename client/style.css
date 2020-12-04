@@ -1,9 +1,25 @@
 html, body, div, input, select, ul, li, span {margin: 0; padding: 0;}
 body { color: #001; font-family: Arial; font-size: 16px; }
-h1 { margin: 0; padding: 0; font-size: 130%; color: coral; }
 
 .global-part {
     display: none;
+}
+
+h1 {
+    padding: .5em 1em;
+    font-size: 130%;
+    color: #070;
+    background: linear-gradient(to right, #DDD, transparent);
+    margin: 0 0 1em 0;
+    box-shadow: 0 0 4px 4px #CCC;
+}
+
+.page-content {
+    padding: 0 1em;
+}
+
+.buttons-box {
+    padding-top: 1em;
 }
 
 .disabled {
@@ -34,7 +50,7 @@ h1 { margin: 0; padding: 0; font-size: 130%; color: coral; }
     flex-direction: row;
     flex-wrap: wrap;
 }
-.bricks-row .rn-ctrl {
+.bricks-row > div {
     width: 15em;
     border: thin solid silver;
     border-radius: 5px;
@@ -46,7 +62,7 @@ h1 { margin: 0; padding: 0; font-size: 130%; color: coral; }
     background: #DDD;
     padding: .2em .5em;
 }
-.rn-radiobox label {
+.rn-radiobox label, .rn-ctrl[data-type=Checkbox] {
     margin: .4em .5em;
     display: block;
 }

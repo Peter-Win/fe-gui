@@ -1,0 +1,146 @@
+/* standard elements */
+
+/* Общие стили для кнопок */
+button {
+    border: none;
+    outline: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+button:focus {outline: none;}
+
+/* Кнопка сабмита */
+.rn-submit {
+    color: #fff; background-color: #8bc540;
+    padding: .5em 1em;
+    text-transform: uppercase;
+    font-size: 110%;
+}
+.rn-submit:hover {background-color: #a2cf63;} /* #7aac38 */
+
+
+input[type=text], select {
+    height: 2em;
+    line-height: 2em;
+    padding: 0 1em;
+    box-sizing: border-box;
+    border: thin solid #c5c5c9;
+    border-radius: 0.3em;
+    color: #2e444e;
+    outline: none;
+}
+/* Запрещенные для редактирования элементы */
+.rn-submit.disabled, input[type=text].disabled, select.disabled {
+    background-color: #c5c5c9;
+    color: #717980;
+}
+input[type=text] {
+    background: transparent;
+}
+
+/* Droplist */
+select {
+    cursor: default;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 13 8"><path class="path" fill="#2C3A3F" fill-rule="evenodd" d="M6.036 5.245L10.66.621l1.414 1.415-5.66 5.66-.377-.378-.378.379-5.66-5.66L1.413.623l4.623 4.622z"></path></svg>') no-repeat 98% transparent;
+    min-width: 8em;
+    width: 100%;
+
+    /*for WebKit*/
+    -webkit-appearance: none;
+    /* for FF */
+    -moz-appearance: none;
+    text-indent: 0.01px;
+    text-overflow: '';
+    /* for IE */
+    -ms-appearance: none;
+    appearance: none!important;
+}
+select::-ms-expand {
+    display: none;
+}
+
+.rn-ctrl label {
+    cursor: pointer;
+    font-weight: normal;
+}
+
+/* Чекбоксы */
+input[type=checkbox] {
+    margin-right: .6em;
+    border-radius: 3px;
+    width: 20px;
+    height: 20px;
+    left: 0;
+    display: inline-block;
+    background-color: transparent;
+    border: 1px solid #c5c5c9;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    left: 0;
+    top: 4px;
+    padding: 3px;
+    position: relative;
+}
+
+input[type=checkbox]:checked {
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAKCAYAAABv7tTEAAAAAXNSR0IArs4c6QAAAHtJREFUKBWNkLEKgCAURZ1bg5b2oKAP6E/7mGpoaG7vB1rbg9d5kuCivgsHE+8x1TljRKSFA0aT8gsXo2YpSpT0D0E4+a6zUlJgoYEZqniHpKAlFlfQbOBFxvyRKPRwg0bFDsp3oBSLL3ON6dIDxcfXLUJ4AIQJdsg+6wcPn85YghvZYwAAAABJRU5ErkJggg==) #8bc640 no-repeat center center;
+    border-color: #8bc640;
+    transition: border-color 0.3s ease-out, background-color 0.3s ease-out;
+}
+
+input[type=checkbox]:focus {
+    outline: none;
+}
+/* Radio */
+input[type=radio] {
+    margin: 4px 0 0;
+    box-sizing: border-box;
+    position: relative;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    left: 0;
+    top: 4px;
+    padding: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid #c5c5c9;
+    -webkit-transition: border-color 0.3s ease-out;
+    transition: border-color 0.3s ease-out;
+}
+input[type=radio]:focus {
+    outline: none;
+}
+input[type=radio]::before {
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: transparent;
+    -webkit-transition: background-color 0.3s ease-out;
+    transition: background-color 0.3s ease-out;
+    content: '';
+}
+input[type=radio]:checked::before {
+    background-color: #8bc640;
+}
+
+/* ошибки */
+/* Невалидные контроллеры */
+.invalid input, .invalid select {border-color: #ee2228;}
+/*.form-group input[type=radio].invalid {
+    border-color: #F00;
+}*/
+
+/* Выделение фокусных элементов */
+.rn-ctrl input:focus, .rn-ctrl select:focus {
+    border-color: #8bc540;
+    box-shadow: 0 0 1px 1px #8bc540;
+}
+.invalid input:focus, .rn-visited.invalid select:focus {
+    border-color: #ee2228;
+    box-shadow: 0 0 1px 1px #ee2228;
+}
