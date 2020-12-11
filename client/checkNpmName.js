@@ -8,7 +8,7 @@ Rn.C.CheckNpmName = function () {
         var ctrl = this;
         wsOn('searchPackageResponse', function (response) {
             if (response.error) {
-                npmNameCache[response.name] = null;
+                npmNameCache[response.name] = 'error'; // Если сбросить, то пойдет бесконечный цикл запросов
             } else {
                 npmNameCache[response.name] = response.package || 'free';
             }
@@ -27,7 +27,7 @@ Rn.C.CheckNpmName = function () {
             wsSend('searchPackage', name);
             return '';
         }
-        if (cached === 'wait') {
+        if (cached === 'wait' || cached === 'error') {
             return '';
         }
         return cached === 'free' ? 'TmNpmNameFree' : 'TmNpmNameTaken';

@@ -1,4 +1,5 @@
 const {exec} = require('child_process')
+const {getRootPath} = require('../fileUtils')
 
 /**
  *
@@ -7,6 +8,9 @@ const {exec} = require('child_process')
  * @return {Promise<{stdout,stderr:string|Buffer}>}
  */
 const asyncExec = (command, options) => new Promise((resolve, reject) => {
+    if (!options) {
+        options = {cwd: getRootPath()}
+    }
     exec(command, options, (error, stdout, stderr) => {
         if (error) {
             reject(error)

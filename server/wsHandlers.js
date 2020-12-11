@@ -12,6 +12,10 @@ const wsHandlers = () => {
         }
         wsSend('searchPackageResponse', {name, package, error: err && err.message})
     })
+    wsOn('createApp', async (data) => {
+        const {createApp} = require('./commands/createApp')
+        createApp(data)
+    })
 }
 
 module.exports = {wsHandlers}

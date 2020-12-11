@@ -17,6 +17,10 @@ h1 {
 .page-content {
     padding: 0 1em;
 }
+.console-view {
+    font-family: "Courier New";
+    font-size: 90%;
+}
 
 .buttons-box {
     padding-top: 1em;
@@ -29,6 +33,19 @@ h1 {
 .flex-horiz {
     display: flex;
 }
+.create-entity-part .create-entity-msg {
+    padding-left: 2em;
+}
+.create-entity-warn {
+    color: #883;
+}
+.create-entity-err {
+    color: red;
+}
+.create-entity-success {
+    color: green;
+    font-weight: bold;
+}
 
 /* Блок элементов формы. Элементы расположены в колонку. Слева наименование.  */
 .horiz-ctrl-block {
@@ -40,7 +57,7 @@ h1 {
 }
 .horiz-ctrl-block .title {
     display: inline-block;
-    width: 6em;
+    width: 7em;
     text-align: right;
     padding-right: .5em;
 }

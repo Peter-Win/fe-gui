@@ -11,13 +11,14 @@ button:focus {outline: none;}
 
 /* Кнопка сабмита */
 .rn-submit {
-    color: #fff; background-color: #8bc540;
+    color: #fff;
+    background-color: #8bc540;
     padding: .5em 1em;
     text-transform: uppercase;
     font-size: 110%;
 }
-.rn-submit:hover {background-color: #a2cf63;} /* #7aac38 */
-
+.rn-submit:hover {background-color: #a2cf63;}
+.rn-submit:focus {box-shadow: 0 0 4px green; }
 
 input[type=text], select {
     height: 2em;

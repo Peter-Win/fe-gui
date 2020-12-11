@@ -40,13 +40,13 @@ socket.onmessage = function(event) {
 };
 
 var globalStatus = '';
-var g_commonInfo = {folderName: ''};
+var g_commonInfo = {common:{folderName: ''}};
 var $activePage;
 
 var onStatus = {
     init: function () {
         var form = Rn.curPage().forms.init;
-        form.ctrls.name.focus();
+        form.ctrlName().focus();
     },
     error: function () {
         Rn.enable($('.j-retry', $activePage).off().on('click', function(){
@@ -72,6 +72,11 @@ function drawGlobalStatus(newStatus) {
     fn && fn();
 }
 
+function onCreateAppMsg(data) {
+    var selector = data.name ? '[data-name='+data.name+'] .j-msg-content' : '.page-content';
+    Rn.tm('TmCreateEntityMsg', data, $(selector, $activePage));
+}
+
 $(function (){
     Rn.p.bPageSwitch = false;
     Rn.init('main');
@@ -84,16 +89,40 @@ $(function (){
     wsOn('errorAsJson', function(error) {
        Rn.tm('TmPre', {text: JSON.stringify(error, null, '  ')}, $('#glbStatus_error .j-info'));
     });
+    wsOn('createEntityBegin', function (name){
+        Rn.tm('TmCreateEntityBegin', {name: name}, $('.page-content', $activePage))
+    });
+    wsOn('createEntityEnd', function (data) {
+        var st = $('[data-name='+data.name+'] .j-status', $activePage).text(data.status);
+        if (data.status == 'Error') st.css({color:'red'})
+        if (data.message) {
+            if (data.status == 'Error') data.type = 'err';
+            onCreateAppMsg(data);
+        }
+    });
+    wsOn('createEntityMsg', function (data){
+        onCreateAppMsg(data)
+    })
     drawGlobalStatus();
 });
 
 function FormInit() {
     this.superClass = 'Base';
+    this.onSubmit = function () {
+        Rn.enable(this.$submit, false);
+        var data = this.save(0, 1);
+        console.log(data);
+        wsSend('createApp', data);
+    }
+    this.ctrlName = function () {
+        return this.ctrls.common.ctrls.name;
+    }
     this.drawCommonInfo = function (info) {
-        $('#glbStatus_init .j-folder-name').text(info.folderName);
-        var ctrlName = this.ctrls.name;
+        var folderName = info.common.folderName;
+        $('#glbStatus_init .j-folder-name').text(folderName);
+        var ctrlName = this.ctrlName();
         if (!ctrlName.getValue()) {
-            ctrlName.setValue(info.folderName);
+            ctrlName.setValue(folderName);
         }
     }
     this.onInit = function () {
@@ -105,32 +134,44 @@ function FormInit() {
     }
     this.onUpdate = function () {
         var form = this;
-        var ctrlName = form.ctrls.name;
+        var ctrlName = form.ctrlName();
         var name = ctrlName.getValue();
         if (/[A-Z]/.test(name)) {
             // New packages must not have uppercase letters in the name.
             ctrlName.setValue(name.toLowerCase());
         }
-        var ctrlTrans = form.ctrls.transpiler;
+        var techCtrls = form.ctrls.tech.ctrls;
+        var ctrlTrans = techCtrls.transpiler;
         var transpiler = ctrlTrans.val();
-        var language = form.ctrls.language.val();
+        var language = techCtrls.language.val();
         var recTransTS = g_transpiler.find(function (item) {
             return item.value === 'TypeScript';
         });
-        var isTransTS = recTransTS.disabled;
+        var recTransNone = g_transpiler.find(function (item) {
+            return item.value === 'None';
+        });
+        var isTransTS = recTransTS.disabled, isTransNone = recTransNone.disabled;
         recTransTS.disabled = language != 'TypeScript';
-        if (isTransTS !== recTransTS.disabled) {
+        recTransNone.disabled = language != 'JavaScript';
+        if (isTransTS !== recTransTS.disabled || isTransNone !== recTransNone.disabled) {
             ctrlTrans.buildList();
         }
         if (transpiler == 'TypeScript' && recTransTS.disabled) {
             ctrlTrans.setValue('Babel');
+        } else if (transpiler == 'None' && recTransNone.disabled) {
+            ctrlTrans.setValue('Babel');
         }
     }
     this.onPostUpdate = function (){
-        var form = this;
-        Object.keys(form.ctrls).forEach(function (key){
-           var ctrl = form.ctrls[key];
-           ctrl.onPostUpdate && ctrl.onPostUpdate();
+        this.walk({
+            ctrlBegin: function (ctrl) {
+                ctrl.onPostUpdate && ctrl.onPostUpdate();
+            },
         });
+        // var form = this;
+        // Object.keys(form.ctrls).forEach(function (key){
+        //    var ctrl = form.ctrls[key];
+        //
+        // });
     }
 }

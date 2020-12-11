@@ -1,14 +1,42 @@
 Messages
 
 commonInfo: object - Common information
-  folderName: string - project root folder name.
+  common:
+    folderName: string - project root folder name.
+  tech:
+
+createApp: object - Create application
+  common
+    name: string
+    description: string
+    author: string
+    license: string
+  tech
+    packageManager: 'Yarn' | 'NPM'
+    bundler: 'WebPack'
+    language: 'TypeScript' | 'JavaScript'
+    transpiler: 'Babel' | 'TypeScript' | 'None'
+    framework: 'None' | 'React'
+    styleCss: bool
+    styleLess: bool
+
+createEntityBegin: string - Начало создания сущности
+  name of entity
+createEntityEnd: object - Окончание создания сущности
+  name: string
+  status: Ok | Error
+  message?: string
+createEntityMsg: object - Сообщение о ходе создания проекта
+  name: string
+  message: string - warning message
+  type?: warn | err | info
 
 errorAsJson: object - Global error of application
   code: string
   path: string
 
 globalStatus: string - Global status of application
-  load | init | error
+  load | init | error | create
 
 searchPackage: string - Search package by name
 
