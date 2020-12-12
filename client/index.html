@@ -36,6 +36,10 @@
     <h1>Create project <b class="j-folder-name"></b></h1>
     <form class="rn-form page-content" name="init" data-type="Init">
         <div class="rn-ctrl horiz-ctrl-block" data-name="common" data-type="Group">
+            <div class="rn-ctrl" data-name="private" data-type="Checkbox"
+                 data-title="Private" data-value0="true"
+                 data-tooltip="This is a way to prevent accidental publication of private repositories."
+            ></div>
             <div class="flex-horiz">
                 <div class="rn-ctrl" data-name="name" data-type="String"
                      data-title="Package name" data-maxlength="200">
@@ -146,7 +150,9 @@
 </script>
 <script id='TmCtrlCheckbox' type='text/html'>
     <div>
-        <label><input type='checkbox' name='{{name}}'>{{title}}</label>
+        <label title="{{tooltip}}">
+            <input type='checkbox' name='{{name}}'> {{title}}
+        </label>
     </div>
 </script>
 

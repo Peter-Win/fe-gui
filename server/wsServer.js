@@ -48,9 +48,10 @@ const wsServerStart = (config) => {
     const port = config.wsPort
     const wss = new WebSocket.Server({ port })
     wss.on('connection', (ws) => {
+        console.log('WebSocket server connection')
         ws.on('message', (message) => {
             try {
-                console.log('ws.on message', message)
+                console.log('<==', message)
                 const {id, data} = JSON.parse(message)
                 const handlers = msgHandlers[id]
                 if (handlers) {
@@ -61,6 +62,7 @@ const wsServerStart = (config) => {
             }
         })
         _sendMessage = (id, data) => {
+            console.log('==>', id, data)
             ws.send(JSON.stringify({id, data}))
         }
         const {CommonInfo} = require('./CommonInfo')

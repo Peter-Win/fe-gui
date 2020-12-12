@@ -23,6 +23,7 @@ class CommonInfo {
     // А при инициализации наоборот - поля здесь заполняются из сущности.
     static info = {
         folderName: path.basename(getRootPath()),
+        private: true,
         name: '',
         description: '',
         author: '',

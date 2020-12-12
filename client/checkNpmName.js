@@ -36,6 +36,9 @@ Rn.C.CheckNpmName = function () {
         this.updateStatus()
     }
     this.updateStatus = function() {
+        var isPrivate = this.owner.ctrls.private.getValue();
+        this.show(!isPrivate);
+        if (isPrivate) return;
         var status = this.getStatus();
         if (status !== this.status) {
             this.status = status;

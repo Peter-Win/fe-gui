@@ -5,12 +5,12 @@ const {wsSend} = require('../wsServer')
 const {makeFullName, makeSrcName} = require('../fileUtils')
 const {CommonInfo} = require('../CommonInfo')
 
-const cfgTemplate = ({entryExt, title}) => `
+const cfgTemplate = ({entryExt, title, port}) => `
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const {CleanWebpackPlugin} = require('clean-webpack-plugin')
 
-const config = {
+module.exports = {
   entry: './src/index.${entryExt}',
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -24,9 +24,14 @@ const config = {
       filename: 'index.html',
       }),
   ],
+  // TODO: devServer
+  devServer: {
+    contentBase: path.join(__dirname, 'dist'),
+    compress: true,
+    port: ${port},
+  },
 };
-
-module.exports= config;`.trim();
+`.trim();
 
 const htmlTemplate = () => `
 <!doctype html>
@@ -59,7 +64,9 @@ class WebPack {
         const {PackageJson} = require('../entity/all').entities
         try {
             // Установить зависимости
-            const packages = 'webpack webpack-cli html-webpack-plugin clean-webpack-plugin'
+            let packages = 'webpack webpack-cli html-webpack-plugin clean-webpack-plugin'
+            // TODO: devServer
+            packages += ' webpack-dev-server'
             const cmd = makeInstallCommand(packages, true)
             wsSend('createEntityMsg', {name: this.name, message: cmd, type: 'info'})
             const {stdout, stderr} = await asyncExec(cmd)
@@ -85,12 +92,16 @@ class WebPack {
             const cfgData = cfgTemplate({
                 entryExt: CommonInfo.getExtension('render'),
                 title: CommonInfo.info.name,
+                port: 9001,
             })
             await fs.promises.writeFile(cfgName, cfgData)
 
             // modify package.json
-            PackageJson.addScript('build', 'webpack --mode=production')
-            await PackageJson.save()
+            await PackageJson.update(async (ctrl) => {
+                ctrl.addScript('build', 'webpack --mode=production')
+                // TODO: devServer
+                ctrl.addScript('start', 'webpack serve --mode=development')
+            })
         } catch (e) {
             throw e
         }

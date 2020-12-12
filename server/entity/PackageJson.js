@@ -24,6 +24,7 @@ class PackageJson {
         const {info} = CommonInfo
         this.data = {
             name: info.name,
+            private: 'private' in info ? info.private : true,
             version: '1.0.0',
             description: info.description,
             main: `src/index.${CommonInfo.getExtension('render')}`,
@@ -40,9 +41,29 @@ class PackageJson {
             throw e
         }
     }
+    async load() {
+        const content = await fs.promises.readFile(this.makeFileName())
+        this.data = JSON.parse(content)
+    }
     async save() {
         const text = JSON.stringify(this.data, null, '  ')
         await fs.promises.writeFile(this.makeFileName(), text);
+    }
+
+    /**
+     * Выполнить обновление файла package.json
+     * Внутри коллбэка можно вызывать функции типа addScript или напрямую работать с data
+     * @param {function(entity:PackageJson):Promise<void>} callback
+     * @return {Promise<void>}
+     * usage example:
+           await entities.PackageJson.update(async (ent) => {
+                ent.addScript('build', 'webpack --mode=production')
+           })
+     */
+    async update(callback) {
+        await this.load()
+        await callback(this)
+        await this.save()
     }
 
     addScript(name, code) {
