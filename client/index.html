@@ -9,6 +9,7 @@
     <script src="vendor/radon2.js"></script>
     <script src="polyfill.js"></script>
     <script src="checkNpmName.js"></script>
+    <script src="mainScreen.js"></script>
     <script src="main.js"></script>
 </head>
 <body class="rn-page" data-name="main">
@@ -21,7 +22,7 @@
 
 <div id="glbStatus_load" class="global-part">
     <h1>Loading...</h1>
-    <div class="page-content"></div>
+    <div class="page-content console-view"></div>
 </div>
 
 <div id="glbStatus_error" class="global-part">
@@ -55,7 +56,7 @@
                  data-title="License" data-value0="ISC"></div>
         </div>
         <div class="stack-warning">
-            <b>Attention!</b> Choose your technology stack carefully.
+            <b>Attenti]on!</b> Choose your technology stack carefully.
             These settings cannot be changed after the application is generated.
         </div>
         <div class="bricks-row rn-ctrl" data-name="tech" data-type="Group">
@@ -81,12 +82,23 @@
             ></div>
             <div>
                 <div class="title">Styles</div>
-                <div class="rn-ctrl" data-name="styleCss" data-type="Checkbox" data-title="CSS" data-value0="true"></div>
+                <div class="rn-ctrl" data-name="styleCss" data-type="Checkbox" data-title="CSS"
+                     data-value0="true"></div>
                 <div class="rn-ctrl" data-name="styleLess" data-type="Checkbox" data-title="LESS"></div>
             </div>
         </div>
+        <div class="rn-ctrl horiz-ctrl-block" data-name="extParams" data-type="Group">
+            <div class="rn-ctrl" data-name="port" data-type="String" data-title="DevServer port">
+                <b class="rn-validator" data-type="NonEmpty" data-msg="Required field"></b>
+                <b class="rn-validator" data-type="Range" data-msg="Numeric value required"
+                     data-min="1024" data-msg_min="The minimum value is {{min}}"
+                     data-max="49151" data-msg_max="The maximum value is {{max}}"
+                ></b>
+                <b class="rn-validator" data-type="Integer" data-msg="Integer required"></b>
+            </div>
+        </div>
         <div class="buttons-box">
-        <button type="submit" class="rn-submit">Start</button>
+            <button type="submit" class="rn-submit">Start</button>
         </div>
     </form>
 </div>
@@ -108,14 +120,28 @@
     <div class="page-content console-view"></div>
 </div>
 <script id="TmCreateEntityBegin" type="text/html">
-  <div class="create-entity-part" data-name="{{name}}">
-      <div>Create entity <b>{{name}}</b>... <span class="j-status"></span></div>
-      <div class="j-msg-content"></div>
-  </div>
+    <div class="create-entity-part" data-name="{{name}}">
+        <div>Create entity <b>{{name}}</b>... <span class="j-status"></span></div>
+        <div class="j-msg-content"></div>
+    </div>
 </script>
 <script id="TmCreateEntityMsg" type="text/html">
-  <div class="create-entity-msg{{#type}} create-entity-{{type}}{{/type}}">{{message}}</div>
+    <div class="create-entity-msg{{#type}} create-entity-{{type}}{{/type}}">{{message}}</div>
 </script>
+
+<!-- Main screen -->
+<div id="glbStatus_ready" class="global-part">
+    <h1>Application control panel</h1>
+    <div class="page-content main-screen">
+        <div class="scripts-frame">
+            <h2>Scripts</h2>
+            <div class="scripts-list" id="scripts-list"></div>
+            <div>
+                <a href="#" id="open-app-wnd" class="disabled">Open Application</a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Templates -->
 <script id="TmPre" type="text/html">
@@ -155,7 +181,6 @@
         </label>
     </div>
 </script>
-
 
 <script id="TmCtrlCheckNpmName" type="text/html">
     <span></span>

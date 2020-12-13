@@ -21,6 +21,9 @@ function wsOn(msgId, handler) {
         wsMsgDict[msgId] = [handler];
     }
 }
+function wsOff(msgId) {
+    delete wsMsgDict[msgId];
+}
 
 function wsSend(msgId, data) {
     socket.send(JSON.stringify({id: msgId, data: data}));
@@ -48,6 +51,7 @@ var onStatus = {
         var form = Rn.curPage().forms.init;
         form.ctrlName().focus();
     },
+    ready: startMainScreen,
     error: function () {
         Rn.enable($('.j-retry', $activePage).off().on('click', function(){
             Rn.enable(this, false);
@@ -76,10 +80,16 @@ function onCreateAppMsg(data) {
     var selector = data.name ? '[data-name='+data.name+'] .j-msg-content' : '.page-content';
     Rn.tm('TmCreateEntityMsg', data, $(selector, $activePage));
 }
+function onStatusMessage(data) {
+    var type = data.type || 'info';
+    var $msg = $('<div/>').text(data.text).addClass('status-msg-'+type);
+    $('.page-content', $activePage).append($msg);
+}
 
 $(function (){
     Rn.p.bPageSwitch = false;
     Rn.init('main');
+    drawGlobalStatus();
     wsOn('globalStatus', function (status) {
         drawGlobalStatus(status);
     });
@@ -101,9 +111,12 @@ $(function (){
         }
     });
     wsOn('createEntityMsg', function (data){
-        onCreateAppMsg(data)
+        onCreateAppMsg(data);
     })
-    drawGlobalStatus();
+    wsOn('statusMessage', function (data){
+        console.log('statusMessage', data)
+        onStatusMessage(data);
+    })
 });
 
 function FormInit() {

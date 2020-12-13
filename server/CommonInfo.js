@@ -7,6 +7,7 @@ class CommonInfo {
     static glbStInit = 'init'
     static glbStError = 'error'
     static glbStCreate = 'create'
+    static glbStReady = 'ready'
     static _globalStatus = "" // glbSt*
     static getGlobalStatus() {
         return CommonInfo._globalStatus
@@ -30,7 +31,7 @@ class CommonInfo {
         license: 'ISC',
     }
     static tech = {
-        packageManager: '',
+        packageManager: '', // Yarn | NPM=default
         bundler: '',
         language: '',
         transpiler: '',
@@ -38,8 +39,14 @@ class CommonInfo {
         styleCss: true,
         styleLess: false,
     }
+    static props = {}
+    static extParams = {} // Приходит с клиента при создании приложения
     static send() {
-        wsSend('commonInfo', {common: CommonInfo.info, tech: CommonInfo.tech})
+        wsSend('commonInfo', {
+            common: CommonInfo.info,
+            tech: CommonInfo.tech,
+            props: CommonInfo.props,
+        })
     }
 
     /**
@@ -47,7 +54,8 @@ class CommonInfo {
      * @param {{
      * common:{name:string,description:string,author:string,license:string},
      * tech:{packageManager:string,bundler:string,language:string,transpiler:string,framework:string,
-     *   styleCss:boolean, styleLess:boolean}
+     *   styleCss:boolean, styleLess:boolean},
+     * extParams:{port:number}
      * }} data
      */
     static onCreateApp(data) {
@@ -56,6 +64,7 @@ class CommonInfo {
         // Сохранить данные
         Object.assign(CommonInfo.info, data.common)
         Object.assign(CommonInfo.tech, data.tech)
+        Object.assign(CommonInfo.extParams, data.extParams)
     }
     static get isYarn() {
         return CommonInfo.tech.packageManager.toLowerCase() === 'yarn'

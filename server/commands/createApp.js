@@ -49,6 +49,10 @@ const createApp = async (data) => {
         return false
     }
     wsSend('createEntityMsg', {message: 'SUCCESS FINISH', type: 'success'})
+    setTimeout(() => {
+        CommonInfo.send()
+        CommonInfo.setGlobalStatus(CommonInfo.glbStReady)
+    }, 1000)
     return true
 }
 

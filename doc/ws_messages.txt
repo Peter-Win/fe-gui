@@ -1,5 +1,7 @@
 Messages
 
+askScripts: void - Ask Scripts from package.json (client)
+
 commonInfo: object - Common information
   common:
     folderName: string - project root folder name.
@@ -19,28 +21,41 @@ createApp: object - Create application
     framework: 'None' | 'React'
     styleCss: bool
     styleLess: bool
+  props: object Для каждой сущности может быть отдельный раздел со специфичными настройками
 
-createEntityBegin: string - Начало создания сущности
+createEntityBegin: string - Начало создания сущности (server)
   name of entity
-createEntityEnd: object - Окончание создания сущности
+createEntityEnd: object - Окончание создания сущности (server)
   name: string
   status: Ok | Error
   message?: string
-createEntityMsg: object - Сообщение о ходе создания проекта
+createEntityMsg: object - Сообщение о ходе создания проекта (server)
   name: string
   message: string - warning message
-  type?: warn | err | info
+  type?: warn | err | info | success
 
 errorAsJson: object - Global error of application
   code: string
   path: string
 
-globalStatus: string - Global status of application
+globalStatus: string - Global status of application (from server)
   load | init | error | create
 
-searchPackage: string - Search package by name
+scriptsDict: object - Scripts from package.json
+  scripts: Map<string, string>
 
-searchPackageResponse: object
+scriptFinished: string - Info about script finish
+  name of script
+
+searchPackage: string - Search package by name. (from client)
+
+searchPackageResponse: object (from server)
   name: string
   package?: {name,version,description,...} see npmSearch.js
   error?: string
+
+startScript: string - Start script from package.json (client)
+
+statusMessage: object - Send message about current process (server)
+  text: string
+  type: warn | err | info | success

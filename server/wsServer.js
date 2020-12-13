@@ -10,7 +10,7 @@ let _sendMessage = (id, data) => {}
 
 /**
  * Send message to client
- * @param {string} id
+ * @param {'commonInfo' | 'createEntityMsg' | 'scriptsDict' | 'statusMessage' | 'scriptFinished'} id
  * @param {any} data
  * @return {void}
  */

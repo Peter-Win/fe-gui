@@ -1,4 +1,4 @@
-html, body, div, input, select, ul, li, span {margin: 0; padding: 0;}
+html, body, div, input, select, ul, li, span, h2, h3 {margin: 0; padding: 0;}
 body { color: #001; font-family: Arial; font-size: 16px; }
 
 .global-part {
@@ -36,13 +36,13 @@ h1 {
 .create-entity-part .create-entity-msg {
     padding-left: 2em;
 }
-.create-entity-warn {
+.create-entity-warn, .status-msg-warn {
     color: #883;
 }
-.create-entity-err {
+.create-entity-err, .status-msg-err {
     color: red;
 }
-.create-entity-success {
+.create-entity-success, .status-msg-success {
     color: green;
     font-weight: bold;
 }
@@ -90,4 +90,47 @@ h1 {
     margin: 1em 0 0.5em 0;
     font-size: 90%;
     color: #555;
+}
+
+/* Main screen */
+.main-screen {
+    display: flex;
+}
+.scripts-frame {
+    width: 10em;
+    border: thin solid silver;
+}
+.scripts-frame h2 {
+    background: silver;
+    font-size: 16px;
+    padding: .1em .4em;
+}
+.scripts-list {
+    padding: .1em .4em;
+    min-height: 5em;
+    display: flex;
+    flex-direction: column;
+}
+.scripts-list > div { margin: .2em 0;}
+.scripts-list button {
+    padding: .3em .6em;
+    font-size: 110%;
+    background: #888;
+    color: #FFF;
+}
+.scripts-list button:hover {
+    background: #555;
+}
+.scripts-list button.disabled {
+    background: #CCC;
+    color: #555;
+}
+#open-app-wnd {
+    color: green;
+    padding: .4em .6em;
+    margin-bottom: .2em;
+    display: inline-block;
+}
+#open-app-wnd.disabled {
+    color: #888;
 }

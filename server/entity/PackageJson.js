@@ -1,6 +1,7 @@
 const fs = require('fs')
 const {makeFullName} = require('../fileUtils')
 const {CommonInfo} = require('../CommonInfo')
+const {wsSend} = require('../wsServer')
 
 class PackageJson {
     name = 'PackageJson'
@@ -13,11 +14,10 @@ class PackageJson {
     async init() {
         this.isInit = false
         try {
-            const fileContent = await fs.promises.readFile(this.makeFileName())
-            const fileText = typeof fileContent === 'string' ? fileContent : fileContent.toString()
-            this.data = JSON.parse(fileText)
+            await this.load()
             this.isInit = true
         } catch (e) {
+            wsSend('statusMessage', {text: 'package.json not detected', type: 'err'})
         }
     }
     async create() {

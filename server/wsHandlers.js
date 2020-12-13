@@ -16,6 +16,15 @@ const wsHandlers = () => {
         const {createApp} = require('./commands/createApp')
         createApp(data)
     })
+    wsOn('askScripts', async (data) => {
+        const {entities} = require('./entity/all')
+        const {PackageJson} = entities
+        wsSend('scriptsDict', {scripts: PackageJson.data.scripts})
+    });
+    wsOn('startScript', async (name) => {
+        const {startScript} = require('./commands/startScript')
+        await startScript(name)
+    })
 }
 
 module.exports = {wsHandlers}
