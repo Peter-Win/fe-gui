@@ -3,56 +3,8 @@ const {makeInstallCommand} = require('../sysUtils/makeInstallCommand')
 const {asyncExec} = require('../sysUtils/asyncExec')
 const {wsSend} = require('../wsServer')
 const {makeFullName, makeSrcName, isFileExists} = require('../fileUtils')
+const {buildTemplate} = require('../sysUtils/loadTemplate')
 const {CommonInfo} = require('../CommonInfo')
-
-const cfgTemplate = ({entryExt, title, port}) => `
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const {CleanWebpackPlugin} = require('clean-webpack-plugin')
-
-module.exports = {
-  entry: './src/index.${entryExt}',
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js'
-  },
-  plugins: [
-    new CleanWebpackPlugin(),
-    new HtmlWebpackPlugin({
-      title: '${title}',
-      template: path.resolve(__dirname, './src/template.html'),
-      filename: 'index.html',
-      }),
-  ],
-  // TODO: devServer
-  devServer: {
-    contentBase: path.join(__dirname, 'dist'),
-    compress: true,
-    port: ${port},
-  },
-};
-`.trim();
-
-const htmlTemplate = () => `
-<!doctype html>
-<html>
-  <head>
-    <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
-
-  <body>
-    <div id="root"></div>
-  </body>
-</html>
-`.trim()
-
-const indexTemplate = () => `
-window.addEventListener('load', function(){
-  var heading = document.createElement('h1');
-  heading.innerHTML = 'Hello, world!'
-  document.querySelector('#root').append(heading)  
-});
-`.trim()
 
 class WebPack {
     name = 'WebPack'
@@ -133,23 +85,20 @@ class WebPack {
             const htmlName = makeSrcName('template.html')
             wsSend('createEntityMsg', {name: this.name, type: 'info',
                 message: `html template: ${htmlName}`})
-            const htmlData = htmlTemplate()
-            await fs.promises.writeFile(htmlName, htmlData)
+            await buildTemplate('basicIndex.html', htmlName)
 
             // index TODO: для отладки
-            const indexName = makeSrcName('index.js')
-            await fs.promises.writeFile(indexName, indexTemplate())
+            await buildTemplate('basicIndex.js', makeSrcName('index.js'))
 
             // webpack.config.js
             const cfgName = makeFullName('webpack.config.js')
             wsSend('createEntityMsg', {name: this.name, type: 'info',
                 message: `webpack config: ${cfgName}`})
-            const cfgData = cfgTemplate({
+            await buildTemplate('basicWebPack.config.js', cfgName, {
                 entryExt: CommonInfo.getExtension('render'),
                 title: CommonInfo.info.name,
                 port: CommonInfo.extParams.port,
             })
-            await fs.promises.writeFile(cfgName, cfgData)
 
             // modify package.json
             await PackageJson.update(async (ctrl) => {

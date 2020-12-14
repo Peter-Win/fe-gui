@@ -1,3 +1,5 @@
+// Внимание! Этот файл нельзя переносить, т.к. все пути вычисляются относительно его текущего положения.
+
 const path = require('path')
 const fs = require('fs')
 
@@ -9,6 +11,9 @@ const makeFullName = (shortName) =>
 
 const makeSrcName = (shortName) =>
     path.join(makeFullName('src'), shortName)
+
+const makeTemplateName = (shortName) =>
+    path.normalize(path.join(__dirname, 'templates', shortName))
 
 const isFileExists = async (fullName) => {
     try {
@@ -26,5 +31,6 @@ module.exports = {
     getRootPath,
     makeFullName,
     makeSrcName,
+    makeTemplateName,
     isFileExists,
 }

@@ -1,0 +1,3 @@
+JavaScript without transpiler
+  Webpack поддерживает CommonJS из коробки, а системы тестирования н.р. Jest - только через Babel (babel-jest plugin).
+  Безопасно использовать require, либо подключить Babel.
