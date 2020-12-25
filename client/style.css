@@ -115,11 +115,11 @@ h1 {
 .scripts-list button {
     padding: .3em .6em;
     font-size: 110%;
-    background: #888;
+    background: #8bc540;
     color: #FFF;
 }
 .scripts-list button:hover {
-    background: #555;
+    background: green;
 }
 .scripts-list button.disabled {
     background: #CCC;

@@ -1,0 +1,28 @@
+module.exports.Chunk = class {
+    static arrayBegin = ['[', 'arrayBegin']
+    static arrayEnd = [']', 'arrayEnd']
+    static bodyBegin = ['{', 'bodyBegin']
+    static bodyEnd = ['}', 'bodyEnd']
+    static bracketBegin = ['(', 'bracketBegin']
+    static bracketEnd = [')', 'bracketEnd']
+    static colon = [': ', 'colon']
+    static dot = ['.', 'dot']
+    static instrDiv = [';', 'instrDiv']
+    static itemDiv = [', ', 'itemDiv']
+    static itemDivLast = ['', 'itemDivLast']
+    static objBegin = ['{', 'objBegin']
+    static objEnd = ['}', 'objEnd']
+    static paramDiv = [', ', 'paramDiv']
+    static paramDivLast = ['', 'paramDivLast']
+    static paramsBegin = ['(', 'paramsBegin']
+    static paramsEnd = [')', 'paramsEnd']
+    static space = [' ', 'space']
+    static eol = ['\n', 'eol']
+    static name = (value) => [value, 'name']
+    static Const = (value) => [value, 'const']
+    static binop = (value) => [` ${value} `, 'binop']
+    static unop = (value) => [value, 'unop']
+    static keyword = value => [value, 'keyword']
+}
+
+module.exports.chunks2text = chunks => chunks.map(c => c[0]).join('')

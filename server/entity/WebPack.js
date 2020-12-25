@@ -115,5 +115,22 @@ class WebPack {
             throw e
         }
     }
+
+    /**
+     * Full config name with a full path
+     * @return {string}
+     */
+    getConfigName() {
+        return makeFullName('webpack.config.js')
+    }
+
+    /**
+     * Добавить раздел в файл конфигурации
+     * Происходит умное смерживание
+     * @param {string} part
+     */
+    async setPart(part) {
+
+    }
 }
 module.exports = {WebPack}
