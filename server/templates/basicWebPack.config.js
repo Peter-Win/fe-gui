@@ -21,4 +21,5 @@ module.exports = {
         compress: true,
         port: <%= port %>,
     },
+    devtool: 'source-map',
 };

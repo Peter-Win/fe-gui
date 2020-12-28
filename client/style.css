@@ -97,8 +97,9 @@ h1 {
     display: flex;
 }
 .scripts-frame {
-    width: 10em;
+    width: 14em;
     border: thin solid silver;
+    margin-right: 1em;
 }
 .scripts-frame h2 {
     background: silver;
@@ -133,4 +134,9 @@ h1 {
 }
 #open-app-wnd.disabled {
     color: #888;
+}
+.scripts-frame li {
+    margin-left: 1.5em;
+    font-size: 90%;
+    color: #444;
 }

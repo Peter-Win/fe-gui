@@ -1,10 +1,10 @@
 const fs = require('fs')
-const {makeInstallCommand} = require('../sysUtils/makeInstallCommand')
-const {asyncExec} = require('../sysUtils/asyncExec')
 const {wsSend} = require('../wsServer')
 const {makeFullName, makeSrcName, isFileExists} = require('../fileUtils')
 const {buildTemplate} = require('../sysUtils/loadTemplate')
 const {CommonInfo} = require('../CommonInfo')
+const {merge} = require('./WebPack.utils')
+const {installPackage} = require('../commands/installPackage')
 
 class WebPack {
     name = 'WebPack'
@@ -44,6 +44,7 @@ class WebPack {
             if (!err) {
                 this.isInit = true
                 wsSend('statusMessage', {text: 'Webpack detected'})
+                CommonInfo.tech.bundler = this.name
             } else {
                 wsSend('statusMessage', {text: err.message, type: 'err'})
             }
@@ -53,11 +54,9 @@ class WebPack {
             wsSend('statusMessage', {text: `${configName} not found`, type: 'err'})
         }
         // Тут надо понять, установлен ли вебпак.
-        const {entities} = require('../entity/all')
+        const {entities} = require('./all')
         // Если сюда дошли, значит PackageJson успешно загружен
-        const {data} = entities.PackageJson
-        const {webpack} = data.devDependencies || {}
-        if (webpack) {
+        if (entities.PackageJson.isDevDependency('webpack')) {
             // Установлен. Значит имеем дело с готовым проектом со слишком сложной конфигурацией.
             wsSend('statusMessage', {text: 'A project with an overly complex configuration was found.', type: 'err'})
         } else {
@@ -70,16 +69,9 @@ class WebPack {
     async create() {
         const {PackageJson} = require('../entity/all').entities
         try {
-            // Установить зависимости
-            let packages = 'webpack webpack-cli html-webpack-plugin clean-webpack-plugin'
-            // TODO: devServer
-            packages += ' webpack-dev-server'
-            const cmd = makeInstallCommand(packages, true)
-            wsSend('createEntityMsg', {name: this.name, message: cmd, type: 'info'})
-            const {stdout, stderr} = await asyncExec(cmd)
-            if (typeof stderr == 'string' && stderr.trim()) {
-                wsSend('createEntityMsg', {name: this.name, message: stderr, type: 'warn'})
-            }
+            await installPackage(this.name, 'webpack webpack-cli')
+            await installPackage(this.name, 'html-webpack-plugin clean-webpack-plugin')
+            await installPackage(this.name, 'webpack-dev-server')
 
             // html template
             const htmlName = makeSrcName('template.html')
@@ -88,7 +80,9 @@ class WebPack {
             await buildTemplate('basicIndex.html', htmlName)
 
             // index TODO: для отладки
-            await buildTemplate('basicIndex.js', makeSrcName('index.js'))
+            if (CommonInfo.tech.language === 'JavaScript' && CommonInfo.tech.transpiler.toLowerCase() === 'none') {
+                await buildTemplate('basicIndex.js', makeSrcName('index.js'))
+            }
 
             // webpack.config.js
             const cfgName = makeFullName('webpack.config.js')
@@ -130,7 +124,11 @@ class WebPack {
      * @param {string} part
      */
     async setPart(part) {
-
+        console.log('WebPack.setPart')
+        const configName = this.getConfigName()
+        const configSource = await fs.promises.readFile(configName)
+        const result = merge(configSource, part)
+        await fs.promises.writeFile(configName, result)
     }
 }
 module.exports = {WebPack}

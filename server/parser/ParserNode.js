@@ -2,6 +2,7 @@
 const namedConsts = new Set(['true', 'false', 'null', 'undefined', 'NaN'])
 const namedOps = new Set(['instanceof', 'in', 'typeof', 'await', 'async', 'new', 'delete'])
 const {opcodeMap} = require('./operators')
+const constTypes = {number:1, string:1, regexp:1}
 
 class ParserNode {
     /**
@@ -18,11 +19,11 @@ class ParserNode {
     }
     isOp = () => this.lexType === 'cmd' || (this.lexType === 'id' && namedOps.has(this.value))
 
-    isArg = () => this.lexType === 'number' || this.lexType === 'string' ||
+    isArg = () => this.lexType in constTypes ||
         (this.lexType === 'id' && !namedOps.has(this.value))
 
     setArgType() {
-        if (this.lexType === 'number' || this.lexType === 'string') {
+        if (this.lexType in constTypes) {
             this.txType = 'TxConst'
         } else if (this.lexType === 'id') {
             this.txType = namedConsts.has(this.value) ? 'TxConst' : 'TxName'
@@ -68,6 +69,8 @@ class ParserNode {
                     arg.txType = 'TxObjectDestruct'
                 }
             })
+        } else if (txType === 'TxBinOp' && this.value === '.' && this.args[1] && this.args[1].txType === 'TxName') {
+            this.args[1].txType = 'TxField'
         }
     }
 

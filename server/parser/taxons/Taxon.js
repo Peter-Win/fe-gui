@@ -47,6 +47,12 @@ class Taxon {
         }
         return obj
     }
+    exportText(style) {
+        const {formatChunks} = require('../WriterCtx')
+        const chunks = []
+        this.exportChunks(chunks, style)
+        return formatChunks(chunks, style)
+    }
 
     walk(onTaxon) {
         onTaxon(this)

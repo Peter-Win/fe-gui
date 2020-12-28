@@ -1,4 +1,5 @@
 class Lex {
+    static empty = {value: '', type: ''}
     static eol = {value: '\n', type: 'eol'}
     static spaces = value => ({value, type: 'space'})
     static space = {value: ' ', type: 'space'}

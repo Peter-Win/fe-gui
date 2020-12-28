@@ -33,6 +33,10 @@ describe('parseInstruction', () => {
         const n2 = parseNode('let a, b, c;')
         expect(n2.toString()).to.equal('TxVarDecl:let (TxName:a, TxName:b, TxName:c)')
     })
+    it('object', () => {
+        const n1 = parseNode("exports = {entry: './src/index.js',}")
+        expect(n1.toString()).to.equal("TxBinOp:= (TxName:exports, TxObject:{ (TxName:entry, TxConst:'./src/index.js', :))")
+    })
     it('return', () => {
         const n1 = parseNode('return;')
         expect(n1.toString()).to.equal('TxReturn:return')

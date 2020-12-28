@@ -151,7 +151,7 @@ const parseExpression = (reader, stoppers = [], options = {}) => {
                 state = 'postArg'
             } else if (lex.value === '{') {
                 // Объект или деструктуризация
-                node.args = parseExprList(reader, '}', [',', ':'])
+                node.args = parseExprList(reader, '}', [',', ':'], {canEmpty: true})
                 node.txType = 'TxObject'
                 args.push(node)
                 state = 'postArg'
@@ -213,7 +213,9 @@ const parseExpression = (reader, stoppers = [], options = {}) => {
         isNewLine = false
     }
     if (args.length === 0 && options.canEmpty) {
-        return new ParserNode({value: '', type: ''})
+        const emptyNode = new ParserNode(Lex.empty)
+        emptyNode.stopper = curStopper
+        return emptyNode
     }
     const resultNode = unwind(ops, args, reader)
     resultNode.stopper = curStopper
@@ -312,4 +314,14 @@ const parseBody = (reader, terminator) => {
     return commands
 }
 
-module.exports = {ParserNode, parseExpression, parseExprList, parseInstruction, parseBody}
+/**
+ * @param {ReaderCtx} reader
+ * @return {ParserNode}
+ */
+const parseModule = (reader) => {
+    const node = new ParserNode(Lex.empty, 'TxModule')
+    node.args = parseBody(reader, '')
+    return node
+}
+
+module.exports = {ParserNode, parseExpression, parseExprList, parseInstruction, parseBody, parseModule}

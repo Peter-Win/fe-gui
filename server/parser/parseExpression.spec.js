@@ -11,6 +11,7 @@ describe('parseExpression', () => {
         expect(testStr('3.14')).to.equal('TxConst:3.14')
         expect(testStr('"ABC"')).to.equal('TxConst:"ABC"')
         expect(testStr(' first , second', [','])).to.equal('TxName:first')
+        expect(testStr('/^[a-z]+$/i')).to.equal('TxConst:/^[a-z]+$/i')
     })
     it('bin op', () => {
         expect(testStr('a+b')).to.eql('TxBinOp:+ (TxName:a, TxName:b)')
@@ -21,6 +22,8 @@ describe('parseExpression', () => {
             'TxBinOp:+ (TxName:a, TxBinOp:* (TxName:b, TxBinOp:** (TxName:c, TxConst:2)))')
         expect(testStr('a+b, c', [',',')'])).to.eql('TxBinOp:+ (TxName:a, TxName:b)')
         expect(testStr('this.x')).to.equal('TxBinOp:. (TxName:this, TxName:x)')
+        expect(testStr('/\\.js$/i.test(name)')).to.equal(
+            'TxFnCall:call (TxBinOp:. (TxConst:/\\.js$/i, TxName:test), TxName:name)')
     })
     it('terminators', () => {
         const r1 = ReaderCtx.fromText('a = 1; b = 2;')
@@ -92,13 +95,13 @@ describe('parseExpression', () => {
     it('Array declaration', () => {
         expect(testStr('[]')).to.equal('TxArray:[')
         expect(testStr('[12]')).to.equal('TxArray:[ (TxConst:12)')
-        expect(testStr('[x, y]')).to.equal('TxArray:[ (TxName:x, TxName:y)')
+        expect(testStr('[x, y,]')).to.equal('TxArray:[ (TxName:x, TxName:y, :)')
         expect(testStr('[x, y, z]')).to.equal('TxArray:[ (TxName:x, TxName:y, TxName:z)')
         expect(testStr('[x, y].map')).to.equal('TxBinOp:. (TxArray:[ (TxName:x, TxName:y), TxName:map)')
         expect(testStr('[[x, 1], [y, 2]]')).to.equal(
             'TxArray:[ (TxArray:[ (TxName:x, TxConst:1), TxArray:[ (TxName:y, TxConst:2))')
         // example of destructuring
-        expect(testStr('[, x, ,y=10]')).to.equal(
+        expect(testStr('[,x,,y=10]')).to.equal(
             'TxArray:[ (:, TxName:x, :, TxBinOp:= (TxName:y, TxConst:10))')
     })
     it('Index of an array or object', () => {
@@ -118,6 +121,9 @@ describe('parseExpression', () => {
         expect(n.toString()).to.equal(
             'TxObject:{ (TxName:name, TxName:value, TxName:name)')
         expect(n.args.map(i => i.stopper)).to.eql([',', ':', '}'])
+
+        expect(testStr('{test: /\\.js$/,}')).to.equal(
+            'TxObject:{ (TxName:test, TxConst:/\\.js$/, :)')
     })
     it('spread', () => {
         expect(testStr('[...a]')).to.equal('TxArray:[ (TxUnOp:... (TxName:a))')

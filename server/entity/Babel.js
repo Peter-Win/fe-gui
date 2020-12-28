@@ -1,21 +1,5 @@
-// yarn add --dev babel-loader @babel/core @babel/preset-env
+"use strict"
 /*
-    module: {
-      rules: [
-        {
-            test: /\.js$/,
-            exclude: /(node_modules|fe-gui)/, // не хотелось бы примешивать fe-gui. Но эта папка не должна попасть в билд. Надо проверить убрать
-            use: {
-                loader: 'babel-loader',
-                options: {
-                    presets: ['@babel/preset-env'],
-//                    plugins: [],
-                },
-            },
-        },
-      ],
-    },
----------------
     Jest
     jest babel-jest
 
@@ -34,9 +18,12 @@
   }
 
 */
-const {makeInstallCommand} = require('../sysUtils/makeInstallCommand')
+const fs = require('fs')
+const {installPackage} = require('../commands/installPackage')
 const {wsSend} = require('../wsServer')
-const {loadTemplate} = require('../sysUtils/loadTemplate')
+const {loadTemplate, buildTemplate} = require('../sysUtils/loadTemplate')
+const {CommonInfo} = require('../CommonInfo')
+const {makeSrcName, makeFullName} = require('../fileUtils')
 
 class Babel {
     name = 'Babel'
@@ -44,20 +31,56 @@ class Babel {
     isInit = false
 
     async init() {
-        this.isInit = false
+        const {entities: {PackageJson}} = require('./all')
+        this.isInit = PackageJson.isDevDependency('@babel/core')
+        if (this.isInit) {
+            wsSend('statusMessage', {text: 'Babel detected'})
+            CommonInfo.tech.transpiler = 'Babel'
+            const isTS = PackageJson.isDevDependency('@babel/preset-typescript')
+            CommonInfo.tech.language = isTS ? 'TypeScript' : 'JavaScript'
+        }
     }
 
     async create() {
+        const indexExt = CommonInfo.getExtension('render');
         const {entities} = require('../entity/all')
         const {WebPack} = entities
-        const cmd = makeInstallCommand('babel-loader @babel/core @babel/preset-env', true)
-        wsSend('createEntityMsg', {name: this.name, message: cmd, type: 'info'})
-        const {stdout, stderr} = await asyncExec(cmd)
-        if (typeof stderr == 'string' && stderr.trim()) {
-            wsSend('createEntityMsg', {name: this.name, message: stderr, type: 'warn'})
+        const isTypeScript = CommonInfo.tech.language === 'TypeScript'
+        // --- add packages
+        let packages = 'babel-loader @babel/core'
+        if (isTypeScript) {
+            packages += ' @babel/preset-typescript'
+        } else {
+            packages += ' @babel/preset-env'
         }
-        const template = await loadTemplate('babelForWebpack.js')
+        await installPackage(this.name, packages)
+
+        // ---  modify webpack config
+        const rules = {
+            js: /\.js$/,
+            ts: /\.ts$/,
+            jsx: /\.jsx?$/,
+            tsx: /\.tsx?$/,
+        }
+        const webpackParams = {
+            extRule: rules[indexExt],
+        }
+        const template = await loadTemplate('babelForWebpack.js', webpackParams)
         await WebPack.setPart(template)
+
+        // --- babel.config.json
+        const babelConfig = {
+            presets: [isTypeScript ? '@babel/preset-typescript' : '@babel/preset-env'],
+        }
+        const babelConfigName = makeFullName('babel.config.json')
+        await fs.promises.writeFile(babelConfigName, JSON.stringify(babelConfig, null, '  '))
+
+
+        // Обновить заготовку scr/index.*
+        const templateName = `babelIndex.${indexExt}`
+        const indexFullName = makeSrcName(`index.${indexExt}`)
+        wsSend('createEntityMsg', {name: this.name, message: `Update file ${indexFullName}`})
+        await buildTemplate(templateName, indexFullName)
     }
 }
 

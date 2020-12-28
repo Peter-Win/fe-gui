@@ -5,8 +5,10 @@ const {TxBinOp} = require('./TxBinOp')
 const {TxBody} = require('./TxBody')
 const {TxBrackets} = require('./TxBrackets')
 const {TxConst} = require('./TxConst')
+const {TxField} = require('./TxField')
 const {TxFnCall} = require('./TxFnCall')
 const {TxIndex} = require('./TxIndex')
+const {TxModule} = require('./TxModule')
 const {TxName} = require('./TxName')
 const {TxObject} = require('./TxObject')
 const {TxObjectDestruct} = require('./TxObjectDestruct')
@@ -23,8 +25,10 @@ const taxonsMap = {
     TxBody,
     TxBrackets,
     TxConst,
+    TxField,
     TxFnCall,
     TxIndex,
+    TxModule,
     TxName,
     TxObject,
     TxObjectDestruct,

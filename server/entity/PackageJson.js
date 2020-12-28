@@ -69,6 +69,10 @@ class PackageJson {
     addScript(name, code) {
         this.data.scripts[name] = code
     }
+
+    isDevDependency(name) {
+        return name in (this.data.devDependencies || {})
+    }
 }
 
 module.exports = {PackageJson}

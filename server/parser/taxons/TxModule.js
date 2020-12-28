@@ -1,5 +1,6 @@
-const {Taxon} = require('./Taxon')
+const {TxBody} = require('./TxBody')
 
-class TxModule extends Taxon {
-
+class TxModule extends TxBody {
 }
+
+module.exports = {TxModule}

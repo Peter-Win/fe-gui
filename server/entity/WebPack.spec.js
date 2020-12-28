@@ -1,7 +1,185 @@
 const {expect} = require('chai')
+const {parseModule, parseExpression} = require('../parser/parseExpression')
+const {ReaderCtx} = require('../parser/ReaderCtx')
+const {Style} = require('../parser/Style')
+const {formatChunks} = require('../parser/WriterCtx')
+const {findConfigRoot, findAssign, mergeObjectTaxons, merge} = require('./WebPack.utils')
 
 describe('find config root', () => {
     it('minimal', () => {
+        const source = `
+const path = require('path');
+module.exports = {
+    entry: './src/index.js',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js'
+    },
+}`
+        const moduleNode = parseModule(ReaderCtx.fromText(source))
+        expect(moduleNode.txType === 'TxModule')
+        const moduleTaxon = moduleNode.createTaxon()
+        expect(moduleTaxon.type).to.equal('TxModule')
+        const rootTaxon = findConfigRoot(moduleTaxon)
+        expect(rootTaxon.type).to.equal('TxObject')
+    })
 
+    it('two steps', () =>{
+        const source = `
+const path = require('path');
+const config = {
+    entry: './src/index.js',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js'
+    },
+}
+module.exports = config
+`
+        const moduleTaxon = parseModule(ReaderCtx.fromText(source)).createTaxon()
+        const rootTaxon = findConfigRoot(moduleTaxon)
+        expect(rootTaxon.type).to.equal('TxName')
+        const {name} = rootTaxon
+        const declTaxon = findAssign(moduleTaxon, name)
+        expect(declTaxon.type).to.equal('TxObject')
+        expect(declTaxon.dict).to.have.property('entry')
+        expect(declTaxon.dict.entry.type).to.equal('TxConst')
+        expect(declTaxon.dict.entry.constType).to.equal('string')
+    })
+})
+
+it('part parse', () => {
+    const example = `
+ {
+    module: {
+        rules: [
+            {
+                test: /\\.js$/,
+                exclude: /(node_modules|fe-gui)/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env'],
+                    },
+                },
+            },
+        ],
+    },
+}`
+    const node = parseExpression(ReaderCtx.fromText(example))
+    const root = node.createTaxon()
+    expect(root.type).to.equal('TxObject')
+    expect(root.dict).to.have.property('module')
+    expect(root.items).to.be.lengthOf(1)
+    const {module} = root.dict
+    expect(module.type).to.equal('TxObject')
+    const {rules} = module.dict
+    expect(rules.type).to.equal('TxArray')
+    expect(rules.subTaxons).to.be.lengthOf(1)
+    const rules0 = rules.subTaxons[0]
+    expect(rules0.type).to.equal('TxObject')
+    expect(rules0.items).to.be.lengthOf(3)
+    const {test, use} = rules0.dict
+    expect(test.type).to.equal('TxConst')
+    expect(test.constType).to.equal('regexp')
+    expect(use.type).to.equal('TxObject')
+})
+
+/**
+ * @param {string} text
+ * @return {TxExpression}
+ */
+const parseExp = (text) => parseExpression(ReaderCtx.fromText(text)).createTaxon()
+
+describe('mergeObjectTaxons', () => {
+    it('simple', () => {
+        const sourceText = '{zero: 0}'
+        const additionText = '{first: "Hello",second: 3.14}'
+        const source = parseExp(sourceText)
+        const addition = parseExp(additionText)
+        mergeObjectTaxons(source, addition)
+        const chunks = []
+        const style = new Style()
+        source.exportChunks(chunks, style)
+        const dstText = formatChunks(chunks, style)
+        const result = `{\n  zero: 0,\n  first: "Hello",\n  second: 3.14,\n}`
+        expect(dstText).to.equal(result)
+    })
+    it('nested', () => {
+        const source = parseExp('{first:{second:{x:1}}}')
+        const addition = parseExp('{first:{second:{y:2}}}')
+        mergeObjectTaxons(source, addition)
+        const chunks = []
+        const style = new Style()
+        source.exportChunks(chunks, style)
+        const dstText = formatChunks(chunks, style)
+        const result = `{
+  first: {
+    second: {
+      x: 1,
+      y: 2,
+    },
+  },
+}`
+        expect(dstText).to.equal(result)
+    })
+})
+
+describe('merge', () => {
+    it('babel', () => {
+        const srcConfig = `const path = require('path');
+const config = {
+  entry: './src/index.js',
+  output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js'
+  },
+};
+module.exports = config;`
+
+        const addition = `{
+    module: {
+        rules: [
+            {
+                test: /\\.js$/,
+                exclude: /(node_modules|fe-gui)/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env'],
+                    },
+                },
+            },
+        ],
+    },
+}`
+        const expectedText = `const path = require('path');
+const config = {
+  entry: './src/index.js',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'bundle.js',
+  },
+  module: {
+    rules: [
+      {
+        test: /\\.js$/,
+        exclude: /(node_modules|fe-gui)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              '@babel/preset-env',
+            ],
+          },
+        },
+      },
+    ],
+  },
+};
+module.exports = config;
+`
+        const result = merge(srcConfig, addition)
+        expect(result).to.equal(expectedText)
     })
 })

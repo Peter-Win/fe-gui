@@ -27,8 +27,21 @@ function startMainScreen() {
             if (name=='start') enableLocalAddress(false);
         });
     }
+    function showTech(data) {
+        var fr = $('#app-tech-info').empty();
+        var key, tech = data.tech || {};
+        for (key in tech) {
+            if (tech[key] && typeof tech[key] === 'string') {
+                $('<li>').text(key+': '+tech[key]).appendTo(fr);
+            }
+        }
+    }
 
     loadScripts();
+    wsOn('commonInfo', function (data) {
+        if (data) showTech(data)
+    })
+    showTech(g_commonInfo);
     try {
         localAddress = g_commonInfo.props.WebPack.localAddress;
         if (localAddress) {

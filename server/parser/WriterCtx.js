@@ -35,7 +35,10 @@ class WriterCtx {
             const pairKey = `${prevType} ${type}`
             const space = relativeSpace[pairKey]
             if (space) this.out(space)
-            if (prevType === 'keyword' && !!this.lines[this.lines.length - 1]) this.out(' ')
+            // if (prevType === 'keyword' && !!this.lines[this.lines.length - 1]) this.out(' ')
+            if (prevType === 'keyword' && !(type in {space:1, eol:1})) {
+                this.out(' ')
+            }
             if (type === 'instrDiv') {
                 if (this.style.semi) {
                     if (prevType !== 'bodyEnd') this.out(value)
@@ -48,6 +51,19 @@ class WriterCtx {
             } else if (type === 'bodyEnd') {
                 this.level--
                 this.out(value)
+            } else if (type === 'softUp') {
+                this.level++
+                this.addLine()
+            } else if (type == 'softDown') {
+                // this.addLine()
+                this.level--
+            } else if (type === 'softDiv') {
+                this.addLine()
+            } else if (type === 'itemDivLast' && this.style.trailingComma) {
+                // TODO: считаем, что каждый элемент объекта в отдельной строке
+                this.out(',')
+            } else if (type === 'itemDiv') {
+                this.out(value.trimRight())
             } else {
                 this.out(value)
             }
@@ -69,6 +85,11 @@ class WriterCtx {
     }
 }
 
+/**
+ * @param {string[][]} chunks
+ * @param {Style} style
+ * @return {string}
+ */
 const formatChunks = (chunks, style) => WriterCtx.makeText(chunks, style)
 
 module.exports = {WriterCtx, formatChunks}
