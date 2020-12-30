@@ -43,6 +43,7 @@ class Babel {
 
     async create() {
         const indexExt = CommonInfo.getExtension('render');
+        const shortExt = CommonInfo.getExtension('logic');
         const {entities} = require('../entity/all')
         const {WebPack} = entities
         const isTypeScript = CommonInfo.tech.language === 'TypeScript'
@@ -57,31 +58,58 @@ class Babel {
 
         // ---  modify webpack config
         const rules = {
-            js: /\.js$/,
-            ts: /\.ts$/,
-            jsx: /\.jsx?$/,
-            tsx: /\.tsx?$/,
+            js: {rule: /\.jsx?$/, exts: ['js']},
+            ts: {rule: /\.tsx?$/, exts: ['ts', 'js']},
+            jsx: {rule: /\.jsx?$/, exts: ['jsx', 'js']},
+            tsx: {rule: /\.tsx?$/, exts: ['tsx', 'ts', 'js']},
         }
         const webpackParams = {
-            extRule: rules[indexExt],
+            extRule: rules[indexExt].rule,
+            extensions: rules[indexExt].exts.map(s => `'.${s}'`).join(', ')
         }
         const template = await loadTemplate('babelForWebpack.js', webpackParams)
+        console.log('================================')
+        console.log(template)
         await WebPack.setPart(template)
 
         // --- babel.config.json
         const babelConfig = {
             presets: [isTypeScript ? '@babel/preset-typescript' : '@babel/preset-env'],
         }
-        const babelConfigName = makeFullName('babel.config.json')
-        await fs.promises.writeFile(babelConfigName, JSON.stringify(babelConfig, null, '  '))
+        await fs.promises.writeFile(this.getConfigName(), JSON.stringify(babelConfig, null, '  '))
 
 
         // Обновить заготовку scr/index.*
-        const templateName = `babelIndex.${indexExt}`
+        const templateName = `babelIndex.${CommonInfo.getExtension('logic')}`
         const indexFullName = makeSrcName(`index.${indexExt}`)
         wsSend('createEntityMsg', {name: this.name, message: `Update file ${indexFullName}`})
         await buildTemplate(templateName, indexFullName)
     }
+
+    getConfigName = () => makeFullName('babel.config.json')
+
+    /**
+     * Добавить новый пресет
+     * Example:     await Babel.updatePreset('@babel/preset-react')
+     * @param {string|Array} presetCode    Array example: ['@babel/preset-env',{modules: false}],
+     * @return {Promise<void>}
+     */
+    async updatePreset(presetCode) {
+        const srcConfigText = await fs.promises.readFile(this.getConfigName())
+        const config = JSON.parse(srcConfigText.toString())
+        updatePresetEx(config, presetCode)
+        const dstConfigText = JSON.stringify(config, null, ' ')
+        await fs.promises.writeFile(this.getConfigName(), dstConfigText)
+    }
 }
 
-module.exports = { Babel }
+const updatePresetEx = (config, code) => {
+    if (!config.presets) {
+        config.presets = []
+    }
+    // TODO: Здесь неплохо бы проверять наличие указанного раздела
+    // Но пока такой необходимости нет.
+    config.presets.push(code)
+}
+
+module.exports = { Babel, updatePresetEx }

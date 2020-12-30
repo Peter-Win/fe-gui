@@ -9,6 +9,6 @@
         ],
     },
     resolve: {
-        extensions: [ '.tsx', '.ts', '.js' ],
+        extensions: [ <%= extensions %> ],
     },
 }

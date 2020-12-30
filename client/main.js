@@ -146,6 +146,11 @@ function FormInit() {
         });
     }
     this.onUpdate = function () {
+        function findRec(list, value) {
+            return list.find(function (item){
+                return item.value === value;
+            })
+        }
         var form = this;
         var ctrlName = form.ctrlName();
         var name = ctrlName.getValue();
@@ -155,14 +160,11 @@ function FormInit() {
         }
         var techCtrls = form.ctrls.tech.ctrls;
         var ctrlTrans = techCtrls.transpiler;
+        var ctrlFramework = techCtrls.framework;
         var transpiler = ctrlTrans.val();
         var language = techCtrls.language.val();
-        var recTransTS = g_transpiler.find(function (item) {
-            return item.value === 'TypeScript';
-        });
-        var recTransNone = g_transpiler.find(function (item) {
-            return item.value === 'None';
-        });
+        var recTransTS = findRec(g_transpiler, 'TypeScript');
+        var recTransNone = findRec(g_transpiler, 'None');
         var isTransTS = recTransTS.disabled, isTransNone = recTransNone.disabled;
         recTransTS.disabled = language != 'TypeScript';
         recTransNone.disabled = language != 'JavaScript';
@@ -173,6 +175,15 @@ function FormInit() {
             ctrlTrans.setValue('Babel');
         } else if (transpiler == 'None' && recTransNone.disabled) {
             ctrlTrans.setValue('Babel');
+        }
+        var recReact = findRec(g_framework, 'React');
+        var disabledReact = !!recReact.disabled;
+        recReact.disabled = transpiler === 'None'
+        if (recReact.disabled) {
+            ctrlFramework.setValue('None');
+        }
+        if (disabledReact !== recReact.disabled) {
+            ctrlFramework.buildList();
         }
     }
     this.onPostUpdate = function (){

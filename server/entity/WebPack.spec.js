@@ -182,4 +182,24 @@ module.exports = config;
         const result = merge(srcConfig, addition)
         expect(result).to.equal(expectedText)
     })
+
+    it('add rules', () => {
+        const src = `module.exports = {module:{rules:[{test: /\\.js$/}]}}`
+        const addition = `{module:{rules:[{test: /\\.css$/}]}}`
+        const expectedText = `module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\\.js$/,
+      },
+      {
+        test: /\\.css$/,
+      },
+    ],
+  },
+};
+`
+        const result = merge(src, addition)
+        expect(result).to.equal(expectedText)
+    })
 })

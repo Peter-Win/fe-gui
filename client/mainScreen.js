@@ -29,10 +29,13 @@ function startMainScreen() {
     }
     function showTech(data) {
         var fr = $('#app-tech-info').empty();
-        var key, tech = data.tech || {};
+        var key, value, tech = data.tech || {};
         for (key in tech) {
-            if (tech[key] && typeof tech[key] === 'string') {
+            value = tech[key]
+            if (value && typeof value === 'string') {
                 $('<li>').text(key+': '+tech[key]).appendTo(fr);
+            } else if (value && /^style/.test(key)) {
+                $('<li>').text(key.slice(5).toUpperCase()+' styling');
             }
         }
     }

@@ -21,4 +21,13 @@ describe('CommonInfo', () => {
         expect(CommonInfo.getExtension('render')).to.equal('jsx')
         expect(CommonInfo.getExtension('logic')).to.equal('js')
     })
+    it('getPreferStyler', () => {
+        CommonInfo.tech.styleCss = false
+        CommonInfo.tech.styleLess = false
+        expect(CommonInfo.getPreferStyler()).to.equal('')
+        CommonInfo.tech.styleCss = true
+        expect(CommonInfo.getPreferStyler()).to.equal('CSS')
+        CommonInfo.tech.styleLess = true
+        expect(CommonInfo.getPreferStyler()).to.equal('LESS')
+    })
 })

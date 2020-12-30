@@ -73,6 +73,9 @@ class PackageJson {
     isDevDependency(name) {
         return name in (this.data.devDependencies || {})
     }
+    isDependency(name) {
+        return name in (this.data.dependencies || {})
+    }
 }
 
 module.exports = {PackageJson}

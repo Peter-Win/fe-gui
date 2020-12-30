@@ -9,10 +9,11 @@ const {makeInstallCommand} = require('../sysUtils/makeInstallCommand')
  *     await installPackage('WebPack', 'webpack webpack-cli')
  * @param {string} name Наименование раздела
  * @param {string} packages Одно или несколько имен пакетов (через пробел)
+ * @param {boolean=} isDev
  * @return {Promise<void>}
  */
-const installPackage = async (name, packages) => {
-    const cmd = makeInstallCommand(packages, true)
+const installPackage = async (name, packages, isDev = true) => {
+    const cmd = makeInstallCommand(packages, isDev)
     wsSend('createEntityMsg', {name, message: cmd, type: 'info'})
     const {stdout, stderr} = await asyncExec(cmd)
     if (typeof stderr == 'string' && stderr.trim()) {

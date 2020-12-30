@@ -15,7 +15,8 @@ const createEntity = async (entityId) => {
         wsSend('createEntityEnd', {name, status: 'Ok'})
         return true
     } catch (e) {
-        wsSend('createEntityEnd', {name, status: 'Error', message: e.message})
+        console.error(e)
+        wsSend('createEntityEnd', {name: entityId, status: 'Error', message: e.message})
         return false
     }
 }
@@ -24,7 +25,7 @@ const createApp = async (data) => {
     try {
         console.log('Start create application')
         CommonInfo.onCreateApp(data)
-        const {info} = CommonInfo
+        const {info, tech} = CommonInfo
 
         // Создание папки src. Пока не ясно, какой сущности это лучше делать. Поэтому делаем здесь.
         const srcPath = makeFullName('src')
@@ -40,12 +41,24 @@ const createApp = async (data) => {
         }
         if (!await createEntity('WebPack')) return false
 
-        const transpiler = CommonInfo.tech.transpiler
+        const transpiler = tech.transpiler
         if (transpiler in {Babel:1, TypeScript:1}) {
             if (!await createEntity(transpiler)) return false
         }
+
+        // stylers...
+        if (tech.styleCss) {
+            if (!await createEntity('CSS')) return false
+        }
+        if (tech.styleLess) {
+            if (!await createEntity('LESS')) return false
+        }
+
+        if (tech.framework === 'React') {
+            if (!await createEntity('React')) return false
+        }
     } catch (e) {
-        console.error('createApp error=', e.message)
+        console.error('createApp error=', e)
         wsSend('createEntityMsg', {message: e.message, type: 'err'})
         return false
     }

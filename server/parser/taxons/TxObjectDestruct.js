@@ -35,6 +35,7 @@ class TxObjectDestruct extends TxExpression {
         let prevDivider = ''
         let curItem
         node.args.forEach(curNode => {
+            if (!curNode.txType) return
             const taxon = this.addTaxon(curNode.createTaxon())
             if (prevDivider !== ':') {
                 curItem = new ObjectAssignment(taxon)

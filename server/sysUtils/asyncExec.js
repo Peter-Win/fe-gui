@@ -13,7 +13,7 @@ const asyncExec = (command, options) => new Promise((resolve, reject) => {
     }
     exec(command, options, (error, stdout, stderr) => {
         if (error) {
-            console.error(error)
+            // console.error(error)
             reject(new Error(`Can't execute "${command}": ${error.message}`))
         } else {
             resolve({stdout, stderr})

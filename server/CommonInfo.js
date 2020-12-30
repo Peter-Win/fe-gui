@@ -70,6 +70,13 @@ class CommonInfo {
         return CommonInfo.tech.packageManager.toLowerCase() === 'yarn'
     }
 
+    static getPreferStyler() {
+        const {tech} = CommonInfo
+        if (tech.styleLess) return 'LESS'
+        if (tech.styleCss) return 'CSS'
+        return ''
+    }
+
     /**
      * @param {'render' | 'logic' | 'style'} type
      * @return {string}

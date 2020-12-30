@@ -69,7 +69,13 @@ const mergeObjectTaxons = (source, addition) => {
             mergeObjectTaxons(sourcePart, additionValue)
             return
         }
-        throw new Error(`Can't merge ${sourcePart.type} with additionValue.type`)
+        if (sourcePart.type === 'TxArray' && additionValue.type === 'TxArray') {
+            additionValue.subTaxons.forEach(item => {
+                sourcePart.addTaxon(item)
+            })
+            return
+        }
+        throw new Error(`Can't merge ${sourcePart.type} with ${additionValue.type}`)
     })
 }
 
