@@ -27,6 +27,16 @@ class WebPack {
                 props.port = port
             }
             CommonInfo.props.WebPack = props
+
+            const {plugins = []} = config
+            plugins.forEach((item) => {
+                const {options = {}} = item
+                if (options.template && options.title) {
+                    const {title} = options
+                    CommonInfo.extParams.title = String(title).trim()
+                    console.log('Detected application title: ', title)
+                }
+            })
             return null
         } catch (e) {
             return e
@@ -81,7 +91,10 @@ class WebPack {
 
             // index TODO: для отладки
             if (CommonInfo.tech.language === 'JavaScript' && CommonInfo.tech.transpiler.toLowerCase() === 'none') {
-                await buildTemplate('basicIndex.js', makeSrcName('index.js'))
+                const params = {
+                    titleStr: CommonInfo.getTitleStr(),
+                }
+                await buildTemplate('basicIndex.js', makeSrcName('index.js'), params)
             }
 
             // webpack.config.js
@@ -90,7 +103,7 @@ class WebPack {
                 message: `webpack config: ${cfgName}`})
             await buildTemplate('basicWebPack.config.js', cfgName, {
                 entryExt: CommonInfo.getExtension('render'),
-                title: CommonInfo.info.name,
+                title: CommonInfo.extParams.title.trim(),
                 port: CommonInfo.extParams.port,
             })
 

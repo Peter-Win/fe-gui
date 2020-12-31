@@ -3,7 +3,7 @@ import { hot } from 'react-hot-loader/root';
 <%= importStyle %>
 const App: React.FC = () => (
     <>
-        <h1>Hello, world!</h1>
+        <h1><%= title %></h1>
         <p>Generated for React + <%= techDescr %>.</p>
     </>
 );

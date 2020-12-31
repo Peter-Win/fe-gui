@@ -68,8 +68,6 @@ class Babel {
             extensions: rules[indexExt].exts.map(s => `'.${s}'`).join(', ')
         }
         const template = await loadTemplate('babelForWebpack.js', webpackParams)
-        console.log('================================')
-        console.log(template)
         await WebPack.setPart(template)
 
         // --- babel.config.json
@@ -82,8 +80,11 @@ class Babel {
         // Обновить заготовку scr/index.*
         const templateName = `babelIndex.${CommonInfo.getExtension('logic')}`
         const indexFullName = makeSrcName(`index.${indexExt}`)
+        const indexParams = {
+            titleStr: CommonInfo.getTitleStr(),
+        }
         wsSend('createEntityMsg', {name: this.name, message: `Update file ${indexFullName}`})
-        await buildTemplate(templateName, indexFullName)
+        await buildTemplate(templateName, indexFullName, indexParams)
     }
 
     getConfigName = () => makeFullName('babel.config.json')

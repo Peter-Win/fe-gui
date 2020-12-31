@@ -64,8 +64,9 @@ class React {
         if (styler === 'CSS' || styler === 'LESS') {
             importStyle = `import './style.${styler.toLowerCase()}';\n`
         }
+        const {title} = CommonInfo.extParams
 
-        await buildTemplate(`reactApp.${ext}`, appName, {techDescr, importStyle})
+        await buildTemplate(`reactApp.${ext}`, appName, {techDescr, importStyle, title})
     }
 }
 

@@ -4,7 +4,7 @@ window.addEventListener('load', ():void => {
         throw new Error('#root element not found');
     }
     const heading: HTMLHeadingElement = document.createElement('h1');
-    heading.innerHTML = 'Hello, world!';
+    heading.innerHTML = <%= titleStr %>;
     root.append(heading);
 
     const p: HTMLParagraphElement = document.createElement('p');

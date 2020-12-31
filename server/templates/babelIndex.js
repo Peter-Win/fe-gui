@@ -2,7 +2,7 @@ window.addEventListener('load', () => {
     const root = document.querySelector('#root');
 
     const heading = document.createElement('h1');
-    heading.innerHTML = 'Hello, world!';
+    heading.innerHTML = <%= titleStr %>;
     root.append(heading);
 
     const p = document.createElement('p');

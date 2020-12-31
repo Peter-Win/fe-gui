@@ -9,7 +9,7 @@ class LESS {
     isInit = false
 
     async init() {
-        const {PackageJson} = require('./all')
+        const {entities: {PackageJson}} = require('./all')
         this.isInit = PackageJson.isDevDependency('less-loader')
         if (this.isInit) {
             console.log('LESS styler detected')

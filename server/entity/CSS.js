@@ -9,7 +9,7 @@ class CSS {
     isInit = false
 
     async init() {
-        const {PackageJson} = require('./all')
+        const {entities: {PackageJson}} = require('./all')
         this.isInit = PackageJson.isDevDependency('css-loader')
         if (this.isInit) {
             console.log('CSS styler detected')

@@ -40,7 +40,10 @@ class CommonInfo {
         styleLess: false,
     }
     static props = {}
-    static extParams = {} // Приходит с клиента при создании приложения
+    static extParams = {
+        port: 2222,
+        title: 'Hello, World!'
+    } // Приходит с клиента при создании приложения
     static send() {
         wsSend('commonInfo', {
             common: CommonInfo.info,
@@ -97,6 +100,14 @@ class CommonInfo {
             ext += 'x'
         }
         return ext
+    }
+
+    /**
+     * Заголовок приложения в виде строки для вставки в шаблоны js, ts, jsx, tsx
+     * @return {string} Уже имеет кавычки и экранированные символы
+     */
+    static getTitleStr() {
+        return JSON.stringify(CommonInfo.extParams.title)
     }
 }
 

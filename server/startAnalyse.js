@@ -11,6 +11,7 @@ const startAnalyse = async () => {
         try {
             for (let i = 0; i < entList.length; i++) {
                 const curEntity = entList[i];
+                console.log('>', curEntity.name)
                 // Не начинать инициализацию, если хотя бы одна зависимость не инициализирована
                 if (curEntity.depends.find(name => !entities[name].isInit)) {
                     continue
