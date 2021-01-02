@@ -10,6 +10,24 @@ class Jest {
     depends = ['Babel', 'TypeScript']
     isInit = false
     isReady = false
+    description = `
+<div style="display: flex; align-content: center;">
+  <img src="https://jestjs.io/img/jest.svg" width="64px" height="48px" />
+  <span style="font-size: 36px; margin-left: -20px; margin-top: 4px;">JEST</span>
+</div>
+<div>Jest is a delightful JavaScript Testing Framework with a focus on simplicity.</div>
+<div><a href="https://jestjs.io/" target="_blank">Official site</a></div>
+`
+    controls = `
+<div class="rn-ctrl" data-name="example" data-type="Checkbox" data-title="Generate example test"></div>
+<div class="rn-ctrl" data-name="coverage" data-type="Checkbox" data-title="Coverage script"></div>
+<div class="rn-ctrl" data-name="watch" data-type="Checkbox" data-title="Watch script"></div>
+`
+    defaultParams = {
+        example: true,
+        coverage: true,
+        watch: false,
+    }
 
     async init() {
         const {entities: {PackageJson, Babel, TypeScript}} = require('./all')
@@ -33,8 +51,8 @@ class Jest {
 
         if (params.example) {
             const ext = CommonInfo.getExtension('logic')
-            const exampleFn = makeSrcName('jestExample.'+ext)
-            const exampleTest = makeSrcName('jestExample.test.'+ext)
+            const exampleFn = makeSrcName('jestExample.' + ext)
+            const exampleTest = makeSrcName('jestExample.test.' + ext)
             await buildTemplate(`jestExample.${ext}`, exampleFn)
             await buildTemplate(`jestExample.test.js`, exampleTest)
             wsSend('createEntityMsg', {name: this.name, message: `Example code: ${exampleTest}`})
@@ -42,7 +60,7 @@ class Jest {
 
         // Config
         const configParams = {
-            rootDir: 'src',
+            roots: ["<rootDir>/src"],
         }
         if (useTypeScript) {
             configParams.preset = 'ts-jest'
@@ -67,21 +85,21 @@ class Jest {
         PackageJson.update(pjEntity => {
             pjEntity.data.scripts.test = 'jest'
             const testCmd = CommonInfo.isYarn ? 'yarn test OR yarn jest' : 'npm t'
-            wsSend('createEntityMsg', {name: 'Jest', message: 'Test command: '+ testCmd})
+            wsSend('createEntityMsg', {name: 'Jest', message: 'Test command: ' + testCmd})
+            if (params.coverage) {
+                const key = 'test:coverage'
+                const coverageCmd = (CommonInfo.isYarn ? 'yarn' : 'npm run') + ' ' + key
+                pjEntity.data.scripts[key] = 'jest --coverage'
+                wsSend('createEntityMsg', {name: 'Jest', message: 'Test with coverage: ' + coverageCmd})
+            }
+            if (params.watch) {
+                const key = 'test:watch'
+                const watchCmd = (CommonInfo.isYarn ? 'yarn' : 'npm run') + ' ' + key
+                pjEntity.data.scripts[key] = 'jest --watch'
+                wsSend('createEntityMsg', {name: 'Jest', message: 'Test with watch: ' + watchCmd})
+            }
         })
     }
-
-    description = `
-<div style="display: flex; align-content: center;">
-  <img src="https://jestjs.io/img/jest.svg" width="64px" height="48px" />
-  <span style="font-size: 36px; margin-left: -20px; margin-top: 4px;">JEST</span>
-</div>
-<div>Jest is a delightful JavaScript Testing Framework with a focus on simplicity.</div>
-<div><a href="https://jestjs.io/" target="_blank">Official site</a></div>
-`
-    controls = `
-<div class="rn-ctrl" data-name="example" data-type="Checkbox" data-title="Generate example test" data-value0="true"></div>
-`
 }
 
 module.exports = {Jest}

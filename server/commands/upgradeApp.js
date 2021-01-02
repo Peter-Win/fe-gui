@@ -38,7 +38,7 @@ module.exports.sendUpgradeInfo = async () => {
     const data = {
         name,
         html: await loadTemplate('upgradeForm.html', tparams),
-        params: {},
+        params: entity.defaultParams || {},
     }
     wsSend('upgradePrompt', data)
 }

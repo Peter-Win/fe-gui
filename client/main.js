@@ -220,6 +220,7 @@ function onUpgradePrompt(data) {
     $('#AddonName').text(data.name);
     var $box = $('#AddonForm').html(data.html);
     Rn.initForms(Rn.curPage(), $box);
+    Rn.curPage().forms.upgrade.load(data.params, 1)
     $('.j-cancel-upgrade', $box).click(function (){
         wsSend('upgradeCancel');
     });
