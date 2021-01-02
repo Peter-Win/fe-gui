@@ -59,6 +59,12 @@ var onStatus = {
             wsSend('startAnalyse');
         }));
     },
+    upgrade: function () {
+        wsSend('upgradePromptAsk');
+    },
+    create: function () {
+        $('.page-content', $activePage).empty();
+    }
 };
 function drawGlobalStatus(newStatus) {
     globalStatus = newStatus || globalStatus;
@@ -78,7 +84,16 @@ function drawGlobalStatus(newStatus) {
 
 function onCreateAppMsg(data) {
     var selector = data.name ? '[data-name='+data.name+'] .j-msg-content' : '.page-content';
-    Rn.tm('TmCreateEntityMsg', data, $(selector, $activePage));
+    // var box = Rn.tm('TmCreateEntityMsg', data, $(selector, $activePage));
+    data.message.split('\n').forEach(function (s) {
+        Rn.tm('TmCreateEntityMsg', {text: s, type: data.type}, $(selector, $activePage))
+    })
+}
+function onCreateEnd() {
+    var $div = $('<div>').css({marginTop: '1em'}).appendTo($('.page-content', $activePage));
+    $('<button>').text('Continue').addClass('rn-submit').appendTo($div).click(function () {
+        wsSend('setReady')
+    });
 }
 function onStatusMessage(data) {
     var type = data.type || 'info';
@@ -117,6 +132,8 @@ $(function (){
         console.log('statusMessage', data)
         onStatusMessage(data);
     })
+    wsOn('upgradePrompt', onUpgradePrompt);
+    wsOn('onCreateEnd', onCreateEnd);
 });
 
 function FormInit() {
@@ -192,10 +209,27 @@ function FormInit() {
                 ctrl.onPostUpdate && ctrl.onPostUpdate();
             },
         });
-        // var form = this;
-        // Object.keys(form.ctrls).forEach(function (key){
-        //    var ctrl = form.ctrls[key];
-        //
-        // });
+    }
+}
+
+/**
+ * Подготовить экран для добавления новой сущности к приложению
+ * @param {{name:string, html:string, params:Object}} data
+ */
+function onUpgradePrompt(data) {
+    $('#AddonName').text(data.name);
+    var $box = $('#AddonForm').html(data.html);
+    Rn.initForms(Rn.curPage(), $box);
+    $('.j-cancel-upgrade', $box).click(function (){
+        wsSend('upgradeCancel');
+    });
+}
+
+Rn.F.Upgrade = function () {
+    this.superClass = 'Base';
+    this.onSubmit = function () {
+        var data = {name: g_commonInfo.upgradeTarget, params: {}};
+        this.save(data.params, 1)
+        wsSend('upgradeEntity', data);
     }
 }

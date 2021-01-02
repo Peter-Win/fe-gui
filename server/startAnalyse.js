@@ -12,10 +12,7 @@ const startAnalyse = async () => {
             for (let i = 0; i < entList.length; i++) {
                 const curEntity = entList[i];
                 console.log('>', curEntity.name)
-                // Не начинать инициализацию, если хотя бы одна зависимость не инициализирована
-                if (curEntity.depends.find(name => !entities[name].isInit)) {
-                    continue
-                }
+                // Здесь проставляются флаги isInit и isReady
                 await curEntity.init()
             }
             // Признак создания нового проекта ищем в вебпаке
@@ -23,6 +20,9 @@ const startAnalyse = async () => {
             setTimeout(() => {
                 CommonInfo.setGlobalStatus(status)
                 CommonInfo.send()
+                entList.forEach(e => {
+                    if (e.isReady) console.log(` * _${e.name}_ ready`)
+                })
             }, 1000)
         } catch (e) {
             wsSend('statusMessage', {text: e.message, type: 'err'})

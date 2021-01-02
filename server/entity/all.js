@@ -6,6 +6,8 @@ const {TypeScript} = require('./TypeScript')
 const {React} = require('./React')
 const {CSS} = require('./CSS')
 const {LESS} = require('./LESS')
+const {Jest} = require('./Jest')
+const {ESLint} = require('./ESLint')
 
 const entities = {}
 
@@ -21,5 +23,7 @@ reg(TypeScript)
 reg(React)
 reg(CSS)
 reg(LESS)
+reg(Jest)
+reg(ESLint)
 
 module.exports = {entities}

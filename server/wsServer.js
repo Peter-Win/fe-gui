@@ -28,7 +28,7 @@ const msgHandlers = new Map()
 /**
  * Set client message handler
  * @param {string} id
- * @param {function(data:any):void} handler
+ * @param {function(data:any):Promise(void)} handler
  * @return {void}
  */
 const wsOn = (id, handler) => {

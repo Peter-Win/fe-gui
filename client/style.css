@@ -140,3 +140,31 @@ h1 {
     font-size: 90%;
     color: #444;
 }
+#addons-list button {
+    font-size: 100%;
+    margin: .5em 0 0 .5em;
+    padding: .3em .6em;
+    background: #DDD;
+}
+#addons-list button:hover {
+    background: #BBB;
+}
+
+.upgrade-form {
+    padding: 1em 2em;
+}
+.upgrade-buttons-box {
+    float: right;
+}
+.upgrade-buttons-box button {
+    padding: .5em 1em;
+    margin-left: 1em;
+}
+.j-cancel-upgrade {
+    background: #dc143c;
+    color: white;
+    font-size: 110%;
+}
+.j-cancel-upgrade:hover {
+    background: #ee4e6c;
+}

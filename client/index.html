@@ -130,7 +130,7 @@
     </div>
 </script>
 <script id="TmCreateEntityMsg" type="text/html">
-    <div class="create-entity-msg{{#type}} create-entity-{{type}}{{/type}}">{{message}}</div>
+    <div class="create-entity-msg{{#type}} create-entity-{{type}}{{/type}}">{{text}}</div>
 </script>
 
 <!-- Main screen -->
@@ -149,7 +149,17 @@
             <ul id="app-tech-info">
             </ul>
         </div>
+        <div class="scripts-frame">
+            <h2>Addons</h2>
+            <div id="addons-list"></div>
+        </div>
     </div>
+</div>
+
+<!-- Upgrade screen -->
+<div id="glbStatus_upgrade" class="global-part">
+    <h1>Adding new functionality: <span id="AddonName"></span></h1>
+    <div id="AddonForm"></div>
 </div>
 
 <!-- Templates -->

@@ -8,6 +8,7 @@ class CommonInfo {
     static glbStError = 'error'
     static glbStCreate = 'create'
     static glbStReady = 'ready'
+    static glbStUpgrade = 'upgrade'
     static _globalStatus = "" // glbSt*
     static getGlobalStatus() {
         return CommonInfo._globalStatus
@@ -44,11 +45,13 @@ class CommonInfo {
         port: 2222,
         title: 'Hello, World!'
     } // Приходит с клиента при создании приложения
+    static upgradeTarget = ''
     static send() {
         wsSend('commonInfo', {
             common: CommonInfo.info,
             tech: CommonInfo.tech,
             props: CommonInfo.props,
+            upgradeTarget: CommonInfo.upgradeTarget,
         })
     }
 

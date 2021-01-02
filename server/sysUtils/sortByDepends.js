@@ -4,7 +4,7 @@
 /**
  *
  * @param {Object<string,{name:string, depends:string[]}>} entities
- * @return {{name:string, depends:string[]}[]}
+ * @return {{name:string, depends:string[], isInit:boolean, isReady:boolean}[]}
  */
 const sortByDepends = (entities) => {
     const dict = {...entities}

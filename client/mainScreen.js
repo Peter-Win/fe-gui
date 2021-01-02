@@ -45,6 +45,17 @@ function startMainScreen() {
         if (data) showTech(data)
     })
     showTech(g_commonInfo);
+    function drawAddons(list) {
+        var $list = $('#addons-list').empty();
+        list.forEach(function (rec) {
+            $('<button>').appendTo($list).text(rec.name).click(function (){
+                $('button', $list).each(function (){ Rn.enable(this, false)})
+                wsSend('startUpgrade', rec.name)
+            });
+        })
+    }
+    wsOn('readyEntities', drawAddons);
+    wsSend('readyEntitiesAsk')
     try {
         localAddress = g_commonInfo.props.WebPack.localAddress;
         if (localAddress) {

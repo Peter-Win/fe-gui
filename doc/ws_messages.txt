@@ -41,6 +41,13 @@ errorAsJson: object - Global error of application
 globalStatus: string - Global status of application (from server)
   load | init | error | create
 
+onCreateEnd - server - Процесс создания сущности закончен. (Клиент выведет кнопку Continue)
+
+readyEntities: Array - Список сущностей, которые могут быть добавлены в приложение (server)
+  name: string - name of entity
+
+readyEntitiesAsk - (client)
+
 scriptsDict: object - Scripts from package.json
   scripts: Map<string, string>
 
@@ -54,8 +61,26 @@ searchPackageResponse: object (from server)
   package?: {name,version,description,...} see npmSearch.js
   error?: string
 
+setReady - client - Switch to ready status
+
 startScript: string - Start script from package.json (client)
+
+startUpgrade: string - (client) - Show form before entity upgrade
 
 statusMessage: object - Send message about current process (server)
   text: string
   type: warn | err | info | success
+
+upgradeCancel: void - (client) - Отмена добавления функциональности
+
+upgradeEntity: Object - (client) - Пользователь нажал кнопку Upgrade на форме добавления сущности
+  name: string
+  params: Object - Данные из формы
+
+upgradePromptAsk: string - client - Запрос данных для формы upgrade
+  name - имя сущности
+
+upgradePrompt: object - (server) - Данные для вывода формы добавления новой функциональности к приложению.
+  name: string
+  html: string
+  params: Object - начальные данные для заполнения формы
