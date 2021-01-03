@@ -1,4 +1,5 @@
 const {PackageJson} = require('./PackageJson')
+const {Readme} = require('./Readme')
 const {WebPack} = require('./WebPack')
 const {Yarn} = require('./Yarn')
 const {Babel} = require('./Babel')
@@ -8,6 +9,7 @@ const {CSS} = require('./CSS')
 const {LESS} = require('./LESS')
 const {Jest} = require('./Jest')
 const {ESLint} = require('./ESLint')
+const {Standard} = require('./Standard')
 
 const entities = {}
 
@@ -16,6 +18,7 @@ const reg = (Constr) => {
     entities[inst.name] = inst
 }
 reg(PackageJson)
+reg(Readme)
 reg(Yarn)
 reg(WebPack)
 reg(Babel)
@@ -25,5 +28,6 @@ reg(CSS)
 reg(LESS)
 reg(Jest)
 reg(ESLint)
+reg(Standard)
 
 module.exports = {entities}

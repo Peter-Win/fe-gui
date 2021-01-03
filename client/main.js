@@ -234,3 +234,15 @@ Rn.F.Upgrade = function () {
         wsSend('upgradeEntity', data);
     }
 }
+
+Rn.V.ScriptName = function () {
+    this.superClass = 'Base'
+    this.check = function (value) {
+        var user = this.ctrl.owner.ctrls[this.use]
+        if (user && !user.getValue()) {
+            return '';
+        }
+        if (!value) return 'Empty field'
+        if (!/^[-_a-z\d:]+$/i.test(value)) return 'Invalid name'
+    }
+}

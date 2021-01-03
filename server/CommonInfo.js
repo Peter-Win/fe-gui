@@ -39,6 +39,7 @@ class CommonInfo {
         framework: '',
         styleCss: true,
         styleLess: false,
+        codeStyle: '', // ESLint, Standard
     }
     static props = {}
     static extParams = {

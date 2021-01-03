@@ -145,3 +145,9 @@ input[type=radio]:checked::before {
     border-color: #ee2228;
     box-shadow: 0 0 1px 1px #ee2228;
 }
+
+.ctrl-line {
+    display: flex;
+    align-items: baseline;
+}
+.script-name-block input {width: 9em;}

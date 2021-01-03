@@ -42,6 +42,7 @@ const createApp = async (data) => {
             if (!await createEntity('Yarn')) return false
         }
         if (!await createEntity('WebPack')) return false
+        if (!await createEntity('Readme')) return false
 
         const transpiler = tech.transpiler
         if (transpiler in {Babel:1, TypeScript:1}) {
