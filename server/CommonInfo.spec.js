@@ -21,6 +21,18 @@ describe('CommonInfo', () => {
         expect(CommonInfo.getExtension('render')).to.equal('jsx')
         expect(CommonInfo.getExtension('logic')).to.equal('js')
     })
+    it('getExtsList', () => {
+        CommonInfo.tech.language = 'JavaScript'
+        CommonInfo.tech.framework = ''
+        expect(CommonInfo.getExtsList()).to.have.members(['js'])
+        CommonInfo.tech.framework = 'React'
+        expect(CommonInfo.getExtsList()).to.have.members(['js','jsx'])
+        CommonInfo.tech.language = 'TypeScript'
+        CommonInfo.tech.framework = ''
+        expect(CommonInfo.getExtsList()).to.have.members(['js','ts'])
+        CommonInfo.tech.framework = 'React'
+        expect(CommonInfo.getExtsList()).to.have.members(['js','ts','tsx'])
+    })
     it('getPreferStyler', () => {
         CommonInfo.tech.styleCss = false
         CommonInfo.tech.styleLess = false

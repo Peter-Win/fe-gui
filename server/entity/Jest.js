@@ -33,7 +33,7 @@ class Jest {
         const {entities: {PackageJson, Babel, TypeScript}} = require('./all')
         this.isInit = PackageJson.isDevDependency('jest')
         if (this.isInit) {
-
+            CommonInfo.tech.unitTesting = this.name
         } else {
             this.isReady = Babel.isInit || TypeScript.isInit
         }
@@ -83,19 +83,19 @@ class Jest {
         }
 
         PackageJson.update(pjEntity => {
-            pjEntity.data.scripts.test = 'jest'
+            pjEntity.addScript('test', 'jest')
             const testCmd = CommonInfo.isYarn ? 'yarn test OR yarn jest' : 'npm t'
             wsSend('createEntityMsg', {name: 'Jest', message: 'Test command: ' + testCmd})
             if (params.coverage) {
                 const key = 'test:coverage'
                 const coverageCmd = (CommonInfo.isYarn ? 'yarn' : 'npm run') + ' ' + key
-                pjEntity.data.scripts[key] = 'jest --coverage'
+                pjEntity.addScript(key, 'jest --coverage')
                 wsSend('createEntityMsg', {name: 'Jest', message: 'Test with coverage: ' + coverageCmd})
             }
             if (params.watch) {
                 const key = 'test:watch'
                 const watchCmd = (CommonInfo.isYarn ? 'yarn' : 'npm run') + ' ' + key
-                pjEntity.data.scripts[key] = 'jest --watch'
+                pjEntity.addScript(key, 'jest --watch')
                 wsSend('createEntityMsg', {name: 'Jest', message: 'Test with watch: ' + watchCmd})
             }
         })

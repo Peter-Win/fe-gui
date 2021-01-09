@@ -3,6 +3,9 @@ function startMainScreen() {
     function enableLocalAddress(bOn) {
         if (localAddress) Rn.enable('#open-app-wnd', bOn);
     }
+    function makeData(name) {
+        return name.replace(/:/g, '-colon-');
+    }
     function loadScripts() {
         var $scriptsList = $('#scripts-list');
         $scriptsList.text('Wait...');
@@ -16,14 +19,14 @@ function startMainScreen() {
                         Rn.enable($btn, false);
                         wsSend('startScript', cmd);
                         if (cmd=='start') enableLocalAddress(true);
-                    }).attr({title: data.scripts[cmd], 'data-cmd': cmd});
+                    }).attr({title: data.scripts[cmd], 'data-cmd': makeData(cmd)});
                 });
             }
         });
         wsSend('askScripts');
         wsOff('scriptFinished');
         wsOn('scriptFinished', function (name){
-            Rn.enable($('[data-cmd='+name+']',$scriptsList));
+            Rn.enable($('[data-cmd='+makeData(name)+']',$scriptsList));
             if (name=='start') enableLocalAddress(false);
         });
     }

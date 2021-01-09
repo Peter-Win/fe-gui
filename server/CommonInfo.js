@@ -40,6 +40,7 @@ class CommonInfo {
         styleCss: true,
         styleLess: false,
         codeStyle: '', // ESLint, Standard
+        unitTesting: '',
     }
     static props = {}
     static extParams = {
@@ -104,6 +105,13 @@ class CommonInfo {
             ext += 'x'
         }
         return ext
+    }
+
+    static getExtsList() {
+        const exts = {js:1}
+        exts[CommonInfo.getExtension('logic')] = 1
+        exts[CommonInfo.getExtension('render')] = 1
+        return Object.keys(exts)
     }
 
     /**

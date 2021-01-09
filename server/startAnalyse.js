@@ -9,10 +9,12 @@ const startAnalyse = async () => {
     CommonInfo.setGlobalStatus(CommonInfo.glbStLoad)
     setTimeout(async () => {
         try {
-            for (let i = 0; i < entList.length; i++) {
-                const curEntity = entList[i];
-                console.log('>', curEntity.name)
-                // Здесь проставляются флаги isInit и isReady
+            // Здесь проставляются флаги isInit и isReady
+            for (const curEntity of entList) {
+                await curEntity.init()
+            }
+            // Бывает, что флаг isReady выставляется неправильно, т.к. CommonInfo еще не заполнен
+            for (const curEntity of entList) {
                 await curEntity.init()
             }
             // Признак создания нового проекта ищем в вебпаке

@@ -18,6 +18,7 @@ const wsHandlers = () => {
     })
     wsOn('askScripts', async (data) => {
         const {entities: {PackageJson}} = require('./entity/all')
+        await PackageJson.load()
         wsSend('scriptsDict', {scripts: PackageJson.data.scripts})
     });
     wsOn('startScript', async (name) => {

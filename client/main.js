@@ -82,9 +82,12 @@ function drawGlobalStatus(newStatus) {
     fn && fn();
 }
 
+function msgKey(name) {
+    return name.replace(/\+/g, '_');
+}
+
 function onCreateAppMsg(data) {
-    var selector = data.name ? '[data-name='+data.name+'] .j-msg-content' : '.page-content';
-    // var box = Rn.tm('TmCreateEntityMsg', data, $(selector, $activePage));
+    var selector = data.name ? '[data-name='+msgKey(data.name)+'] .j-msg-content' : '.page-content';
     data.message.split('\n').forEach(function (s) {
         Rn.tm('TmCreateEntityMsg', {text: s, type: data.type}, $(selector, $activePage))
     })
@@ -115,10 +118,10 @@ $(function (){
        Rn.tm('TmPre', {text: JSON.stringify(error, null, '  ')}, $('#glbStatus_error .j-info'));
     });
     wsOn('createEntityBegin', function (name){
-        Rn.tm('TmCreateEntityBegin', {name: name}, $('.page-content', $activePage))
+        Rn.tm('TmCreateEntityBegin', {name: name, key: msgKey(name)}, $('.page-content', $activePage))
     });
     wsOn('createEntityEnd', function (data) {
-        var st = $('[data-name='+data.name+'] .j-status', $activePage).text(data.status);
+        var st = $('[data-name='+msgKey(data.name)+'] .j-status', $activePage).text(data.status);
         if (data.status == 'Error') st.css({color:'red'})
         if (data.message) {
             if (data.status == 'Error') data.type = 'err';

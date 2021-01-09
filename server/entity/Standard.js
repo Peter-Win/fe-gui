@@ -17,7 +17,7 @@ class Standard {
         if (this.isInit) {
             CommonInfo.tech.codeStyle = this.name
         } else {
-            this.isReady = CommonInfo.tech.language === 'JavaScript'
+            this.isReady = CommonInfo.tech.language === 'JavaScript' && !CommonInfo.tech.codeStyle
         }
     }
 

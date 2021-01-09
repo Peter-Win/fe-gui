@@ -17,9 +17,10 @@
  * confirmSuccessUpgrade - клиент шлет при нажатии на кнопку Continue
  * Сервер переключается в режим ready и шлет обновленную инфу
  */
-const {wsSend} = require('../wsServer')
-const {CommonInfo} = require('../CommonInfo')
-const {loadTemplate} = require('../sysUtils/loadTemplate')
+const { wsSend } = require('../wsServer')
+const { CommonInfo } = require('../CommonInfo')
+const { loadTemplate } = require('../sysUtils/loadTemplate')
+const { createEntity, updateEntitiesState } = require('./createEntity')
 
 module.exports.upgradeApp = async (name) => {
     CommonInfo.upgradeTarget = name
@@ -28,7 +29,7 @@ module.exports.upgradeApp = async (name) => {
 }
 
 module.exports.sendUpgradeInfo = async () => {
-    const {entities} = require('../entity/all')
+    const { entities } = require('../entity/all')
     const name = CommonInfo.upgradeTarget
     const entity = entities[name]
     const tparams = {
@@ -44,19 +45,30 @@ module.exports.sendUpgradeInfo = async () => {
 }
 
 module.exports.onUpgrade = async (name, params) => {
-    const {entities} = require('../entity/all')
+    const { entities } = require('../entity/all')
+    /*
     try {
         if (!(name in entities)) throw new Error(`Invalid entity: ${name}`)
         const entity = entities[name]
         wsSend('createEntityBegin', name)
         await entity.create(params)
         wsSend('createEntityEnd', {name, status: 'Ok'})
-        entity.isInit = true
-        entity.isReady = false
+        await entity.init()
+        await doPostFx(name, entities)
         wsSend('createEntityMsg', {message: 'SUCCESS FINISH', type: 'success'})
     } catch (e) {
         console.error(e)
         wsSend('createEntityEnd', {name, status: 'Error', message: e.message})
+    }
+    */
+    try {
+        const ok = await createEntity(entities, name, params)
+        if (ok) {
+            await updateEntitiesState(entities)
+            wsSend('createEntityMsg', { message: 'SUCCESS FINISH', type: 'success' })
+        }
+    } catch (e) {
+        wsSend('createEntityMsg', { name, message: e.message, type: 'err' })
     }
     wsSend('onCreateEnd')
 }
