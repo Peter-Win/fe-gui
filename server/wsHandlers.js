@@ -12,6 +12,19 @@ const wsHandlers = () => {
         }
         wsSend('searchPackageResponse', {name, package, error: err && err.message})
     })
+    wsOn('searchPackagesList', async (name) => {
+        let err, packages = []
+        try {
+            packages = await npmSearch(name)
+        } catch(e) {
+            err = e
+        }
+        wsSend('searchPackagesListResponse', {name, packages, error: err && err.message})
+    })
+    wsOn('installPackages', async (data) => {
+        const {installPackages} = require('./commands/installPackages')
+        await installPackages(data)
+    })
     wsOn('createApp', async (data) => {
         const {createApp} = require('./commands/createApp')
         await createApp(data)

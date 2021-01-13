@@ -168,3 +168,32 @@ h1 {
 .j-cancel-upgrade:hover {
     background: #ee4e6c;
 }
+.add-package-frame {
+    padding: 0.2em 0.4em;
+}
+.add-package-frame input[type=text] {width:100%;}
+.package-description {
+    font-size: 90%;
+    color: #555;
+    padding: .6em 0;
+}
+.package-version {
+    padding: .6em 0;
+}
+.package-item {
+    font-size: 90%;
+    color: green;
+    text-decoration: none;
+}
+.package-item:hover {
+    color: #014c01;
+    text-decoration: underline;
+}
+.add-package-frame .rn-submit {
+    font-size: 90%;
+    margin-top: 0.8em;
+}
+.package-link-box {
+    display: inline-block;
+    margin: 0 .6em;
+}

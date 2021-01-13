@@ -1,5 +1,5 @@
 // Контроллер проверки имени npm-пакета
-var npmNameCache = {}
+var npmNameCache = {};
 
 Rn.C.CheckNpmName = function () {
     this.status = '';

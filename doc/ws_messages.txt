@@ -41,6 +41,10 @@ errorAsJson: object - Global error of application
 globalStatus: string - Global status of application (from server)
   load | init | error | create
 
+installPackages: Array<Object> - client - Install packages
+  packageName: string - name of single package
+  dev: boolean - Use devDependencies
+
 onCreateEnd - server - Процесс создания сущности закончен. (Клиент выведет кнопку Continue)
 
 readyEntities: Array - Список сущностей, которые могут быть добавлены в приложение (server)
@@ -59,6 +63,13 @@ searchPackage: string - Search package by name. (from client)
 searchPackageResponse: object (from server)
   name: string
   package?: {name,version,description,...} see npmSearch.js
+  error?: string
+
+searchPackagesList: string - client - Search packages list by part of name.
+
+searchPackagesListResponse: object - server
+  name: string
+  packages: Array<{name,version,description,...}> see npmSearch.js
   error?: string
 
 setReady - client - Switch to ready status

@@ -63,6 +63,7 @@ var onStatus = {
         wsSend('upgradePromptAsk');
     },
     create: function () {
+        console.log('--- Create status ---');
         $('.page-content', $activePage).empty();
     }
 };
@@ -118,6 +119,7 @@ $(function (){
        Rn.tm('TmPre', {text: JSON.stringify(error, null, '  ')}, $('#glbStatus_error .j-info'));
     });
     wsOn('createEntityBegin', function (name){
+        console.log('createEntityBegin', name)
         Rn.tm('TmCreateEntityBegin', {name: name, key: msgKey(name)}, $('.page-content', $activePage))
     });
     wsOn('createEntityEnd', function (data) {
