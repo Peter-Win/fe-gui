@@ -5,6 +5,10 @@ const {buildTemplate} = require('../sysUtils/loadTemplate')
 const {CommonInfo} = require('../CommonInfo')
 const {merge} = require('./WebPack.utils')
 const {installPackage} = require('../commands/installPackage')
+const {parseModule, parseExpression} = require('../parser/parseExpression')
+const {ReaderCtx} = require('../parser/ReaderCtx')
+const {Style} = require('../parser/Style')
+const {formatChunks} = require('../parser/WriterCtx')
 
 class WebPack {
     name = 'WebPack'
@@ -142,6 +146,19 @@ class WebPack {
         const configSource = await fs.promises.readFile(configName)
         const result = merge(configSource, part)
         await fs.promises.writeFile(configName, result)
+    }
+
+    async loadConfigTaxon() {
+        const configSource = await fs.promises.readFile(this.getConfigName())
+        const sourceNode = parseModule(ReaderCtx.fromText(configSource))
+        return sourceNode.createTaxon()
+    }
+    async saveConfigTaxon(taxon) {
+        const style = new Style()
+        const chunks = []
+        taxon.exportChunks(chunks, style)
+        const text = formatChunks(chunks, style)
+        await fs.promises.writeFile(this.getConfigName(), text)
     }
 }
 module.exports = {WebPack}

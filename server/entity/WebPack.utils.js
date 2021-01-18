@@ -2,6 +2,7 @@ const {parseExpression, parseModule} = require('../parser/parseExpression')
 const {ReaderCtx} = require('../parser/ReaderCtx')
 const {Style} = require('../parser/Style')
 const {formatChunks} = require('../parser/WriterCtx')
+const {TxObject} = require('../parser/taxons/TxObject')
 
 // Вообщем так делать неправильно,
 // т.к. один и тот же идентификатор может появляться в разных контекстах.
@@ -112,4 +113,49 @@ const merge = (sourceConfig, addition) => {
     return formatChunks(chunks, style)
 }
 
-module.exports = {findAssign, findConfigRoot, mergeObjectTaxons, merge}
+const findObjectItem = (taxon, key) => {
+    if (taxon instanceof TxObject) {
+        // Это самый удачный вариант. Объект объявлен в явном виде.
+        return taxon.dict[key]
+    }
+    if (taxon.type === 'TxName') {
+    }
+    throw new Error()
+}
+
+/**
+ * Поиск вложенного таксона
+ * @param {Taxon} taxon
+ * @param {string} path
+ * @return {Taxon}
+ */
+const findPath = (taxon, path) => {
+    const pathList = path.split('.')
+    return pathList.reduce((owner, key) => {
+        const result = findObjectItem(owner, key)
+        if (!result) throw new Error(`Can't find path "${path}"`)
+        return result
+    }, taxon)
+}
+
+const findRule = (sourceTaxon, name) => {
+    // const sourceNode = parseModule(ReaderCtx.fromText(sourceConfig))
+    // const sourceTaxon = sourceNode.createTaxon()
+    const rootTaxon = findConfigRoot(sourceTaxon)
+    let rulesTaxon = findPath(rootTaxon, 'module.rules')
+    if (rulesTaxon.type === 'TxName') {
+        rulesTaxon = findAssign(sourceTaxon, rulesTaxon.name)
+    }
+    if (rulesTaxon.type !== 'TxArray') {
+        throw new Error(`Invalid type of rules ${rulesTaxon.type}`)
+    }
+    return rulesTaxon.subTaxons.find(taxon => {
+        if (!taxon || taxon.type !== 'TxObject') return false
+        const txTest = findObjectItem(taxon, 'test')
+        if (!txTest || txTest.type !== 'TxConst' || txTest.constType !== 'regexp') return false
+        const rx = txTest.getRealValue()
+        return rx.test(name)
+    })
+}
+
+module.exports = {findAssign, findConfigRoot, findPath, findRule, mergeObjectTaxons, merge}

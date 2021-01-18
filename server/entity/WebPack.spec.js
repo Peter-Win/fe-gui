@@ -3,7 +3,8 @@ const {parseModule, parseExpression} = require('../parser/parseExpression')
 const {ReaderCtx} = require('../parser/ReaderCtx')
 const {Style} = require('../parser/Style')
 const {formatChunks} = require('../parser/WriterCtx')
-const {findConfigRoot, findAssign, mergeObjectTaxons, merge} = require('./WebPack.utils')
+const {findConfigRoot, findAssign, findRule, findPath, mergeObjectTaxons, merge} = require('./WebPack.utils')
+const {Taxon} = require('../parser/taxons/Taxon')
 
 describe('find config root', () => {
     it('minimal', () => {
@@ -201,5 +202,38 @@ module.exports = config;
 `
         const result = merge(src, addition)
         expect(result).to.equal(expectedText)
+    })
+})
+
+describe('findRule', () => {
+    const source = `
+module.exports = {
+  entry: './src/index.tsx',
+  module: {
+    rules: [
+      {
+        test: /\\.tsx?$/,
+        use: 'ts-loader',
+      },
+      {
+        test: /\\.less$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          'less-loader',
+        ],
+      },
+    ],
+  },
+}`
+    it('.less', () => {
+        const sourceNode = parseModule(ReaderCtx.fromText(source))
+        const sourceTaxon = sourceNode.createTaxon()
+
+        const rule = findRule(sourceTaxon, '.less')
+        expect(rule).to.be.instanceof(Taxon)
+        expect(rule.type).to.equal('TxObject')
+        const use = findPath(rule, 'use')
+        expect(use.type).to.equal('TxArray')
     })
 })

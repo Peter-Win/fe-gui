@@ -10,6 +10,7 @@ const {LESS} = require('./LESS')
 const {Jest} = require('./Jest')
 const {ESLint} = require('./ESLint')
 const {Standard} = require('./Standard')
+const {Antd} = require('./Antd')
 
 const entities = {}
 
@@ -29,5 +30,6 @@ reg(LESS)
 reg(Jest)
 reg(ESLint)
 reg(Standard)
+reg(Antd)
 
 module.exports = {entities}

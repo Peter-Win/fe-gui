@@ -54,6 +54,7 @@ class React {
 
         // Make App component
         const appName = makeSrcName(`App.${ext}`)
+        const mainFrameName = makeSrcName(`MainFrame.${ext}`)
         wsSend('createEntityMsg', {name: this.name, message: `Create ${appName}`})
         let techDescr = CommonInfo.tech.transpiler
         if (techDescr !== 'TypeScript') {
@@ -65,8 +66,10 @@ class React {
             importStyle = `import './style.${styler.toLowerCase()}';\n`
         }
         const {title} = CommonInfo.extParams
+        const tmParams = {techDescr, importStyle, title}
 
-        await buildTemplate(`reactApp.${ext}`, appName, {techDescr, importStyle, title})
+        await buildTemplate(`reactApp.${ext}`, appName, tmParams)
+        await buildTemplate(`stdMainFrame.${ext}`, mainFrameName, tmParams)
     }
 }
 

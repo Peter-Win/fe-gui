@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { hot } from 'react-hot-loader/root';
+import { MainFrame } from "./MainFrame";
 <%= importStyle %>
 const App = () => (
-    <>
-        <h1>Hello, world!</h1>
-        <p>Generated for JavaScript + Babel + React</p>
-    </>
+  <React.StrictMode>
+    <MainFrame />
+  </React.StrictMode>
 );
 
 export default hot(App);
