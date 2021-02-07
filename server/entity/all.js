@@ -11,6 +11,7 @@ const {Jest} = require('./Jest')
 const {ESLint} = require('./ESLint')
 const {Standard} = require('./Standard')
 const {Antd} = require('./Antd')
+const {AntdLayout} = require('./AntdLayout')
 
 const entities = {}
 
@@ -31,5 +32,6 @@ reg(Jest)
 reg(ESLint)
 reg(Standard)
 reg(Antd)
+reg(AntdLayout)
 
 module.exports = {entities}

@@ -186,9 +186,17 @@
 <script id="TmScriptName" type="text/html">
     <span class="script-name-block"><input type="text" name="{{name}}" /> {{title}}</span>
 </script>
+
+<script id="TmCtrlDroplist" type="text/html">
+    <div>
+        {{#title}}<span class="xc-title">{{title}}</span>{{/title}}
+        <select name="{{name}}"></select>
+    </div>
+</script>
+
 <script id="TmCtrlRadiobox" type="text/html">
     <div>
-        <span class="title">{{title}}</span>
+        {{#title}}<span class="title">{{title}}</span>{{/title}}
         <div class="rn-radiobox" style="display:inline-block"></div>
     </div>
 </script>

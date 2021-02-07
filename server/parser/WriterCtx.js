@@ -39,6 +39,9 @@ class WriterCtx {
             if (prevType === 'keyword' && !(type in {space:1, eol:1})) {
                 this.out(' ')
             }
+            if (pairKey === 'bracketBegin eol') {
+                this.level++
+            }
             if (type === 'instrDiv') {
                 if (this.style.semi) {
                     if (prevType !== 'bodyEnd') this.out(value)

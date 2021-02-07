@@ -59,10 +59,9 @@ class Antd {
 
         // Необходимо внедрить импорт стилей в файл приложения
         const antdStyles = [
-            "@import '~antd/lib/style/themes/default.less';",
             "@import '~antd/dist/antd.less'; // Import Ant Design styles by less entry",
             "",
-            "@primary-color: #1890ff; // primary color for all components",
+            "@primary-color: @blue-base; // primary color for all components",
         ]
         const styleName = makeSrcName('style.less')
         if (await isFileExists(styleName)) {

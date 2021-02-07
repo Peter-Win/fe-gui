@@ -9,7 +9,7 @@
     <script src="vendor/radon2.js"></script>
     <style>
         #Antd_preview {width: 280px; height: 210px;
-            background: aquamarine; margin-right: 1em;
+            margin-right: 2em;
             border: thin solid silver;
             box-sizing: border-box;
         }
@@ -17,84 +17,53 @@
         .ant-preview-row { display: flex; flex-direction: row;}
         .ant-preview-row-item { height: 100%; }
         .ant-preview-row-item { display: flex; justify-content: center; align-items: center;}
-        .ant-preview-sider { writing-mode: vertical-lr; }
+        form[name=settings] {display: flex; justify-content: center;}
+        .settings-view {display: flex; padding: 2em;}
+        .ant-preview-ctrls {width: 14em;}
     </style>
+    <script src="antdLayout.js"></script>
     <script>
         $(function (){
             Rn.init('start');
         });
-        Rn.F.Antd = function () {
-            this.superClass = 'Base';
-            this.onInit = function () {
-                this.load({
-                    createCode: true,
-                    useHeader: true,
-                    useSide: false,
-                    useFooter: true,
-                    menuPos: 'header',
-                });
-            }
-            this.onPostUpdate = function () {
-                var form = this, ctrls = form.ctrls;
-                var isCode = ctrls.createCode.getValue();
-                $('#Antd_code').toggle(isCode);
-                var isUseHeader = ctrls.useHeader.getValue(), isUseSider = ctrls.useSider.getValue();
-                var ctrlUseMenu = ctrls.useMenu, ctrlMenuPos = ctrls.menuPos;
-                var isCanUseMenu = isUseHeader || isUseSider;
-                ctrlUseMenu.enable(isCanUseMenu);
-                ctrlMenuPos.show(ctrlUseMenu.getValue() && isCanUseMenu);
-                g_antMenuPos[0].disabled = !isUseHeader;
-                g_antMenuPos[1].disabled = !isUseSider;
-                if (ctrlMenuPos.isVisible()) {
-                    var menuPos = ctrlMenuPos.getValue();
-                    if (!isUseHeader && menuPos === 'header') ctrlMenuPos.setValue('sider');
-                    else if (!isUseSider && menuPos === 'sider') ctrlMenuPos.setValue('header');
-                    ctrlMenuPos.buildList();
-                }
-                this.drawPreview();
-            }
-            this.drawPreview = function () {
-                var ctrls = this.ctrls;
-                var $preview = $('#Antd_preview').empty();
-                $preview.css({display: 'flex', flexDirection: 'column'});
-                if (ctrls.useHeader.getValue()) {
-                    $('<div>').appendTo($preview).css({height: '20%', background: '#0AA'}).text('Header');
-                }
-                var $center = $('<div>').appendTo($preview).addClass('ant-preview-row').css({flex: 1});
-                if (ctrls.useSider.getValue()) {
-                    var $sider = $('<div>').appendTo($center).addClass('ant-preview-row-item')
-                        .css({width: '20%', background: '#08F'}).text('Sider');
-                }
-                $('<div>').appendTo($center).addClass('ant-preview-row-item').css({flex: 1, background: '#FFE'}).text('Content');
-                if (ctrls.useFooter.getValue()) {
-                    $('<div>').appendTo($preview).css({height: '20%', background: '#0AA'}).text('Footer');
-                }
-            }
-        }
     </script>
 </head>
 <body>
   <h1>Antd settings</h1>
   <div class="rn-page" data-name="start">
   <form class="rn-form" name="settings" data-type="Antd">
-      <div class="rn-ctrl" data-name="createCode" data-type="Checkbox" data-title="Generate MainFrame" data-value0="true"></div>
-      <div id="Antd_code">
-          <h2>Antd code</h2>
-          <div style="display: flex;">
-              <div id="Antd_preview"></div>
-              <div>
-                  <div class="rn-ctrl" data-name="useHeader" data-type="Checkbox" data-title="Use Header"></div>
-                  <div class="rn-ctrl" data-name="useSider" data-type="Checkbox" data-title="Use Sider"></div>
-                  <div class="rn-ctrl" data-name="useFooter" data-type="Checkbox" data-title="Use Footer"></div>
-                  <div class="rn-ctrl" data-name="useMenu" data-type="Checkbox" data-title="Use Menu"></div>
-                  <div class="rn-ctrl horiz-radio-box" data-name="menuPos" data-type="Radiobox" data-radio_tm="TmRadioItem"
-                       data-options="g_antMenuPos"></div>
-              </div>
+      <div class="settings-view">
+          <div id="Antd_preview"></div>
+          <div class="ant-preview-ctrls">
+              <div class="rn-ctrl" data-name="useHeader" data-type="Checkbox" data-title="Use Header"></div>
+              <div class="rn-ctrl" data-name="useFooter" data-type="Checkbox" data-title="Use Footer"></div>
+              <div class="rn-ctrl" data-name="useSider" data-type="Checkbox" data-title="Use Sider"></div>
+              <div class="rn-ctrl horiz-radio-box" data-name="siderPos" data-type="Radiobox" data-radio_tm="TmRadioItem"
+                data-options="g_antSiderPos"></div>
+              <div class="rn-ctrl" data-name="useMenu" data-type="Checkbox" data-title="Use Menu"></div>
+              <div class="rn-ctrl horiz-radio-box" data-name="menuPos" data-type="Radiobox" data-radio_tm="TmRadioItem"
+                   data-options="g_antMenuPos"></div>
+          </div>
+          <div>
+              <h4>Use theme</h4>
+              <div class="rn-ctrl" data-name="theme" data-type="Radiobox"
+                   data-radio_tm="TmRadioItem" data-options="g_antThemes"></div>
+              <h4 style="margin-top: 1em">Locale</h4>
+              <div class="rn-ctrl" data-name="locale" data-type="Droplist"
+                   data-options="g_antLocales"></div>
           </div>
       </div>
   </form>
       <script>
           var g_antMenuPos = [{label: 'In Header', value: 'header'}, {label: 'In Sider', value: 'sider'}];
+          var g_antSiderPos = [{label: 'Outside', value: 'outside'}, {label: 'Inside', value: 'inside'}];
+          var g_antThemes = [
+              {label: 'None', value: ''},
+              {label: 'Default', value: 'default'},
+              {label: 'Dark', value: 'dark'},
+              {label: 'Compact', value: 'compact'},
+          ];
+          var g_antLocales = [{label: 'Default', value: ''}, {label: 'ru_RU', value: 'ru_RU'}];
       </script>
   </div>
 
@@ -133,6 +102,12 @@
           <label title="{{tooltip}}">
               <input type='checkbox' name='{{name}}'>{{#title}} {{title}}{{/title}}
           </label>
+      </div>
+  </script>
+  <script id="TmCtrlDroplist" type="text/html">
+      <div>
+          {{#title}}<span class="xc-title">{{title}}</span>{{/title}}
+          <select name="{{name}}"></select>
       </div>
   </script>
 

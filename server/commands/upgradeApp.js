@@ -35,6 +35,7 @@ module.exports.sendUpgradeInfo = async () => {
     const tparams = {
         description: entity.description || '',
         controls: entity.controls || '',
+        formType: entity.upgradeFormType || 'Upgrade',
     }
     const data = {
         name,

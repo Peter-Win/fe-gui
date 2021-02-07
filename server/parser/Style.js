@@ -10,7 +10,12 @@ class Style {
 
     indent(level) {
         const step = this.useTabs ? '\t' : ' '.repeat(this.tabWidth)
-        return step.repeat(level)
+        return step.repeat(Math.max(0, level))
+    }
+    string(value) {
+        const escaped = value.replace(/\t/g, '\\t').replace(/\n/g, '\\n').replace(/\r/g, '\\r')
+        const unquoted = this.singleQuote ? escaped.replace(/\'/g, '\\\'') : escaped.replace(/\"/g, '\\\"')
+        return this.singleQuote ? `'${unquoted}'` : `"${unquoted}"`
     }
 }
 
