@@ -14,6 +14,13 @@ class ESLint {
     isInit = false
     isReady = false
 
+    /**
+     * @param {Set<string>} ignores
+     */
+    vcsIgnore(ignores) {
+        ignores.add('.eslintcache')
+    }
+
     async init() {
         const { entities: { PackageJson } } = require('./all')
         this.isInit = PackageJson.isDevDependency('eslint')
@@ -119,9 +126,10 @@ class ESLint {
             this.addPlugin(config, 'prettier')
             this.addExtend(config, 'prettier')
             this.addRule(config, 'prettier/prettier', 'error')
-            if (CommonInfo.tech.framework === 'React') {
-                this.addExtend(config, 'prettier/react')
-            }
+            // https://github.com/prettier/eslint-config-prettier/blob/main/CHANGELOG.md#version-800-2021-02-21
+            // if (CommonInfo.tech.framework === 'React') {
+            //     this.addExtend(config, 'prettier/react')
+            // }
         }
 
         // Analyse of packages

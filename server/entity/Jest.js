@@ -100,6 +100,13 @@ class Jest {
             }
         })
     }
+
+    /**
+     * @param {Set<string>} ignores
+     */
+    vcsIgnore(ignores) {
+        ignores.add('/coverage')
+    }
 }
 
 module.exports = {Jest}

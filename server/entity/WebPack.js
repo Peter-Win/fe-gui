@@ -85,6 +85,8 @@ class WebPack {
         try {
             await installPackage(this.name, 'webpack webpack-cli')
             await installPackage(this.name, 'html-webpack-plugin clean-webpack-plugin')
+            // TODO: 2021-03-09. Detected problem "Cannot find module 'loader-utils'" in this.loadConfig
+            await installPackage(this.name, 'loader-utils')
             await installPackage(this.name, 'webpack-dev-server')
 
             // html template

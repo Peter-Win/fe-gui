@@ -4,6 +4,7 @@ const {entities} = require('../entity/all')
 const {wsSend} = require('../wsServer')
 const {makeFullName, isFileExists} = require('../fileUtils')
 const {createEntity, updateEntitiesState} = require('./createEntity')
+const {updateGitIgnoreFileMsg} = require('./updateGitIgnore')
 
 const createApp = async (data) => {
     try {
@@ -41,6 +42,10 @@ const createApp = async (data) => {
 
         if (tech.framework === 'React') {
             if (!await createEntity(entities, 'React')) return false
+        }
+
+        if (tech.vcs.toLowerCase() === 'git') {
+            await updateGitIgnoreFileMsg()
         }
 
         // Update entities ready flags

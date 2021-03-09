@@ -41,6 +41,7 @@ class CommonInfo {
         styleLess: false,
         codeStyle: '', // ESLint, Standard
         unitTesting: '',
+        vcs: '',
     }
     static props = {}
     static extParams = {
