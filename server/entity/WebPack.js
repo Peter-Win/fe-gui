@@ -143,7 +143,6 @@ class WebPack {
      * @param {string} part
      */
     async setPart(part) {
-        console.log('WebPack.setPart')
         const configName = this.getConfigName()
         const configSource = await fs.promises.readFile(configName)
         const result = merge(configSource, part)
