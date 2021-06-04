@@ -61,10 +61,10 @@ class Jest {
         // Config
         const configParams = {
             roots: ["<rootDir>/src"],
+            testEnvironment: 'jsdom',
         }
         if (useTypeScript) {
             configParams.preset = 'ts-jest'
-            configParams.testEnvironment = 'node'
         }
         const configName = makeFullName('jest.config.js')
         const configText = `module.exports = {\n${
