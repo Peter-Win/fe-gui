@@ -37,7 +37,7 @@ h1 {
     padding-left: 2em;
 }
 .create-entity-warn, .status-msg-warn {
-    color: #883;
+    color: saddlebrown;
 }
 .create-entity-err, .status-msg-err {
     color: red;

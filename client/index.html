@@ -177,7 +177,7 @@
 </script>
 <script id="TmCtrlString" type="text/html">
     <div>
-        <span class="title">{{title}}</span>
+        {{#title}}<span class="title">{{title}}</span>{{/title}}
         <input type="{{input_type}}" name="{{name}}"
                {{#maxlength}}maxlength="{{maxlength}}" {{/maxlength}}
         {{#placeholder}}placeholder="{{placeholder}}"{{/placeholder}} />

@@ -14,6 +14,7 @@ const {Standard} = require('./Standard')
 const {Antd} = require('./Antd')
 const {AntdLayout} = require('./AntdLayout')
 const {Git} = require('./Git')
+const {Husky} = require('./Husky')
 
 const entities = {}
 
@@ -37,5 +38,6 @@ reg(Standard)
 reg(Antd)
 reg(AntdLayout)
 reg(Git)
+reg(Husky)
 
 module.exports = {entities}

@@ -32,10 +32,12 @@ module.exports.sendUpgradeInfo = async () => {
     const { entities } = require('../entity/all')
     const name = CommonInfo.upgradeTarget
     const entity = entities[name]
+    const guiData = ('makeGuiData' in entity) ? await entity.makeGuiData() : null
     const tparams = {
         description: entity.description || '',
         controls: entity.controls || '',
         formType: entity.upgradeFormType || 'Upgrade',
+        guiData: guiData ? `<script>var guiData = ${JSON.stringify(guiData, null, '  ')};</script>` : '',
     }
     const data = {
         name,
