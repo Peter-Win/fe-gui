@@ -22,7 +22,7 @@
   "homepage": "https://github.com/Peter-Win/fe-gui#readme",
   "dependencies": {
     "chai": "^4.2.0",
-    "ws": "^7.4.0"
+    "ws": "^7.4.6"
   },
   "devDependencies": {
     "jasmine": "^3.6.3"
