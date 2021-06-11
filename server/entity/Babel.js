@@ -32,12 +32,16 @@ class Babel {
 
     async init() {
         const {entities: {PackageJson}} = require('./all')
+        // @babel/core может быть установлено автоматически при установке Storybook
+        // При этом, основным транспилером может оставаться например TyprScript
         this.isInit = PackageJson.isDevDependency('@babel/core')
         if (this.isInit) {
             wsSend('statusMessage', {text: 'Babel detected'})
-            CommonInfo.tech.transpiler = 'Babel'
-            const isTS = PackageJson.isDevDependency('@babel/preset-typescript')
-            CommonInfo.tech.language = isTS ? 'TypeScript' : 'JavaScript'
+            if (!PackageJson.isDevDependency('typescript')) {
+                CommonInfo.tech.transpiler = 'Babel'
+                const isTS = PackageJson.isDevDependency('@babel/preset-typescript')
+                CommonInfo.tech.language = isTS ? 'TypeScript' : 'JavaScript'
+            }
         }
     }
 

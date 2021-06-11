@@ -88,7 +88,15 @@ class ESLint {
 
         if (CommonInfo.tech.transpiler === 'TypeScript') {
             packages.add('@typescript-eslint/parser ')
+            this.addPlugin(config, "@typescript-eslint")
             config.parser = '@typescript-eslint/parser'
+
+            // Если не отключить no-unused-vars, то будут ошибки там где их быть не должно.
+            // Например interface { fun(param: string): void; }
+            // Здесь ошибочно будет указывать, что param объявлен, но не используется
+            // See https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md
+            this.addRule(config, "no-unused-vars", "off")
+            this.addRule(config, "@typescript-eslint/no-unused-vars", ["error"])
         } else if (CommonInfo.tech.transpiler === 'Babel') {
             packages.add('@babel/eslint-parser')
             config.parser = '@babel/eslint-parser'

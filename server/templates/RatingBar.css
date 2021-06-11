@@ -1,0 +1,19 @@
+.rating-bar {
+    border:thin solid silver;
+    padding: 0.4em;
+    display:inline-block;
+}
+.rating-star {
+    border: none;
+    background: none;
+    padding: 0;
+    display:inline-block;
+    width:2em;
+    height:2em;
+    margin:0.1em;
+    cursor:pointer;
+}
+.rating-star path {fill:#AAA; }
+.rating-star.active path { fill:#FF0; stroke:#AA0; stroke-width:1;  }
+.rating-star:hover path{fill:#CCC; }
+.rating-star.active:hover path { fill:#FFC;  }
