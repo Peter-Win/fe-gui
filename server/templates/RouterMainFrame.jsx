@@ -2,7 +2,8 @@ import * as React from "react";
 import {
   BrowserRouter,
   Link,
-  Switch,
+  Outlet,
+  Routes,
   Route,
   useLocation,
 } from "react-router-dom";
@@ -16,36 +17,36 @@ const NoMatch = () => {
   );
 };
 
+const MainFrameLayout = () => (
+  <div>
+  <nav>
+  <ul>
+    <li>
+      <Link to="/">Home</Link>
+    </li>
+    <li>
+      <Link to="/about">About</Link>
+    </li>
+    <li>
+      <Link to="/users">Users</Link>
+    </li>
+  </ul>
+</nav>
+  <main>
+  <Outlet />
+</main>
+</div>
+);
+
 export const MainFrame = () => (
   <BrowserRouter>
-    <div>
-      <nav>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/about">About</Link>
-          </li>
-          <li>
-            <Link to="/users">Users</Link>
-          </li>
-        </ul>
-      </nav>
-      <Switch>
-        <Route path="/about">
-          <h1>About</h1>
+      <Routes>
+        <Route path="/" element={<MainFrameLayout />}>
+          <Route index element={<h1>Home</h1>} />
+          <Route path="/about" element={<h1>About</h1>} />
+          <Route path="/users" element={<h1>Users</h1>} />
+          <Route path="*" element={<NoMatch />} />
         </Route>
-        <Route path="/users">
-          <h1>Users</h1>
-        </Route>
-        <Route exact path="/">
-          <h1>Home</h1>
-        </Route>
-        <Route path="*">
-          <NoMatch />
-        </Route>
-      </Switch>
-    </div>
+      </Routes>
   </BrowserRouter>
 );

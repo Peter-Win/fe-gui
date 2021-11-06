@@ -10,10 +10,11 @@ const {makeInstallCommand} = require('../sysUtils/makeInstallCommand')
  * @param {string} name Наименование раздела
  * @param {string} packages Одно или несколько имен пакетов (через пробел)
  * @param {boolean=} isDev
+ * @param {{ force?: boolean }=} options
  * @return {Promise<void>}
  */
-const installPackage = async (name, packages, isDev = true) => {
-    const cmd = makeInstallCommand(packages, isDev)
+const installPackage = async (name, packages, isDev = true, options = {}) => {
+    const cmd = makeInstallCommand(packages, isDev, options)
     wsSend('createEntityMsg', {name, message: cmd, type: 'info'})
     const {stdout, stderr} = await asyncExec(cmd)
     if (typeof stderr == 'string' && stderr.trim()) {

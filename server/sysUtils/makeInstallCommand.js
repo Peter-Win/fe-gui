@@ -3,8 +3,9 @@ const {CommonInfo} = require('../CommonInfo')
  *
  * @param {string} names One or more package names, divided by space
  * @param {boolean?} isDev
+ * @param {{ force?: boolean}?} options
  */
-const makeInstallCommand = (names, isDev) => {
+const makeInstallCommand = (names, isDev, options = {}) => {
     let cmd = ''
     if (CommonInfo.isYarn) {
         cmd = `yarn add ${names}`
@@ -14,6 +15,7 @@ const makeInstallCommand = (names, isDev) => {
     } else {
         cmd = `npm i ${names}`
         cmd += isDev ? ' -D' : ' -S'
+        if (options.force) cmd += ' --force'
     }
     return cmd
 }

@@ -4,6 +4,15 @@ const {buildTemplate} = require('../sysUtils/loadTemplate')
 const {makeSrcName} = require('../fileUtils')
 const {wsSendCreateEntity} = require('../wsSend')
 
+const webpackConfigAddon = `{
+    devServer: { historyApiFallback: true },
+    resolve: {
+        alias: {
+            'react-dom': '@hot-loader/react-dom',
+        },
+    },
+}`;
+
 class ReactRouter {
     name = 'ReactRouter'
     depends = ['React']
@@ -23,7 +32,10 @@ class ReactRouter {
     async create(params) {
         const {entities} = require('./all')
         const devPackages = []
-        const packages = ['react-router-dom']
+        // we are maintain 6 version of React Router
+        // https://github.com/gaearon/react-hot-loader/issues/1227
+        await installPackage(this.name, ['@hot-loader/react-dom'], true, { force: true })
+        const packages = ['history', 'react-router-dom']
         if (CommonInfo.tech.language === 'TypeScript') {
             devPackages.push('@types/react-router-dom')
         }
@@ -33,7 +45,7 @@ class ReactRouter {
         if (devPackages.length) {
             await installPackage(this.name, devPackages.join(' '), true)
         }
-        await entities.WebPack.setPart(`{devServer: { historyApiFallback: true }}`)
+        await entities.WebPack.setPart(webpackConfigAddon)
         if (params.example) {
             const dstName = makeSrcName('MainFrame.' + CommonInfo.getExtension('render'));
             await buildTemplate('RouterMainFrame.jsx', dstName);
