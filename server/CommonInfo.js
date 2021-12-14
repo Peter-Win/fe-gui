@@ -88,7 +88,7 @@ class CommonInfo {
 
     /**
      * @param {'render' | 'logic' | 'style'} type
-     * @return {string}
+     * @return {string} For example: less, css, js, jsx, ts, tsx
      */
     static getExtension(type) {
         const {tech} = CommonInfo

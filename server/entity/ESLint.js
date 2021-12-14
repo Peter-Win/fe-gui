@@ -110,6 +110,13 @@ class ESLint {
             this.addPlugin(config, 'react') // TODO: Должен быть перед prettier
             this.addExtend(config, 'plugin:react/recommended')
             this.addSettings(config, 'react', { version: "detect" })
+            // По невыясненным пока причинам eslint-plugin-react стал использовать 'function-declaration' as its default
+            // Это неправильно. Поэтому нужно добавить правило для "arrow-function"
+            this.addRule(config, "react/function-component-definition", [2, {
+                "namedComponents": "arrow-function",
+                "unnamedComponents": "arrow-function" 
+                }],
+            )            
         }
 
         if (params.airbnb) {
@@ -119,7 +126,9 @@ class ESLint {
                     .add('eslint-plugin-import')
                     .add('eslint-config-airbnb')
                 this.addExtend(config, 'airbnb')
-                this.addRule(config, "react/jsx-filename-extension", [1, { "extensions": [".tsx"] }])
+                this.addRule(config, "react/jsx-filename-extension",
+                    [1, { "extensions": [`.${CommonInfo.getExtension('render')}`] }]
+                )
             } else {
                 packages.add('eslint-plugin-import').add('eslint-config-airbnb-base')
                 this.addExtend(config, 'airbnb-base')
