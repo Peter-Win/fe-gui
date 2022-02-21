@@ -158,4 +158,16 @@ const findRule = (sourceTaxon, name) => {
     })
 }
 
-module.exports = {findAssign, findConfigRoot, findPath, findRule, mergeObjectTaxons, merge}
+/**
+ * Сформировать регулярное выражение для правила из расширения файлов
+ * @param {string|string[]} ext
+ */
+const makeRuleRegexp = (ext) => {
+    const list = Array.isArray(ext) ? ext : [ext]
+    if (list.length === 1) {
+        return new RegExp(`\\.${list[0]}$`)
+    }
+    return new RegExp(`\\.(${list.join('|')})$`)
+}
+
+module.exports = {findAssign, findConfigRoot, findPath, findRule, mergeObjectTaxons, merge, makeRuleRegexp }
