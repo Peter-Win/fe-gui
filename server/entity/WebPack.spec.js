@@ -3,7 +3,7 @@ const {parseModule, parseExpression} = require('../parser/parseExpression')
 const {ReaderCtx} = require('../parser/ReaderCtx')
 const {Style} = require('../parser/Style')
 const {formatChunks} = require('../parser/WriterCtx')
-const {findConfigRoot, findAssign, findRule, findPath, mergeObjectTaxons, merge} = require('./WebPack.utils')
+const {findConfigRoot, findAssign, findRule, findPath, mergeObjectTaxons, merge, makeRuleRegexp} = require('./WebPack.utils')
 const {Taxon} = require('../parser/taxons/Taxon')
 
 describe('find config root', () => {
@@ -236,4 +236,13 @@ module.exports = {
         const use = findPath(rule, 'use')
         expect(use.type).to.equal('TxArray')
     })
+})
+
+describe('makeRuleRegexp', () => {
+  it('single case', () => {
+    expect(makeRuleRegexp('png').toString()).to.equal('/\\.png$/')
+  })
+  it('multiple case', () => {
+    expect(makeRuleRegexp(['png', 'jpg', 'jpeg']).toString()).to.equal('/\\.(png|jpg|jpeg)$/')
+  })
 })

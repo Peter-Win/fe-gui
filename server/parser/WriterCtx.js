@@ -66,7 +66,9 @@ class WriterCtx {
                 // TODO: считаем, что каждый элемент объекта в отдельной строке
                 this.out(',')
             } else if (type === 'itemDiv') {
-                this.out(value.trimRight())
+                this.out(value.trimEnd())
+            } else if (type === 'string') {
+                this.out(this.style.string(value))
             } else {
                 this.out(value)
             }

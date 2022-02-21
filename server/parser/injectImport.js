@@ -1,4 +1,6 @@
-const isImport = row => row.startsWith('import')
+const isImport = row =>
+    row.startsWith('import') |
+    /^const\s*.+\s*=\s*require\(.+\)$/.test(row)
 
 /**
  *

@@ -16,6 +16,7 @@ const {AntdLayout} = require('./AntdLayout')
 const {Git} = require('./Git')
 const {Husky} = require('./Husky')
 const {Storybook} = require('./Storybook')
+const {AssetModules} = require('./AssetModules')
 
 const entities = {}
 
@@ -41,5 +42,6 @@ reg(AntdLayout)
 reg(Git)
 reg(Husky)
 reg(Storybook)
+reg(AssetModules)
 
 module.exports = {entities}

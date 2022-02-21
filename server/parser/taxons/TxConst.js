@@ -28,7 +28,7 @@ class TxConst extends TxExpression {
         }
     }
     exportChunks(chunks, style) {
-        chunks.push(Chunk.Const(this.constValue))
+        chunks.push(Chunk.Const(this.constValue, this.constType))
     }
     getRealValue() {
         const value = this.constValue
