@@ -26,13 +26,16 @@ class React {
         const packages = 'react react-dom react-hot-loader'
         await installPackage(this.name, packages, false)
 
-        const {transpiler} = CommonInfo.tech
+        const {transpiler, language} = CommonInfo.tech
         if (transpiler === 'Babel') {
             await installPackage(this.name, '@babel/preset-react', true)
             const {Babel} = entities
             await Babel.updatePreset('@babel/preset-react')
         } else if (transpiler === 'TypeScript') {
             await installPackage(this.name, '@types/react @types/react-dom', true)
+        }
+        if (language === 'JavaScript') {
+            await installPackage(this.name, 'prop-types', false)
         }
 
         const ext = CommonInfo.getExtension('render')

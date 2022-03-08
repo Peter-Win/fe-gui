@@ -1,4 +1,13 @@
 const fs = require('fs')
+
+/**
+ * 
+ * @param {strig} data 
+ * @returns {string[]}
+ */
+const splitRows = (data) =>
+    String(data).split('\n').map(s => s.replace('\r', ''))
+
 /**
  *
  * @param {string} fileName
@@ -6,7 +15,7 @@ const fs = require('fs')
  */
 const readRows = async (fileName) => {
     const data = await fs.promises.readFile(fileName)
-    return String(data).split('\n').map(s => s.replace('\r', ''))
+    return splitRows(data)
 }
 
 /**
@@ -19,4 +28,4 @@ const writeRows = async (fileName, rows) => {
     await fs.promises.writeFile(fileName, rows.join('\n'))
 }
 
-module.exports = {readRows, writeRows}
+module.exports = {readRows, writeRows, splitRows}

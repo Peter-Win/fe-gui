@@ -6,6 +6,7 @@
     "target": "es5",
     "jsx": "react",
     "allowJs": true,
+    "esModuleInterop": true,
 
     "alwaysStrict": true,
     "noImplicitAny": true,
@@ -19,9 +20,7 @@
     "noUncheckedIndexedAccess": true,
     
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true    
+    "noFallthroughCasesInSwitch": true
   },
   "include": [
     "./src/**/*"

@@ -112,8 +112,12 @@ const updatePresetEx = (config, code) => {
     if (!config.presets) {
         config.presets = []
     }
-    // TODO: Здесь неплохо бы проверять наличие указанного раздела
-    // Но пока такой необходимости нет.
+
+    // Удалить дубликат раздела, если есть
+    const getKey = (item) => Array.isArray(item) ? item[0] : item
+    const key = getKey(code)
+    config.presets = config.presets.filter(item => getKey(item) !== key)
+
     config.presets.push(code)
 }
 

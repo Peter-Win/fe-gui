@@ -86,7 +86,17 @@ class ESLint {
 
         const packages = new Set(['eslint'])
 
-        if (CommonInfo.tech.transpiler === 'TypeScript') {
+        // К сожалению, TypeScript транспилируемый через Babel, не поддерживается. Поэтому используется tsc
+        // https://www.npmjs.com/package/@babel/eslint-parser#typescript
+        // While @babel/eslint-parser can parse TypeScript, we don't currently support linting TypeScript 
+        // using the rules in @babel/eslint-plugin. This is because the TypeScript community has centered 
+        // around @typescript-eslint and we want to avoid duplicate work. 
+        // Additionally, since @typescript-eslint uses TypeScript under the hood, its rules can be made 
+        // type-aware, which is something Babel doesn't have the ability to do.
+
+        if (CommonInfo.tech.language === 'TypeScript') {
+            if (CommonInfo.tech.transpiler === 'Babel') packages.add('typescript')
+            packages.add('@typescript-eslint/eslint-plugin')
             packages.add('@typescript-eslint/parser ')
             this.addPlugin(config, "@typescript-eslint")
             config.parser = '@typescript-eslint/parser'
@@ -100,9 +110,6 @@ class ESLint {
         } else if (CommonInfo.tech.transpiler === 'Babel') {
             packages.add('@babel/eslint-parser')
             config.parser = '@babel/eslint-parser'
-        }
-        if (CommonInfo.tech.language === 'TypeScript') {
-            packages.add('@typescript-eslint/eslint-plugin')
         }
         if (CommonInfo.tech.framework === 'React') {
             packages.add('eslint-plugin-react').add('eslint-plugin-react-hooks')
