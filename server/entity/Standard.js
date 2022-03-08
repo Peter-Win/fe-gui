@@ -1,3 +1,8 @@
+/**
+ * Environments list.
+ * https://eslint.org/docs/user-guide/configuring/language-options#specifying-environments
+ * These options are used to prevent missing name errors such as MouseEvent.
+ */
 const {CommonInfo} = require('../CommonInfo')
 const {installPackage} = require('../commands/installPackage')
 const {wsSend} = require('../wsServer')

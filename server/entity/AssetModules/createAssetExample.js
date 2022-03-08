@@ -14,7 +14,7 @@ const updateMainFrame = (rows, type, imgId, shortName) => {
     if (pos > 0) {
         const space = /^(\s*)/.exec(rows[pos - 1])[0]
         const comm = `${space}{/* Example of ${type} Asset Module */}`
-        const code = `${space}<div><img src={${imgId}} height="100px" /></div>`
+        const code = `${space}<div><img src={${imgId}} height="100px" alt="${type}" /></div>`
         rows.splice(pos, 0, '', comm, code)
     }
     return rows

@@ -1,9 +1,17 @@
 const fs = require('fs')
+const path = require('path')
 const {installPackage} = require('../commands/installPackage')
 const {wsSend} = require('../wsServer')
+const {wsSendCreateEntity} = require('../wsSend')
 const {CommonInfo} = require('../CommonInfo')
-const {buildTemplate} = require('../sysUtils/loadTemplate')
+const {buildTemplate, loadTemplate} = require('../sysUtils/loadTemplate')
 const {makeSrcName, makeFullName} = require('../fileUtils')
+const {splitRows, writeRows} = require('../sysUtils/textFile')
+
+// Jest have a bug: Inline snapshots are not written to js files containing JSX syntax 
+// https://github.com/facebook/jest/issues/11741
+// So we disable inline snapshots for JSX
+const jsxInlineSnapshotBug = () => CommonInfo.tech.language === 'JavaScript'
 
 class Jest {
     name = 'Jest'
@@ -18,15 +26,29 @@ class Jest {
 <div>Jest is a delightful JavaScript Testing Framework with a focus on simplicity.</div>
 <div><a href="https://jestjs.io/" target="_blank">Official site</a></div>
 `
-    controls = `
+    get controls() {
+        return `
 <div class="rn-ctrl" data-name="example" data-type="Checkbox" data-title="Generate example test"></div>
+${!jsxInlineSnapshotBug() ? `
+<div class="rn-ctrl" data-name="useSnapshots" data-type="Checkbox" data-title="Use snapshots"></div>
+<div style="padding-left:2em;">
+  <div class="rn-ctrl" data-name="usePretty" data-type="Checkbox" data-title="Use Pretty library for snapshots"></div>
+  <a href="https://www.npmjs.com/package/pretty" target="_blank">Pretty</a> - Some tweaks for beautifying HTML with js-beautify according to my preferences.
+</div>` : ''}
 <div class="rn-ctrl" data-name="coverage" data-type="Checkbox" data-title="Coverage script"></div>
 <div class="rn-ctrl" data-name="watch" data-type="Checkbox" data-title="Watch script"></div>
-`
+<hr/>
+<p>
+<b>Note:</b> If you use VSCode for development, we recommend installing a special plugin 
+<a href="https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest" target="_blank">Jest</a>.
+</p>
+`}
     defaultParams = {
         example: true,
         coverage: true,
         watch: false,
+        useSnapshots: true,
+        usePretty: true,
     }
 
     async init() {
@@ -42,20 +64,22 @@ class Jest {
     /**
      * @param {Object} params
      * @param {boolean} params.example  Generate example files with test demo.
+     * @param {boolean} params.coverage Create special command for test coverage in package.json
+     * @param {boolean} params.watch Create special command for tests watch in package.json
+     * @param {boolean} params.useSnapshots Create command for update snapshots in package.json
+     * @param {boolean} params.usePretty Add pretty to dependendies
      * @return {Promise<void>}
      */
     async create(params) {
         const {entities: {PackageJson, Babel, TypeScript}} = require('./all')
         const {tech} = CommonInfo
-        const useTypeScript = TypeScript.isInit
-
-        if (params.example) {
-            const ext = CommonInfo.getExtension('logic')
-            const exampleFn = makeSrcName('jestExample.' + ext)
-            const exampleTest = makeSrcName('jestExample.test.' + ext)
-            await buildTemplate(`jestExample.${ext}`, exampleFn)
-            await buildTemplate(`jestExample.test.js`, exampleTest)
-            wsSend('createEntityMsg', {name: this.name, message: `Example code: ${exampleTest}`})
+        const originalTypeScript = TypeScript.isInit
+        if (jsxInlineSnapshotBug()) {
+            // Пока существует проблема в Jest, которая не позволяет обновлять снапшоты
+            params.useSnapshots = false
+        }
+        if (!params.useSnapshots) {
+            params.usePretty = false
         }
 
         // Config
@@ -63,7 +87,7 @@ class Jest {
             roots: ["<rootDir>/src"],
             testEnvironment: 'jsdom',
         }
-        if (useTypeScript) {
+        if (originalTypeScript) {
             configParams.preset = 'ts-jest'
         }
         const configName = makeFullName('jest.config.js')
@@ -75,11 +99,18 @@ class Jest {
         await fs.promises.writeFile(configName, configText)
 
         await installPackage(this.name, 'jest')
-        if (useTypeScript) {
+        if (originalTypeScript) {
             await installPackage(this.name, 'ts-jest @types/jest')
-        } else if (tech.transpiler === 'Babel' && tech.language === 'TypeScript') {
+        } else if (tech.transpiler === 'Babel') {
             await installPackage(this.name, 'babel-jest @babel/preset-env')
             await Babel.updatePreset(['@babel/preset-env', {targets: {node: 'current'}}])
+        }
+
+        if (params.usePretty) {
+            await installPackage(this.name, 'pretty', false)
+            if (CommonInfo.tech.language === 'TypeScript') {
+                await installPackage(this.name, '@types/pretty', true)
+            }
         }
 
         PackageJson.update(pjEntity => {
@@ -98,7 +129,76 @@ class Jest {
                 pjEntity.addScript(key, 'jest --watch')
                 wsSend('createEntityMsg', {name: 'Jest', message: 'Test with watch: ' + watchCmd})
             }
+            if (params.useSnapshots) {
+                const key = 'test:update'
+                const updateCmd = (CommonInfo.isYarn ? 'yarn' : 'npm run') + ' ' + key
+                pjEntity.addScript(key, 'jest --updateSnapshot')
+                wsSendCreateEntity(this.name, 'Snapshons update: ' + updateCmd)
+            }
         })
+
+        if (params.example) {
+            const ext = CommonInfo.getExtension('logic')
+            const exampleFn = makeSrcName('jestExample.' + ext)
+            const exampleTest = makeSrcName('jestExample.test.' + ext)
+            await buildTemplate(`jestExample.${ext}`, exampleFn)
+            await buildTemplate(`jestExample.test.js`, exampleTest)
+            wsSend('createEntityMsg', {name: this.name, message: `Example code: ${exampleTest}`})
+            if (CommonInfo.tech.framework === 'React') {
+                await this.createReactExample(params)
+            } 
+        }
+
+    }
+
+    async createReactExample(params) {
+        const ts = CommonInfo.tech.language === 'TypeScript'
+        const extX = CommonInfo.getExtension('render')
+        const folderName = makeSrcName('FormDemo')
+        await fs.promises.mkdir(folderName)
+        wsSendCreateEntity(this.name, `An example of testing a react component is in the folder ${folderName}.`)
+
+        // index
+        const indexName = path.join(folderName, `index.${CommonInfo.getExtension('logic')}`)
+        await fs.promises.writeFile(indexName, `export * from "./FormDemo";\n`)
+
+        // component
+        const shortName = `FormDemo.${extX}`
+        const dstName = path.join(folderName, shortName)
+        await buildTemplate(shortName, dstName)
+
+        // test
+        let rows = []
+        const content = await loadTemplate(`FormDemoSpec.${extX}`)
+        rows = splitRows(content)
+        if (!params.usePretty) {
+            // вырезать использование pretty
+            rows = rows.filter(row => !row.startsWith('import pretty'))
+            rows = rows.map(row => {
+                const pos = row.indexOf('expect(pretty(')
+                if (pos < 0) return row
+                return row.replace('expect(pretty(', 'expect((')
+            })
+        }
+        if (!params.useSnapshots) {
+            // Вырезать использование снапшота
+            let valid = true
+            rows = rows.filter(row => {
+                let ok = false
+                if (valid) {
+                    if (row.indexOf(`it("Inline snapshot"`) >= 0) {
+                        valid = false
+                    } else {
+                        ok = true
+                    }
+                } else {
+                    if (row === '  });') valid = true
+                }
+                return ok
+            })
+        }
+        const dstTestName = path.join(folderName, `FormDemo.spec.${extX}`)
+        await writeRows(dstTestName, rows)
     }
 
     /**
