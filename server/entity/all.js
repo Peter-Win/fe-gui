@@ -17,6 +17,7 @@ const {Git} = require('./Git')
 const {Husky} = require('./Husky')
 const {Storybook} = require('./Storybook')
 const {AssetModules} = require('./AssetModules')
+const {Aliases} = require('./Aliases')
 
 const entities = {}
 
@@ -43,5 +44,6 @@ reg(Git)
 reg(Husky)
 reg(Storybook)
 reg(AssetModules)
+reg(Aliases)
 
 module.exports = {entities}

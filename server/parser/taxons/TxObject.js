@@ -1,6 +1,9 @@
 const {TxExpression} = require('./TxExpression')
 const {TxName} = require('./TxName')
+const {TxConst} = require('./TxConst')
 const {Chunk} = require('../Chunk')
+const {isValidName} = require('../isValidName')
+const { Style } = require('../Style')
 
 class TxObject extends TxExpression {
     dict = {}
@@ -46,14 +49,47 @@ class TxObject extends TxExpression {
     /**
      * @param {string} name
      * @param {Taxon?} value
+     * @param {Style?} style
      */
-    addObjectItem(name, value) {
-        const keyTaxon = this.addTaxon(new TxName({name}))
+    addObjectItem(name, value, style) {
+        const keyTaxon = this.addTaxon(createKeyTaxon(name, style))
         this.dict[name] = value || keyTaxon
         const rec = {key: keyTaxon}
         if (value) rec.value = value
         this.items.push(rec)
     }
+
+    /**
+     * @param {string} name
+     * @param {Taxon} value
+     * @param {Style?} style
+     */
+    changeObjectItem(name, value, style) {
+        if (!(name in this.dict)) {
+            this.addObjectItem(name, value, style)
+        } else {
+            this.dict[name] = value
+            const rec = this.items.find(({key}) => key === name)
+            if (rec) rec.value = value
+        }
+    }
+    deleteItem(name) {
+        delete this.dict[name]
+        this.items = this.items.filter(({key}) => key === name)
+    }
 }
 
-module.exports = {TxObject}
+/**
+ * Создать таксон для ключа в объекте из имени
+ * Делается различие для случаев, когда ключ соответствует правилам имени.
+ * Например: camelCase -> TxName, snake_case -> TxName, kebeb-case -> TxConst
+ * @param {string} name 
+ * @param {Style?} style 
+ * @returns {Taxon}
+ */
+const createKeyTaxon = (name, style) => {
+    style = style || new Style()
+    return isValidName(name) ? new TxName({name}) : TxConst.create('string', style.string(name))
+}
+
+module.exports = {TxObject, createKeyTaxon}

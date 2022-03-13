@@ -74,6 +74,10 @@ searchPackagesListResponse: object - server
 
 setReady - client - Switch to ready status
 
+srcFoldersAsk: void - client - Запросить список всех вложенных папок в src, включая src
+
+srcFolders: string[] - список всех вложенных папок в src, включая src
+
 startScript: string - Start script from package.json (client)
 
 startUpgrade: string - (client) - Show form before entity upgrade

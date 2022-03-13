@@ -3,6 +3,7 @@ const {ReaderCtx} = require('../parser/ReaderCtx')
 const {Style} = require('../parser/Style')
 const {formatChunks} = require('../parser/WriterCtx')
 const {TxObject} = require('../parser/taxons/TxObject')
+const {fromQuoted} = require('../parser/stringUtils')
 
 // Вообщем так делать неправильно,
 // т.к. один и тот же идентификатор может появляться в разных контекстах.
@@ -57,7 +58,7 @@ const findConfigRoot = (moduleTaxon) => {
 const mergeObjectTaxons = (source, addition) => {
     const style = new Style()
     addition.items.forEach((additionItem) => {
-        const key = additionItem.key.exportText(style)
+        const key = fromQuoted(additionItem.key.exportText(style))
         const additionValue = additionItem.value
         if (!additionValue) throw new Error('Expected plain object for addition')
         if (!(key in source.dict)) {
@@ -76,7 +77,11 @@ const mergeObjectTaxons = (source, addition) => {
             })
             return
         }
-        throw new Error(`Can't merge ${sourcePart.type} with ${additionValue.type}`)
+        if (source.type === 'TxObject') {
+            source.changeObjectItem(key, additionValue)
+            return
+        }
+        throw new Error(`Can't merge ${sourcePart.type} with ${additionValue.type} for <${key}>`)
     })
 }
 
@@ -120,7 +125,8 @@ const findObjectItem = (taxon, key) => {
     }
     if (taxon.type === 'TxName') {
     }
-    throw new Error()
+    // throw new Error()
+    return null
 }
 
 /**
@@ -139,8 +145,6 @@ const findPath = (taxon, path) => {
 }
 
 const findRule = (sourceTaxon, name) => {
-    // const sourceNode = parseModule(ReaderCtx.fromText(sourceConfig))
-    // const sourceTaxon = sourceNode.createTaxon()
     const rootTaxon = findConfigRoot(sourceTaxon)
     let rulesTaxon = findPath(rootTaxon, 'module.rules')
     if (rulesTaxon.type === 'TxName') {
@@ -170,4 +174,13 @@ const makeRuleRegexp = (ext) => {
     return new RegExp(`\\.(${list.join('|')})$`)
 }
 
-module.exports = {findAssign, findConfigRoot, findPath, findRule, mergeObjectTaxons, merge, makeRuleRegexp }
+module.exports = {
+    findAssign, 
+    findConfigRoot,
+    findObjectItem,
+    findPath, 
+    findRule, 
+    mergeObjectTaxons, 
+    merge, 
+    makeRuleRegexp,
+}
