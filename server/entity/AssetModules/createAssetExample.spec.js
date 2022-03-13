@@ -25,7 +25,7 @@ export const MainFrame = () => (
         <h1>Hello, world!</h1>
 
         {/* Example of svg Asset Module */}
-        <div><img src={svgImage} height="100px" /></div>
+        <div><img src={svgImage} height="100px" alt="svg" /></div>
     </>
 );
 `

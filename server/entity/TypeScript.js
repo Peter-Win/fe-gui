@@ -23,6 +23,10 @@ class TypeScript {
         }
     }
 
+    getConfigName() {
+        return makeFullName('tsconfig.json')
+    }
+
     async create() {
         // const indexExt = CommonInfo.getExtension('render');
         const {entities} = require('../entity/all')
@@ -33,7 +37,7 @@ class TypeScript {
         WebPack.setPart(await loadTemplate('tsForWebpack.js'))
 
         // tsconfig.json
-        await buildTemplate('tsconfig.json', makeFullName('tsconfig.json'))
+        await buildTemplate('tsconfig.json', this.getConfigName())
 
         // index.ts
         const fullIndexName = makeSrcName('index.ts')

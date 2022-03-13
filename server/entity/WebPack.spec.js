@@ -92,6 +92,13 @@ it('part parse', () => {
  */
 const parseExp = (text) => parseExpression(ReaderCtx.fromText(text)).createTaxon()
 
+const codeText = (source) => {
+  const chunks = []
+  const style = new Style()
+  source.exportChunks(chunks, style)
+  return formatChunks(chunks, style)
+}
+
 describe('mergeObjectTaxons', () => {
     it('simple', () => {
         const sourceText = '{zero: 0}'
@@ -99,21 +106,13 @@ describe('mergeObjectTaxons', () => {
         const source = parseExp(sourceText)
         const addition = parseExp(additionText)
         mergeObjectTaxons(source, addition)
-        const chunks = []
-        const style = new Style()
-        source.exportChunks(chunks, style)
-        const dstText = formatChunks(chunks, style)
         const result = `{\n  zero: 0,\n  first: "Hello",\n  second: 3.14,\n}`
-        expect(dstText).to.equal(result)
+        expect(codeText(source)).to.equal(result)
     })
     it('nested', () => {
         const source = parseExp('{first:{second:{x:1}}}')
         const addition = parseExp('{first:{second:{y:2}}}')
         mergeObjectTaxons(source, addition)
-        const chunks = []
-        const style = new Style()
-        source.exportChunks(chunks, style)
-        const dstText = formatChunks(chunks, style)
         const result = `{
   first: {
     second: {
@@ -122,7 +121,23 @@ describe('mergeObjectTaxons', () => {
     },
   },
 }`
-        expect(dstText).to.equal(result)
+        expect(codeText(source)).to.equal(result)
+    })
+
+    it('duplicated values', () => {
+      const source = parseExp(`{first:1, second:2}`)
+      const addition = parseExp(`{first:1, third:3}`)
+      mergeObjectTaxons(source, addition)
+      const result = `{\n  first: 1,\n  second: 2,\n  third: 3,\n}`
+      expect(codeText(source)).to.equal(result)
+    })
+
+    it('kebab-case key', () => {
+      const source = parseExp(`{first: "First"}`)
+      const addition = parseExp(`{"react-dom": "@hot-loader"}`)
+      mergeObjectTaxons(source, addition)
+      const result = `{\n  first: "First",\n  "react-dom": "@hot-loader",\n}`
+      expect(codeText(source)).to.equal(result)
     })
 })
 

@@ -34,15 +34,25 @@ const wsHandlers = () => {
         await PackageJson.load()
         wsSend('scriptsDict', {scripts: PackageJson.data.scripts})
     });
-    wsOn('startScript', async (name) => {
-        const {startScript} = require('./commands/startScript')
-        await startScript(name)
-    })
     wsOn('readyEntitiesAsk', async () => {
         const {entities} = require('./entity/all')
         const {sortByDepends} = require('./sysUtils/sortByDepends')
         const ready = sortByDepends(entities).filter(entity => entity.isReady)
         wsSend('readyEntities', ready.map(e => ({name: e.name})))
+    })
+    wsOn('setReady', async () => {
+        const {CommonInfo} = require('./CommonInfo')
+        CommonInfo.send()
+        CommonInfo.setGlobalStatus(CommonInfo.glbStReady)
+    })
+    wsOn('srcFoldersAsk', async () => {
+        const {getSrcFolders} = require('./commands/srcFolders')
+        const folders = await getSrcFolders()
+        wsSend('srcFolders', folders)
+    })
+    wsOn('startScript', async (name) => {
+        const {startScript} = require('./commands/startScript')
+        await startScript(name)
     })
     wsOn('startUpgrade', async (name) => {
         // нельзя поднять, т.к. внутри зависимость на wsServer
@@ -63,11 +73,6 @@ const wsHandlers = () => {
         const {CommonInfo} = require('./CommonInfo')
         CommonInfo.setGlobalStatus(CommonInfo.glbStCreate)
         await onUpgrade(name, params)
-    })
-    wsOn('setReady', async () => {
-        const {CommonInfo} = require('./CommonInfo')
-        CommonInfo.send()
-        CommonInfo.setGlobalStatus(CommonInfo.glbStReady)
     })
 }
 
