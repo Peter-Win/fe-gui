@@ -6,7 +6,8 @@ module.exports = {
     entry: './src/index.<%= entryExt %>',
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
+        filename: 'bundle.js',
+        publicPath: '/',
     },
     plugins: [
         new CleanWebpackPlugin(),
