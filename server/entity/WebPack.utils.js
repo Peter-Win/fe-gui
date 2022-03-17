@@ -78,7 +78,7 @@ const mergeObjectTaxons = (source, addition) => {
             return
         }
         if (source.type === 'TxObject') {
-            source.changeObjectItem(key, additionValue)
+            source.changeObjectItem(key, key, additionValue)
             return
         }
         throw new Error(`Can't merge ${sourcePart.type} with ${additionValue.type} for <${key}>`)

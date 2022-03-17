@@ -5,6 +5,7 @@ const {Style} = require('../parser/Style')
 const {formatChunks} = require('../parser/WriterCtx')
 const {
     loadAliasesList,
+    separateAliasesList,
     updateWebPackConfig,
     updateESLintConfig,
     updateTSConfig,
@@ -64,6 +65,15 @@ describe('loadAliasesList', () => {
     })
 })
 
+describe('separateAliasesList', () => {
+    expect(separateAliasesList([])).to.deep.equal({ reserved: {}, pairs: [] })
+    expect(separateAliasesList([['one']])).to.deep.equal({ reserved: {one: 1}, pairs: [] })
+    expect(separateAliasesList([['a', 'b']])).to.deep.equal({ reserved: {}, pairs: [['a', 'b']] })
+    expect(separateAliasesList([['first', '1'], ['hello']])).to.deep.equal({
+        reserved: {hello: 1}, pairs: [['first', '1']] 
+    })
+})
+
 const configWithSrc =
 `module.exports = {
   entry: './src/index.tsx',
@@ -83,6 +93,37 @@ const configWithKebab =
     },
   },
 };`
+const configWithRouter =
+`module.exports = {
+  entry: './src/index.tsx',
+  resolve: {
+    alias: {
+      'react-dom': '@hot-loader/react-dom',
+    },
+  },
+};`
+const configWithRouterAndSrc =
+`module.exports = {
+  entry: './src/index.tsx',
+  resolve: {
+    alias: {
+      'react-dom': '@hot-loader/react-dom',
+      src: path.join(__dirname, 'src'),
+    },
+  },
+};`
+const configWithRouterSrcAndComponents =
+`module.exports = {
+  entry: './src/index.tsx',
+  resolve: {
+    alias: {
+      'react-dom': '@hot-loader/react-dom',
+      src: path.join(__dirname, 'src'),
+      components: path.join(__dirname, 'src/components'),
+    },
+  },
+};`
+  
 
 describe('updateWebPackConfig', () => {
     const style = new Style()
@@ -114,13 +155,47 @@ describe('updateWebPackConfig', () => {
     })
     it('kebab with single quotes', () => {
         const tx = parseConfig(configWithSrc)
-        updateWebPackConfig(tx, [{ oldKey: '', key: 'my-app', value: 'src/my-app' }], style)
+        updateWebPackConfig(tx, [
+            { oldKey: 'src', key: 'src', value: 'src'}, // если не указать, то эта строка будет удалена
+            { oldKey: '', key: 'my-app', value: 'src/my-app' }
+        ], style)
         expect(makeText(tx)).to.equal(configWithKebab)
     })
     it('delete', () => {
         const tx = parseConfig(configWithKebab)
         updateWebPackConfig(tx, [{ oldKey: 'src', key: 'src', value: 'src' }], style)
         expect(makeText(tx)).to.equal(configWithSrc)
+    })
+    it('with reserved word', () => {
+        const tx = parseConfig(configWithRouter)
+        updateWebPackConfig(tx, [{oldKey:'', key: 'src', value: 'src'}], style)
+        expect(makeText(tx)).to.equal(configWithRouterAndSrc)
+    })
+    it('with reserved word and pair', () => {
+        const tx = parseConfig(configWithRouterAndSrc)
+        updateWebPackConfig(tx, [
+            {oldKey: 'src', key: 'src', value: 'src'},
+            {oldKey: '', key: 'components', value: 'src/components'},
+        ], style)
+        expect(makeText(tx)).to.equal(configWithRouterSrcAndComponents)
+    })
+    // Замена значения...
+    it('change value with same key', () => {
+        const tx = parseConfig(configWithRouterAndSrc)
+        const dst =
+`module.exports = {
+  entry: './src/index.tsx',
+  resolve: {
+    alias: {
+      'react-dom': '@hot-loader/react-dom',
+      new_src: path.join(__dirname, 'src/new'),
+    },
+  },
+};`
+        updateWebPackConfig(tx, [
+            {oldKey: 'src', key: 'new_src', value: 'src/new'}
+        ], style)
+        expect(makeText(tx)).to.equal(dst)
     })
 })
 
@@ -187,13 +262,18 @@ describe('updateTSConfig', () => {
                 }
             }
         }
-        updateTSConfig(cfg, [['src', 'src'], ['components', 'src/components']])
+        updateTSConfig(cfg, [
+            ['src', 'src'],
+            ['components', 'src/components'],
+            ['test', 'test1']
+        ])
         expect(cfg).to.deep.equal({
             compilerOptions: {
                 baseUrl: './',
                 paths: {
                     "src/*": ['src/*'],
                     "components/*": ['src/components/*'],
+                    "test/*": ["test1/*"]
                 }
             }
         })

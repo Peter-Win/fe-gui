@@ -6,6 +6,7 @@ const {wsSendCreateEntity} = require('../wsSend')
 const {TxObject} = require('../parser/taxons/TxObject')
 const {parseExpression} = require('../parser/parseExpression')
 const {CommonInfo} = require('../CommonInfo')
+const {fromQuoted} = require('../parser/stringUtils')
 
 /**
  * Здесь собраны знания об особенностях работы ряда других агентов.
@@ -17,8 +18,22 @@ const {CommonInfo} = require('../CommonInfo')
  * ReactRouter реализует пару 'react-dom': '@hot-loader/react-dom'
  */
 
- const getValue = (txConst) =>
- txConst.constValue.slice(1, -1)
+const getValue = (txConst) => fromQuoted(txConst.constValue)
+
+/**
+ * Извлечь строковый ключ из таксона, который представляет ключ объекта
+ * @param {Taxon} taxon 
+ * @returns {string}
+ */
+const getKey = (taxon) => {
+    if (taxon.type === 'TxConst') {
+        return getValue(taxon)
+    }
+    if (taxon.type === 'TxName') {
+        return taxon.name
+    }
+    return ''
+}
 
 /**
 * Load aliases list from webpack config
@@ -32,19 +47,15 @@ const loadAliasesList = (mainTaxon) => {
     if (!resolveTaxon) return []
     const aliasTaxon = findObjectItem(resolveTaxon, 'alias')
     if (!aliasTaxon) return []
-    if (aliasTaxon.type !== 'TxObject') throw new Error("'alias' must be an object")
+    if (aliasTaxon.type !== 'TxObject') throw new Error(`'alias' must be an object. Found type: '${aliasTaxon.type}'`)
     const validItems = aliasTaxon.items.filter(({key, value}) => {
         if (!value) return false
         if (!(key.type === 'TxName' || (key.type === 'TxConst' && key.constType === 'string'))) return false
         return true
     })
     return validItems.map(({key, value}) => {
-        const result = []
-        if (key.type === 'TxConst') {
-            result[0] = getValue(key)
-        } else {
-            result[0] = key.name
-        }
+        const result = [getKey(key)]
+        if (!result[0]) return result
         // Expected pattern: path.resolve(__dirname, 'src/utilities/')
         if (value.type === "TxFnCall") {
             // Expected types list: TxBinOp, TxName, TxConst
@@ -54,38 +65,62 @@ const loadAliasesList = (mainTaxon) => {
             }
         }
         return result
-    })
+    }).filter(pair => !!pair[0])
 }
+
+/**
+ * Разделить алиасы на парные и непарные, которые превращаются в ключевые слова
+ * В дальнейшем алиасы, попавшие в ключевые слова, не подлежат удалению из конфига вебпака
+ * @param {string[][]} pairs 
+ * @returns {{ reserved: Record<string, 1>; pairs: string[][]; }}
+ */
+const separateAliasesList = (pairs) => (
+    {
+        reserved: pairs.reduce((acc, pair) => pair.length === 1 ? {...acc, [pair[0]]: 1} : acc, {}),
+        pairs: pairs.filter(pair => pair.length === 2),
+    }
+)
 
 /**
 * @param {Taxon} configTaxon IN/OUT
 * @param {Array<{oldKey:string; key:string; value:string;}>} aliases 
 */
-const updateWebPackConfig = (configTaxon, aliases, style) => {
- const rootTaxon = findConfigRoot(configTaxon)
- let resolveTaxon = findObjectItem(rootTaxon, 'resolve')
- if (!resolveTaxon) {
-     resolveTaxon = new TxObject()
-     rootTaxon.addObjectItem('resolve', resolveTaxon)
- }
- let aliasTaxon = findObjectItem(resolveTaxon, 'alias')
- if (!aliasTaxon) {
-     aliasTaxon = new TxObject()
-     resolveTaxon.addObjectItem('alias', aliasTaxon)
- }
- const makeValueTaxon = (value) => {
-     const text = `path.join(__dirname, ${style.string(value)})`
-     const node = parseExpression(ReaderCtx.fromText(text))
-     return node.createTaxon()
- }
- aliases.forEach(({oldKey, key, value}) => {
-     if (!oldKey || !(oldKey in aliasTaxon.dict)) {
-         aliasTaxon.addObjectItem(key, makeValueTaxon(value), style)
-     } else {
-         aliasTaxon.deleteItem(oldKey)
-         aliasTaxon.changeObjectItem(key, makeValueTaxon(value), style)
-     }
- })
+const updateWebPackConfig = (configTaxon, aliases, style) => {    
+    const srcAliases = separateAliasesList(loadAliasesList(configTaxon))
+
+    const rootTaxon = findConfigRoot(configTaxon)
+    let resolveTaxon = findObjectItem(rootTaxon, 'resolve')
+    if (!resolveTaxon) {
+        resolveTaxon = new TxObject()
+        rootTaxon.addObjectItem('resolve', resolveTaxon)
+    }
+    let aliasTaxon = findObjectItem(resolveTaxon, 'alias')
+    if (!aliasTaxon) {
+        aliasTaxon = new TxObject()
+        resolveTaxon.addObjectItem('alias', aliasTaxon)
+    }
+
+    // Удалить лишние элементы
+    Object.keys(aliasTaxon.dict).filter(rawKey => {
+        const key = fromQuoted(rawKey)
+        if (key in srcAliases.reserved) return
+        if (aliases.find(({oldKey}) => oldKey === key)) return
+        aliasTaxon.deleteItem(key)
+    })
+
+    const makeValueTaxon = (value) => {
+        const text = `path.join(__dirname, ${style.string(value)})`
+        const node = parseExpression(ReaderCtx.fromText(text))
+        return node.createTaxon()
+    }
+    
+    aliases.forEach(({oldKey, key, value}) => {
+        if (!oldKey || !(oldKey in aliasTaxon.dict)) {
+            aliasTaxon.addObjectItem(key, makeValueTaxon(value), style)
+        } else {
+            aliasTaxon.changeObjectItem(oldKey, key, makeValueTaxon(value), style)
+        }
+    })
 }
 
 /**
@@ -179,6 +214,7 @@ module.exports = {
     loadAliasesList,
     updateWebPackConfig,
     saveAliasesList,
+    separateAliasesList,
     updateESLintConfigFile,
     updateESLintConfig,
     updateTSConfigFile,

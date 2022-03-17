@@ -44,6 +44,6 @@ reg(Git)
 reg(Husky)
 reg(Storybook)
 reg(AssetModules)
-// reg(Aliases)
+reg(Aliases)
 
 module.exports = {entities}

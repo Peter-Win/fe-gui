@@ -6,11 +6,14 @@ class Aliases {
     depends = ['WebPack']
     isInit = false
     isReady = false
+    isVisible = false
 
     async init() {
         const {CommonInfo} = require('../CommonInfo')
         const {entities} = require('./all')
         this.isReady = CommonInfo.tech.bundler === 'WebPack'
+        if (!this.isReady) return
+        this.isVisible = true
 
         // Загрузить список псевдонимов из конфига вебпака. Этот список является главным.
         const isWebConfig = await isFileExists(entities.WebPack.getConfigName())

@@ -4,6 +4,24 @@ const {TxConst} = require('./TxConst')
 const {Chunk} = require('../Chunk')
 const {isValidName} = require('../isValidName')
 const { Style } = require('../Style')
+const {fromQuoted} = require('../stringUtils')
+
+const getValue = (txConst) => fromQuoted(txConst.constValue)
+
+/**
+ * Извлечь строковый ключ из таксона, который представляет ключ объекта
+ * @param {Taxon} taxon 
+ * @returns {string}
+ */
+ const getKey = (taxon) => {
+    if (taxon.type === 'TxConst') {
+        return getValue(taxon)
+    }
+    if (taxon.type === 'TxName') {
+        return taxon.name
+    }
+    return ''
+}
 
 class TxObject extends TxExpression {
     dict = {}
@@ -64,13 +82,21 @@ class TxObject extends TxExpression {
      * @param {Taxon} value
      * @param {Style?} style
      */
-    changeObjectItem(name, value, style) {
-        if (!(name in this.dict)) {
+    changeObjectItem(oldName, name, value, style) {
+        if (!(oldName in this.dict)) {
             this.addObjectItem(name, value, style)
         } else {
+            if (oldName !== name) {
+                delete this.dict[oldName]
+            }
             this.dict[name] = value
-            const rec = this.items.find(({key}) => key === name)
-            if (rec) rec.value = value
+            const rec = this.items.find(({key}) => getKey(key) === oldName)
+            if (rec) {
+                rec.key = this.addTaxon(createKeyTaxon(name, style))
+                rec.value = value
+            } else {
+                this.addObjectItem(name, value, style)
+            }
         }
     }
     deleteItem(name) {
