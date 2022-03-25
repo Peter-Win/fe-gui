@@ -22,5 +22,8 @@ describe('Style', () => {
 
         expect(styleSingle.string('\t\n\r')).to.equal("'\\t\\n\\r'")
         expect(styleDouble.string('\t\n\r')).to.equal('"\\t\\n\\r"')
+
+        expect(styleSingle.string('\\A\\')).to.equal("'\\\\A\\\\'")
+        expect(styleDouble.string('\\A\\')).to.equal('"\\\\A\\\\"')
     })
 })

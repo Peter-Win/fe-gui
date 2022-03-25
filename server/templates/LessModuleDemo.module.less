@@ -1,0 +1,14 @@
+@bkColor: #FFF;
+@txtColor: #383;
+
+.hello {
+    background: darken(@bkColor, 20%);
+    padding: 1em;
+    & > div {
+        border: thin solid silver;
+        padding: 1em;
+        border-radius: 0.5em;
+        color: @txtColor; 
+        background: @bkColor;
+    }
+}

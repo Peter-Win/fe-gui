@@ -3,8 +3,18 @@ const {parseModule, parseExpression} = require('../parser/parseExpression')
 const {ReaderCtx} = require('../parser/ReaderCtx')
 const {Style} = require('../parser/Style')
 const {formatChunks} = require('../parser/WriterCtx')
-const {findConfigRoot, findAssign, findRule, findPath, mergeObjectTaxons, merge, makeRuleRegexp} = require('./WebPack.utils')
+const {
+  findConfigRoot,
+  findAssign,
+  findRule,
+  findPath,
+  mergeObjectTaxons,
+  merge,
+  makeRuleRegexp,
+  findConstValueTaxon
+} = require('./WebPack.utils')
 const {Taxon} = require('../parser/taxons/Taxon')
+const {TxObject} = require('../parser/taxons/TxObject')
 
 describe('find config root', () => {
     it('minimal', () => {
@@ -251,6 +261,55 @@ module.exports = {
         const use = findPath(rule, 'use')
         expect(use.type).to.equal('TxArray')
     })
+
+    it('exclude', () => {
+      const src = `module.exports = {
+  module: {
+    rules: [
+      { test: /\\.module\\.less$/, name: "module" },
+      { test: /\\.less$/, name: "style" },
+    ]
+  }
+}`
+      const sourceNode = parseModule(ReaderCtx.fromText(src))
+      const sourceTaxon = sourceNode.createTaxon()
+
+      const ruleMiss = findRule(sourceTaxon, '.module.less')
+      expect(ruleMiss.dict.name.constValue).to.equal(`"module"`) // because module before then style
+
+      const ruleModule = findRule(sourceTaxon, '.module.less', '.less')
+      expect(ruleModule).to.be.instanceof(TxObject)
+      expect(ruleModule.dict.name.constValue).to.equal(`"module"`)
+
+      const ruleStyle = findRule(sourceTaxon, '.less')
+      expect(ruleStyle.dict.name.constValue).to.equal(`"style"`)
+
+      const ruleCss = findRule(sourceTaxon, '.css')
+      expect(ruleCss).to.equal(undefined)
+    })
+
+    it('Less after CssModules', () => {
+      const src = 
+`module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.module\.less$/,
+        name: 'modules',
+      },
+      {
+        test: /\.less$/,
+        name: 'styles',
+      },
+    ],
+  },
+};`
+      const sourceNode = parseModule(ReaderCtx.fromText(src))
+      const sourceTaxon = sourceNode.createTaxon()
+      const ruleLess = findRule(sourceTaxon, '.less')
+      expect(ruleLess).to.be.instanceOf(TxObject)
+      expect(ruleLess.dict.name.constValue).to.equal(`'styles'`)
+    })
 })
 
 describe('makeRuleRegexp', () => {
@@ -259,5 +318,18 @@ describe('makeRuleRegexp', () => {
   })
   it('multiple case', () => {
     expect(makeRuleRegexp(['png', 'jpg', 'jpeg']).toString()).to.equal('/\\.(png|jpg|jpeg)$/')
+  })
+})
+
+describe('findConstValueTaxon', () => {
+  it('simple case', async () => {
+    const source = `module.exports = { first: 1 }`
+    const moduleTaxon = parseModule(ReaderCtx.fromText(source)).createTaxon()
+    const rootTaxon = findConfigRoot(moduleTaxon)
+    expect(rootTaxon.dict.first.constValue).to.equal('1')
+    const txOne = await findConstValueTaxon(rootTaxon.dict.first)
+    expect(txOne.type).to.equal('TxConst')
+    expect(txOne.constType).to.equal('number')
+    expect(txOne.constValue).to.equal('1')
   })
 })

@@ -155,11 +155,14 @@ class WebPack {
         return sourceNode.createTaxon()
     }
     async saveConfigTaxon(taxon) {
-        const style = new Style()
+        const style = this.getStyle()
         const chunks = []
         taxon.exportChunks(chunks, style)
         const text = formatChunks(chunks, style)
         await fs.promises.writeFile(this.getConfigName(), text)
+    }
+    getStyle() {
+        return new Style()
     }
 }
 module.exports = {WebPack}

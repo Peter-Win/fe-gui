@@ -1,0 +1,12 @@
+.hello {
+    background: #CC8;
+    padding: 1em;
+}
+
+.hello > div {
+    border: thin solid silver;
+    padding: 1em;
+    border-radius: 0.5em;
+    color: blue; 
+    background: white;
+}

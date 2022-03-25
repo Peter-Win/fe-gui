@@ -13,10 +13,28 @@ class Style {
         return step.repeat(Math.max(0, level))
     }
     string(value) {
-        const escaped = value.replace(/\t/g, '\\t').replace(/\n/g, '\\n').replace(/\r/g, '\\r')
-        const unquoted = this.singleQuote ? escaped.replace(/\'/g, '\\\'') : escaped.replace(/\"/g, '\\\"')
-        return this.singleQuote ? `'${unquoted}'` : `"${unquoted}"`
+        let escaped=''
+        for (let i=0; i<value.length; i++) {
+            const c = value[i]
+            if (c in escapeMap) {
+                escaped += escapeMap[c]
+            } else if (c==="'" && this.singleQuote) {
+                escaped += "\\'"
+            } else if (c==='"' && !this.singleQuote) {
+                escaped += '\\"'
+            } else {
+                escaped += c
+            }
+        }
+        return this.singleQuote ? `'${escaped}'` : `"${escaped}"`
     }
+}
+
+const escapeMap = {
+    '\t': '\\t',
+    '\n': '\\n',
+    '\r': '\\r',
+    '\\': '\\\\',
 }
 
 module.exports = {Style}

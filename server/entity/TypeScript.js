@@ -2,6 +2,7 @@
  * TypeScript transpiler (not language)
  * For example, TypeScript can also be supported by the Babel transpiler.
  */
+const fs = require('fs')
 const {CommonInfo} = require('../CommonInfo')
 const {wsSend} = require('../wsServer')
 const {loadTemplate, buildTemplate} = require('../sysUtils/loadTemplate')
@@ -43,6 +44,22 @@ class TypeScript {
         const fullIndexName = makeSrcName('index.ts')
         wsSend('createEntityMsg', {name: this.name, message: `Create ${fullIndexName}`})
         await buildTemplate('tsIndex.ts', fullIndexName)
+    }
+
+    /**
+     * 
+     * @param {function(JSON):void} fnUpdate 
+     * @param {function(string):void?} fnMessage 
+     */
+    async updateConfig(fnUpdate, fnMessage) {
+        const fname = this.getConfigName()
+        const options = {encoding: 'utf8'}
+        const srcText = await fs.promises.readFile(fname, options)
+        const data = JSON.parse(srcText)
+        fnUpdate(data)
+        const dstText = JSON.stringify(data, null, '  ')
+        await fs.promises.writeFile(fname, dstText, options)
+        if (fnMessage) fnMessage(`TypeScript config updated: ${fname}`)
     }
 }
 
