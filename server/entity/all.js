@@ -18,6 +18,7 @@ const {Husky} = require('./Husky')
 const {Storybook} = require('./Storybook')
 const {AssetModules} = require('./AssetModules')
 const {Aliases} = require('./Aliases')
+const {CssModules} = require('./CssModules')
 
 const entities = {}
 
@@ -45,5 +46,6 @@ reg(Husky)
 reg(Storybook)
 reg(AssetModules)
 reg(Aliases)
+reg(CssModules)
 
 module.exports = {entities}

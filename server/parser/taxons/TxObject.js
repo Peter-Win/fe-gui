@@ -5,6 +5,7 @@ const {Chunk} = require('../Chunk')
 const {isValidName} = require('../isValidName')
 const { Style } = require('../Style')
 const {fromQuoted} = require('../stringUtils')
+const { Taxon } = require('./Taxon')
 
 const getValue = (txConst) => fromQuoted(txConst.constValue)
 
@@ -24,6 +25,9 @@ const getValue = (txConst) => fromQuoted(txConst.constValue)
 }
 
 class TxObject extends TxExpression {
+    /**
+     * @type {Record<string, {key:Taxon; value?:Taxon;}>}
+     */
     dict = {}
     items = []
     init(node) {

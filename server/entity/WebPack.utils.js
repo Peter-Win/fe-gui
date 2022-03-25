@@ -132,7 +132,7 @@ const findObjectItem = (taxon, key) => {
 /**
  * Поиск вложенного таксона
  * @param {Taxon} taxon
- * @param {string} path
+ * @param {string} path example: 'module.rules'
  * @return {Taxon}
  */
 const findPath = (taxon, path) => {
@@ -144,7 +144,7 @@ const findPath = (taxon, path) => {
     }, taxon)
 }
 
-const findRule = (sourceTaxon, name) => {
+const findRule = (sourceTaxon, name, exclude) => {
     const rootTaxon = findConfigRoot(sourceTaxon)
     let rulesTaxon = findPath(rootTaxon, 'module.rules')
     if (rulesTaxon.type === 'TxName') {
@@ -158,8 +158,21 @@ const findRule = (sourceTaxon, name) => {
         const txTest = findObjectItem(taxon, 'test')
         if (!txTest || txTest.type !== 'TxConst' || txTest.constType !== 'regexp') return false
         const rx = txTest.getRealValue()
+        if (exclude && rx.test(exclude)) {
+            return false
+        }
         return rx.test(name)
     })
+}
+
+/**
+ * 
+ * @param {Taxon} expressionTaxon 
+ * @returns {TxConst|null}
+ */
+const findConstValueTaxon = async (expressionTaxon) => {
+    if (expressionTaxon.type === 'TxConst') return expressionTaxon
+    return null
 }
 
 /**
@@ -175,6 +188,7 @@ const makeRuleRegexp = (ext) => {
 }
 
 module.exports = {
+    findConstValueTaxon,
     findAssign, 
     findConfigRoot,
     findObjectItem,

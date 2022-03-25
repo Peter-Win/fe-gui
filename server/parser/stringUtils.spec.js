@@ -10,4 +10,5 @@ describe('fromQuoted', () => {
     expect(fromQuoted('`A`')).to.equal('A')
     expect(fromQuoted('"A\\tB\\tC"')).to.equal('A\tB\tC')
     expect(fromQuoted('"A\r\n"')).to.equal('A\r\n')
+    expect(fromQuoted('"\\\\"')).to.equal('\\')
 })
