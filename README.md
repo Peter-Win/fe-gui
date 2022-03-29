@@ -46,3 +46,11 @@ https://createapp.dev/
 С помощью GUI можно создать новый проект с кучей технологий.
 Но только новый проект. Дальнейшие модификации уже надо делать вручную. 
 
+## Известные проблемы с различными конфигурациями
+- Не работают inline snapshots в связке JavaScript+Babel+Jest. 
+  При запуске тестов появляется ошибка 
+
+  SyntaxError: C:\JS\fe-gui-test\src\components\HelloWorld\HelloWorld.spec.jsx: Support for the experimental syntax 'jsx' isn't currently enabled
+  
+  Но достаточно убрать инструкцию toMatchInlineSnapshot и все остальное работает правильно.
+

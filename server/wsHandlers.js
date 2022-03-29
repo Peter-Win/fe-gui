@@ -25,6 +25,14 @@ const wsHandlers = () => {
         const {installPackages} = require('./commands/installPackages')
         await installPackages(data)
     })
+    wsOn('componentExistsAsk', async (path) => {
+        const {componentExists} = require('./commands/componentExists')
+        await componentExists(path)
+    })
+    wsOn('componentPreviewAsk', async (params) => {
+        const {componentPreview} = require('./commands/componentPreview')
+        componentPreview(params)
+    })
     wsOn('createApp', async (data) => {
         const {createApp} = require('./commands/createApp')
         await createApp(data)

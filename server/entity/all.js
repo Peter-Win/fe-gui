@@ -19,6 +19,7 @@ const {Storybook} = require('./Storybook')
 const {AssetModules} = require('./AssetModules')
 const {Aliases} = require('./Aliases')
 const {CssModules} = require('./CssModules')
+const {ReactComponent} = require('./ReactComponent')
 
 const entities = {}
 
@@ -47,5 +48,6 @@ reg(Storybook)
 reg(AssetModules)
 reg(Aliases)
 reg(CssModules)
+reg(ReactComponent)
 
 module.exports = {entities}

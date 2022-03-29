@@ -7,6 +7,25 @@ commonInfo: object - Common information
     folderName: string - project root folder name.
   tech:
 
+componentExists: object - Is a component exist
+  name: string      ex: "HelloWorld"
+  path: string      ex: "src/components/HelloWorld"
+  fileName?: string  ex: "src/components/HelloWorld.tsx" if exists=true
+  exists: boolean
+
+componentExistsAsk: string - client - Find component by relative path. Example: "src/components/HelloWorld"
+
+componentPreview: object - Просмотр файлов, которые будут сгенерированы при создании компонента see: createReactComponent
+  name: string
+  folder: string
+  createFolder: boolean
+  useReturn: boolean
+  useJest: boolean
+
+componentPreviewAsk: object - client - Запрос файлов, которые будут сгенерированы при создании компонента
+  folders: string[]
+  files: {name:string; data:string[]}[]
+
 createApp: object - Create application
   common
     name: string

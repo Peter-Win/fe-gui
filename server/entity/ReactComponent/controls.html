@@ -1,0 +1,155 @@
+<style>
+    .react-comp-box h3 { margin-top: 1em; }
+    .react-comp-box>div { margin: .2em 0; }
+    .react-comp-box>.line { display: flex; flex-direction: row; }
+    .react-comp-box .title { width: 10em; display: inline-block; }
+    .react-comp-box .indent { margin-left: 2em; }
+    .prop-line {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin: 0.3em 0;
+    }
+    .prop-line>div { padding-right: .2em;}
+    .prop-line>div:nth-child(1) { width: 20em; }
+    .prop-line>div input[type=text] { width: 100%; }
+    .prop-line>div:nth-child(2) { width: 3em; text-align: center; margin: 0; }
+    .prop-line>div:nth-child(3), .prop-line>div:nth-child(4), .prop-line>div:nth-child(5) { width: 15em; }
+    .props-header>div {
+        background: #DDD;
+    }
+
+    .file-preview { margin-bottom: 1em; }
+    .file-preview > label {
+        font-weight: bold;
+        background: #CCC;
+        padding: 0.3em 0.8em;
+        border-top: thick solid #AAA;
+        box-sizing: border-box;
+        margin: 0;
+        line-height: 1;
+        display: inline-block;
+    }
+    .file-preview > pre {
+        border: solid thin #AAA;
+        margin: 0;
+        padding: 0.3em 0.5em;
+        box-sizing: border-box;
+        background: #F2F2F2;
+    }
+    #react-component-preview .no-preview {
+        border: solid thin #A00;
+        padding: 1em;
+        color: #555;
+    }
+</style>
+
+<div class="react-comp-box">
+    <div class="line">
+        <div class="rn-ctrl" data-type="String" data-name="folder" data-title="Owner folder"
+            data-list="foldersForReactComp">
+            <b class="rn-validator" data-type="NonEmpty" data-msg="The folder is not specified"></b>
+            <b class="rn-validator" data-type="ReactCompFolders" data-msg="Folder is not exist."></b>
+        </div>
+        <button type="button" id="react-comp-folders-reload"
+            title="Click this button if any new folders have been created in the source"
+        >Reload</button>
+    </div>
+    <div class="rn-ctrl" data-type="String" data-name="name" data-title="Component name">
+        <b class="rn-validator" data-type="NonEmpty" data-msg="The name of React component is not specified"></b>
+        <b class="rn-validator" data-type="Regexp" data-regexp="/^[A-Z][A-Za-z0-9]*$/"
+            data-msg="Invalid component name"></b>
+        <b class="rn-validator" data-type="ComponentUnique"></b>
+    </div>
+    <div class="line">
+        <div class="title">Use style</div>
+        <div class="rn-ctrl" data-type="Droplist" data-name="styles" data-options="g_compStyles" data-value0=""></div>
+    </div>
+    <div>
+        <div class="rn-ctrl" data-type="Checkbox" data-name="createFolder"
+            data-title="Mandatory creation of the component in a separate folder. (Useful for adding additional files)"></div>
+        <div class="rn-ctrl" data-type="Checkbox" data-name="useReturn"
+            data-title="Use return instruction. (Useful for adding some code before creating an React element)"></div>
+    </div>
+
+    <h3>Props</h3>
+    <div class="prop-line props-header">
+        <div>Name</div>
+        <div>Req</div>
+        <div>Type</div>
+        <div>Default value</div>
+        <div title="This value can be used in test files">Test value</div>
+    </div>
+    <div class="rn-ctrl" data-type="Array" data-name="props" data-tm="TmCtrlReactProps" data-item_tm="TmPropItem"></div>
+    <hr />
+    <div class="rn-ctrl" data-type="Hidden" data-name="availJest"></div>
+    <div id="react-comp-jest">
+        <div class="rn-ctrl" data-type="Checkbox" data-name="useJest" data-title="Create a spec file for Jest testing"></div>
+        <div class="indent" id="jest-options">
+            <div class="rn-ctrl" data-type="Hidden" data-name="availInlineSnapshots"></div>
+            <div class="rn-ctrl" data-type="Checkbox" data-name="useInlineSnapshot" data-title="Use inline snapshot"></div>
+        </div>
+    </div>
+    <div class="rn-ctrl" data-type="Checkbox" data-name="useMainFrame" data-title="Try to use the component on the main page"></div>
+    <div class="rn-ctrl" data-type="Checkbox" data-name="openEditor" data-title="Try to open the component in the editor after creation"></div>
+
+    <h3>Preview</h3>
+    <div id="react-component-preview"></div>
+</div>
+
+<datalist id="foldersForReactComp">
+    <option value="src">
+</datalist>
+
+<script id="TmCtrlReactProps" type="text/html">
+    <div>
+      <div class="rn-array"></div>
+      <button type="button" class="rn-add-item">Add a new property</button>
+    </div>
+</script>
+
+<script id="TmPropItem" type="text/html">
+    <div class="prop-line">
+        <div class="rn-ctrl" data-type="String" data-name="propName">
+            <b class="rn-validator" data-type="NonEmpty" data-msg="The name of property is required"></b>
+            <b class="rn-validator" data-type="Regexp" data-regexp="/^[a-z][a-z0-9]*$/i" data-msg="Invalid property name"></b>
+            <b class="rn-validator" data-type="PropNoDup" data-msg="Duplicated"></b>
+        </div>
+        <div class="rn-ctrl" data-type="Checkbox" data-name="isRequired" data-value0="true"
+            data-tooltip="Property is required"></div>
+        <div class="rn-ctrl" data-type="Droplist" data-name="type" data-options="g_propTypes"
+            data-option_label="#" data-option_value="#" data-value0="string"
+        >
+            <b class="rn-validator" data-type="NonEmpty" data-msg="The type of property is required"></b>
+        </div>
+        <div class="rn-ctrl" data-type="String" data-name="defaultValue">
+            <b class="rn-validator" data-type="PropDefaultValue"></b>
+        </div>
+        <div class="rn-ctrl" data-type="String" data-name="testValue">
+            <b class="rn-validator" data-type="PropDefaultValue"></b>
+        </div>
+        <button type="button" class="rn-del-item">Delete</button>
+    </div>
+</script>
+
+<script>
+    var g_propTypes = [
+        'string',
+        'number',
+        'boolean',
+        'React.Node',
+        'React.Element',
+    ];
+</script>
+
+<script id="TmFilePreview" type="text/html">
+    <div class="file-preview">
+        <label>{{name}}</label>
+        <pre>{{data}}</pre>
+    </div>
+</script>
+<script id="TmNoPreview" type="text/html">
+    <div class="no-preview">
+        Preview is available only if all fields are filled in correctly.
+    </div>
+</script>

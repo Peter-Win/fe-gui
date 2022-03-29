@@ -1,3 +1,4 @@
 const {CssModules} = require('./CssModules')
+const {getAvailableExtensions} = require('./CssModules.utils')
 
-module.exports = {CssModules}
+module.exports = {CssModules, getAvailableExtensions}

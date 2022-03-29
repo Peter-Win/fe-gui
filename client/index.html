@@ -216,7 +216,7 @@
 </script>
 <script id='TmCtrlCheckbox' type='text/html'>
     <div>
-        <label title="{{tooltip}}">
+        <label {{#tooltip}}title="{{tooltip}}"{{/tooltip}}>
             <input type='checkbox' name='{{name}}'>{{#title}} {{title}}{{/title}}
         </label>
     </div>
