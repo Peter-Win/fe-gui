@@ -46,13 +46,14 @@ const injectDemoCodeToMainFrame = (rows, header, code) => {
     injectCode(rows, '<>', code)
 }
 
-const injectDemoCode = async (shortName, header, code) => {
+const injectDemoCode = async (shortName, header, code, log) => {
     const fullName = makeSrcName(shortName)
     const rows = await readRows(fullName)
     if (/^MainFrame\.[jt]sx$/.test(shortName)) {
         injectDemoCodeToMainFrame(rows, header, code)
     }
     await writeRows(fullName, rows)
+    if (log) log(`Updated ${fullName}`)
 }
 
 module.exports = {injectDemoCode, injectDemoCodeToMainFrame, injectCode, getStartSpace}

@@ -8,11 +8,6 @@ const {buildTemplate, loadTemplate} = require('../sysUtils/loadTemplate')
 const {makeSrcName, makeFullName} = require('../fileUtils')
 const {splitRows, writeRows} = require('../sysUtils/textFile')
 
-// Jest have a bug: Inline snapshots are not written to js files containing JSX syntax 
-// https://github.com/facebook/jest/issues/11741
-// So we disable inline snapshots for JSX
-const jsxInlineSnapshotBug = () => CommonInfo.tech.language === 'JavaScript'
-
 class Jest {
     name = 'Jest'
     depends = ['Babel', 'TypeScript']
@@ -29,7 +24,7 @@ class Jest {
     get controls() {
         return `
 <div class="rn-ctrl" data-name="example" data-type="Checkbox" data-title="Generate example test"></div>
-${!jsxInlineSnapshotBug() ? `
+${this.availInlineSnapshots() ? `
 <div class="rn-ctrl" data-name="useSnapshots" data-type="Checkbox" data-title="Use snapshots"></div>
 <div style="padding-left:2em;">
   <div class="rn-ctrl" data-name="usePretty" data-type="Checkbox" data-title="Use Pretty library for snapshots"></div>
@@ -74,8 +69,7 @@ ${!jsxInlineSnapshotBug() ? `
         const {entities: {PackageJson, Babel, TypeScript}} = require('./all')
         const {tech} = CommonInfo
         const originalTypeScript = TypeScript.isInit
-        if (jsxInlineSnapshotBug()) {
-            // Пока существует проблема в Jest, которая не позволяет обновлять снапшоты
+        if (!this.availInlineSnapshots()) {
             params.useSnapshots = false
         }
         if (!params.useSnapshots) {
@@ -206,6 +200,16 @@ ${!jsxInlineSnapshotBug() ? `
      */
     vcsIgnore(ignores) {
         ignores.add('/coverage')
+    }
+
+    /**
+     * Jest have a bug: Inline snapshots are not written to js files containing JSX syntax 
+     * https://github.com/facebook/jest/issues/11741
+     * So we disable inline snapshots for JSX
+     * @returns {boolean} true, if inline stapshots are available
+     */
+    availInlineSnapshots() {
+        return CommonInfo.tech.language !== 'JavaScript'
     }
 }
 
