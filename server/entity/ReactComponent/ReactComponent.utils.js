@@ -211,6 +211,36 @@ describe ("${name}", () => {
     }
 }
 
+const createStorybook = ({ name, props, story, isTS, renderExt }) => {
+    const { compTitle, compDecorator, storyName } = story
+    const storyFileName = `${name}.stories.${renderExt}`
+    const storyNameOk = storyName || "Default"
+    const args = props
+        .filter(({ propName, isRequired, testValue }) => isRequired || testValue)
+        .map(({ propName, type, testValue }) => `${propName}: ${testValue || typeDefaults[type]}`)
+    const storyCode = `${reactImport}
+import { ${name} } from "./${name}";
+
+export default {
+    title: "${compTitle || name}",
+    component: ${name},
+    decorators: [
+        (Story) => <div style={{ border: "thick solid silver", padding: "1em" }}><Story /></div>
+    ],
+}${isTS ? ` as ComponentMeta<typeof ${name}>`: ''};
+
+const Template${isTS ? `: ComponentStory<typeof ${name}>` : ''} = (args) => <${name} {...args} />;
+
+export const ${storyNameOk} = Template.bind({});
+${storyNameOk}.args = { ${args.join(', ')} };`.split('\n')
+    if (isTS) storyCode.splice(1, 0, 'import { ComponentMeta, ComponentStory } from "@storybook/react";')
+    if (!compDecorator) {
+        const pos = storyCode.findIndex(s => /component:/.test(s))
+        if (pos >=0) storyCode.splice(pos+1, 3)
+    }
+    return { storyFileName, storyCode }
+}
+
 /**
  * @param {Object} params
  * @param {string} params.name The component name
@@ -227,7 +257,10 @@ describe ("${name}", () => {
  * @returns {{ folders: string[]; files: {name:string; data:string[]}[]; }}
  */
 const createReactComponent = ({
-    name, createFolder, useReturn, props, styles, useJest, useInlineSnapshot, usePretty, tech
+    name, createFolder, useReturn, props, styles,
+    useJest, useInlineSnapshot, usePretty,
+    useStorybook, story,
+    tech,
 }) => {
     const isTS = tech.language === 'TypeScript'
     const codeExt = `${isTS ? 't':'j'}s`
@@ -243,6 +276,10 @@ const createReactComponent = ({
         const {specFileName, specCode} = createJest({name, isTS, className, useInlineSnapshot, usePretty, props})
         filesDict[specFileName] = specCode
     }
+    if (useStorybook) {
+        const {storyFileName, storyCode} = createStorybook({ name, props, story, isTS, renderExt })
+        filesDict[storyFileName] = storyCode
+    }
     const folders = []
     let filePrefix = ''
     if (createFolder || Object.keys(filesDict).length > 1) {
@@ -256,4 +293,4 @@ const createReactComponent = ({
     return {folders, files}
 }
 
-module.exports = {createReactComponent, createStyle, makeDefaultValues, makeComponentCall }
+module.exports = {createReactComponent, createStyle, makeDefaultValues, makeComponentCall, createStorybook }

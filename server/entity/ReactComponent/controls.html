@@ -89,7 +89,25 @@
             <div class="rn-ctrl" data-type="Hidden" data-name="availInlineSnapshots"></div>
             <div class="rn-ctrl" data-type="Checkbox" data-name="useInlineSnapshot" data-title="Use inline snapshot"></div>
         </div>
+        <hr />
     </div>
+
+    <div class="rn-ctrl" data-type="Hidden" data-name="availStorybook"></div>
+    <div id="react-comp-storybook">
+        <div class="rn-ctrl" data-type="Checkbox" data-name="useStorybook" data-title="Create a story (Use Storybook)"></div>
+        <div class="indent" id="storybook-options">
+            <div class="rn-ctrl" data-type="Group" data-name="story">
+              <div class="rn-ctrl" data-type="String" data-name="compTitle" data-title="Title"></div>
+              <div class="rn-ctrl" data-type="String" data-name="storyName" data-title="Story name">
+                  <b class="rn-validator" data-type="Regexp" data-regexp="/^(([A-Z][A-Za-z0-9]*)|)$/"
+                    data-msg="Expected UpperCamelCase expression"></b>
+              </div>
+              <div class="rn-ctrl" data-type="Checkbox" data-name="compDecorator" data-title="Use a component decorator"></div>
+            </div>
+        </div>
+        <hr />
+    </div>
+
     <div class="rn-ctrl" data-type="Checkbox" data-name="useMainFrame" data-title="Try to use the component on the main page"></div>
     <div class="rn-ctrl" data-type="Checkbox" data-name="openEditor" data-title="Try to open the component in the editor after creation"></div>
 

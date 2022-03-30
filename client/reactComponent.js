@@ -43,6 +43,7 @@ Rn.F.ReactComponent = function() {
     var availJest = null;
     var jestOptions = null;
     var availInlineSnapshots = null;
+    var availStorybook = null, useStorybook = null;
     this.onUpdate = function() {
         var isAvailJest = !!this.ctrls.availJest.getValue()
         if (isAvailJest !== availJest) {
@@ -56,12 +57,20 @@ Rn.F.ReactComponent = function() {
         }
         if (availInlineSnapshots === null) {
             availInlineSnapshots = this.ctrls.availInlineSnapshots.getValue();
-            console.log('availInlineSnapshots=', availInlineSnapshots);
             this.ctrls.useInlineSnapshot.show(availInlineSnapshots)
             this.ctrls.useInlineSnapshot.setValue(false)
         }
+        if (availStorybook === null) {
+            availStorybook = this.ctrls.availStorybook.getValue();
+            $('#react-comp-storybook').toggle(availStorybook)
+        }
+        var isStorybook = this.ctrls.useStorybook.getValue();
+        if (isStorybook !== useStorybook) {
+            useStorybook = isStorybook;
+            $('#storybook-options').toggle(isStorybook);
+        }
 
-        var multiFiles = this.ctrls.styles.getValue() || this.ctrls.useJest.getValue();
+        var multiFiles = this.ctrls.styles.getValue() || useJest || isStorybook;
         var ctrlCreateFolder = this.ctrls.createFolder;
         ctrlCreateFolder.enable(!multiFiles);
         if (multiFiles) ctrlCreateFolder.setValue(true);
