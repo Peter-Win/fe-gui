@@ -27,7 +27,7 @@ class ReactComponent {
 
     async init() {
         const {entities} = require('../all')
-        const {React, CSS, LESS, WebPack, CssModules, Jest} = entities
+        const {React, CSS, LESS, WebPack, CssModules, Jest, Storybook} = entities
         this.isReady = React.isInit
         if (!this.isReady) return
         this.isVisible = true
@@ -42,7 +42,8 @@ class ReactComponent {
             if (e) this.stylesList.push({ label: `${e.toUpperCase()} module`, value: ext})
         })
         this.defaultParams.availJest = Jest.isInit
-        this.defaultParams.availInlineSnapshots = Jest && Jest.availInlineSnapshots()
+        this.defaultParams.availInlineSnapshots = Jest.availInlineSnapshots()
+        this.defaultParams.availStorybook = Storybook.isInit
     }
     stylesList = []
 
@@ -52,7 +53,15 @@ class ReactComponent {
         props: [],
         styles: '', // '', 'css', 'less', 'module.css', 'module.less'
         availJest: false,
+        availInlineSnapshots: false,
         useInlineSnapshot: true,
+        availStorybook: false,
+        useStorybook: false,
+        story: {
+            compTitle: '',
+            compDecorator: false,
+            storyName: '',
+        },
     }
 
     /**

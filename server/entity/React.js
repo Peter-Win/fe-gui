@@ -23,7 +23,7 @@ class React {
         const {entities} = require('./all')
 
         // dependencies
-        const packages = 'react react-dom react-hot-loader'
+        const packages = 'react@~17.0.0 react-dom@~17.0.0 react-hot-loader'
         await installPackage(this.name, packages, false)
 
         const {transpiler, language} = CommonInfo.tech

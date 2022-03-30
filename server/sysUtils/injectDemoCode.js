@@ -43,6 +43,11 @@ const injectCode = (rows, containerBegin, code) => {
  */
 const injectDemoCodeToMainFrame = (rows, header, code) => {
     if (header) injectImport(rows, header)
+    // Случай с использованием <Layout/> из Antd
+    const ant = rows.find(row => /^import .* from "antd";$/.test(row))
+    if (ant) {
+        injectCode(rows, '<Content>', code)
+    }
     injectCode(rows, '<>', code)
 }
 

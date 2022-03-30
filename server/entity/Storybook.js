@@ -47,7 +47,7 @@ class Storybook {
 
         if (params.createCustomExample) {
             const dirName = makeSrcName('StoryExample')
-            wsSendCreateEntity(this.name, `Create folder: {dirName}`)
+            wsSendCreateEntity(this.name, `Create folder: ${dirName}`)
             await fs.promises.mkdir(dirName)
 
             const exampleFiles = [
