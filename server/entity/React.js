@@ -5,6 +5,12 @@ const {makeSrcName, isFileExists} = require('../fileUtils')
 const {wsSend} = require('../wsServer')
 const {buildTemplate} = require('../sysUtils/loadTemplate')
 
+const getReactHiVer = async () => {
+    const ver = await CommonInfo.findPackageVersion('react')
+    if (!ver) return 17
+    return +ver.split('.')[0]
+}
+
 class React {
     name = 'React'
     depends = ['WebPack']
@@ -17,13 +23,21 @@ class React {
         this.isInit = PackageJson.isDependency('react')
         if (this.isInit) {
             CommonInfo.tech.framework = 'React'
+            CommonInfo.techVer.framework = await CommonInfo.findPackageVersion('react')
         }
     }
-    async create() {
+
+    /**
+     * @param {Object} params
+     * @param {number?} params.ver Can be 17
+     */
+    async create(params) {
         const {entities} = require('./all')
 
+        const ver = typeof params.ver === 'number' ? `@~${params.ver}.0.0` : ''
+
         // dependencies
-        const packages = 'react@~17.0.0 react-dom@~17.0.0 react-hot-loader'
+        const packages = `react${ver} react-dom${ver} react-hot-loader`
         await installPackage(this.name, packages, false)
 
         const {transpiler, language} = CommonInfo.tech
@@ -50,10 +64,12 @@ class React {
         await deleteIndex('index.js')
         await deleteIndex('index.ts')
 
+        const reactHiVer = await getReactHiVer()
+
         // Make new index
         const indexName = makeSrcName(`index.${ext}`)
         wsSend('createEntityMsg', {name: this.name, message: `Create ${indexName}`})
-        await buildTemplate(`reactIndex.jsx`, indexName)
+        await buildTemplate(reactHiVer <= 17 ? `reactIndex17.jsx` : 'reactIndex18.jsx', indexName)
 
         // Make App component
         const appName = makeSrcName(`App.${ext}`)
@@ -76,4 +92,4 @@ class React {
     }
 }
 
-module.exports = {React}
+module.exports = { React, getReactHiVer }

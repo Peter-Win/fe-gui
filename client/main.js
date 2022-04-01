@@ -51,6 +51,8 @@ var onStatus = {
         var form = Rn.curPage().forms.init;
         form.ctrlName().focus();
     },
+    load: function() {
+    },
     ready: startMainScreen,
     error: function () {
         Rn.enable($('.j-retry', $activePage).off().on('click', function(){
@@ -63,7 +65,6 @@ var onStatus = {
         wsSend('upgradePromptAsk');
     },
     create: function () {
-        console.log('--- Create status ---');
         $('.page-content', $activePage).empty();
     }
 };

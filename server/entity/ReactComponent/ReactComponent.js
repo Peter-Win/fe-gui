@@ -1,20 +1,22 @@
 const fs = require('fs')
 const path = require('path')
-const {exec} = require('child_process')
-const {createReactComponent, makeComponentCall } = require('./ReactComponent.utils')
-const {CommonInfo} = require('../../CommonInfo')
+const { exec } = require('child_process')
+const { createReactComponent } = require('./ReactComponent.utils')
+const { CommonInfo } = require('../../CommonInfo')
 const { makeFullName } = require('../../fileUtils')
 const { wsSendCreateEntity } = require('../../wsSend')
 const { injectDemoCode } = require('../../sysUtils/injectDemoCode')
+const { makeComponentCall } = require('./makeComponentCall')
 
 const makeCreateReactComponentParams = (clientParams) => {
     const {entities} = require('../all')
-    const usePretty = entities.PackageJson.isDevDependency('pretty')
+    const usePretty = entities.PackageJson.isDependency('pretty')
     return {
         ...clientParams,
         tech: CommonInfo.tech,
         usePretty,
         availInlineSnapshots: entities.Jest.availInlineSnapshots(),
+        techVer: CommonInfo.techVer,
     }
 }
 

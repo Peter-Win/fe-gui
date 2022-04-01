@@ -8,6 +8,7 @@ const {
   findAssign,
   findRule,
   findPath,
+  isLoaderInRule,
   mergeObjectTaxons,
   merge,
   makeRuleRegexp,
@@ -331,5 +332,51 @@ describe('findConstValueTaxon', () => {
     expect(txOne.type).to.equal('TxConst')
     expect(txOne.constType).to.equal('number')
     expect(txOne.constValue).to.equal('1')
+  })
+})
+
+describe('isLoaderInRule', () => {
+  it('null', () => {
+    expect(isLoaderInRule(null, 'babel-loader')).to.equal(false)
+    expect(isLoaderInRule(null, 'ts-loader')).to.equal(false)
+  })
+  it('use is string const', () => {
+    const source = `{ test: /\.tsx?$/, use: 'babel-loader' }`
+    const node = parseExpression(ReaderCtx.fromText(source))
+    const tx = node.createTaxon()
+    expect(isLoaderInRule(tx, 'babel-loader')).to.equal(true)
+    expect(isLoaderInRule(tx, 'ts-loader')).to.equal(false)
+  })
+  it('use is array of string', () => {
+    const source = `{
+      test: /\.less$/,
+      use: [
+        'style-loader',
+        'css-loader',
+        'less-loader',
+      ],
+      exclude: /\.module\.less$/,
+    }`
+    const node = parseExpression(ReaderCtx.fromText(source))
+    const tx = node.createTaxon()
+    expect(isLoaderInRule(tx, 'style-loader')).to.equal(true)
+    expect(isLoaderInRule(tx, 'css-loader')).to.equal(true)
+    expect(isLoaderInRule(tx, 'less-loader')).to.equal(true)
+    expect(isLoaderInRule(tx, 'babel-loader')).to.equal(false)
+  })
+  it('use is mixed array', () => {
+    const source = `      {
+      test: /\.module\.css$/,
+      use: [
+        'style-loader',
+        { loader: 'css-loader' },
+      ],
+    }`
+    const node = parseExpression(ReaderCtx.fromText(source))
+    const tx = node.createTaxon()
+    expect(isLoaderInRule(tx, 'style-loader')).to.equal(true)
+    expect(isLoaderInRule(tx, 'css-loader')).to.equal(true)
+    expect(isLoaderInRule(tx, 'less-loader')).to.equal(false)
+    expect(isLoaderInRule(tx, 'babel-loader')).to.equal(false)
   })
 })

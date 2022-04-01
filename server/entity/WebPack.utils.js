@@ -165,6 +165,28 @@ const findRule = (sourceTaxon, name, exclude) => {
     })
 }
 
+const isLoaderInRule = (ruleTaxon, loaderName) => {
+    if (!ruleTaxon || ruleTaxon.type !== 'TxObject') return false
+    const isConst = (tx) => tx && tx.type === 'TxConst' && tx.constType === 'string' && fromQuoted(tx.constValue) === loaderName
+    const txUse = ruleTaxon.dict.use
+    if (!txUse) return false
+    if (isConst(txUse)) {
+        return true
+    }
+    if (txUse.type === 'TxArray') {
+        return !!txUse.subTaxons.find(txItem => {
+            if (isConst(txItem)) {
+                return true
+            }
+            if (txItem.type === 'TxObject') {
+                if (isConst(txItem.dict.loader)) return true
+            }
+            return false
+        })
+    }
+    return false
+}
+
 /**
  * 
  * @param {Taxon} expressionTaxon 
@@ -193,7 +215,8 @@ module.exports = {
     findConfigRoot,
     findObjectItem,
     findPath, 
-    findRule, 
+    findRule,
+    isLoaderInRule,
     mergeObjectTaxons, 
     merge, 
     makeRuleRegexp,

@@ -1,5 +1,5 @@
 const {expect} = require('chai')
-const {makeComponentCall} = require('./ReactComponent.utils')
+const {makeComponentCall} = require('./makeComponentCall')
 
 describe('makeComponentCall', () => {
     it('without props', () => {

@@ -2,6 +2,7 @@ const {asyncExec} = require('../sysUtils/asyncExec')
 const {wsSend} = require('../wsServer')
 const {makeFullName, isFileExists} = require('../fileUtils')
 const {CommonInfo} = require('../CommonInfo')
+const {readRows} = require('../sysUtils/textFile')
 
 class Yarn {
     name = 'Yarn'
@@ -33,6 +34,36 @@ class Yarn {
             throw e
         }
     }
+
+    /**
+     * @param {string} name for ex: 'react'
+     * @returns {Promise<string|null>}
+     */
+    async findPackageVersion(name) {
+        try {
+            const fname = makeFullName('yarn.lock')
+            return findVersionInRows(await readRows(fname), name)
+        } catch (e) {
+            return null
+        }
+    }
 }
 
-module.exports = {Yarn}
+const findVersionInRows = (rows, name) => {
+    const need = name[0] === '@' ? `"${name}@` : `${name}@`
+    let pos = rows.findIndex(row => row.startsWith(need))
+    if (pos < 0) return null
+    pos++
+    while (pos < rows.length && /^  [a-z]/.test(rows[pos])) {
+        if (rows[pos].startsWith('  version')) {
+            const res = /(".*")/.exec(rows[pos])
+            if (res && res[0][0]==='"') {
+                return res[0].slice(1, -1)
+            }
+        }
+        pos++
+    }
+    return null
+}
+
+module.exports = {Yarn, findVersionInRows}

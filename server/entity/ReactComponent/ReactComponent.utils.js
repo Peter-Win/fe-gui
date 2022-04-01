@@ -1,4 +1,5 @@
 const { camelToKebab, camelToLower } = require("../../parser/nameConversion")
+const { createJest } = require('./createJest')
 
 const reactImport = 'import * as React from "react";';
 
@@ -25,35 +26,6 @@ const propTypesMap = {
     'React.Element': 'element',
 }
 
-const typeDefaults = {
-    'boolean': 'false',
-    'number': '0',
-    'string': '""',
-    'React.Node': 'null',
-    'React.Element': '<span />',
-}
-
-const makePropCode = (propName, type, testValue) => {
-    const value = testValue || typeDefaults[type]
-    if (value === 'true') return propName
-    if (type === 'string') return `${propName}=${value}`
-    return `${propName}={${value}}`
-}
-
-/**
- * Вызов компонента с использованием тестовых значений
- * @param {Object} params
- * @param {string} params.name
- * @param {{propName:string; isRequired: boolean; type: string; testValue: string;}[]} params.props
- * @returns {string}
- */
-const makeComponentCall = ({ name, props }) => {
-    const propsList = props
-        .filter(({ isRequired, testValue }) => isRequired || testValue)
-        .map(({ propName, type, testValue }) => makePropCode(propName, type, testValue))
-    const propsCode = propsList.length > 0 ? ` ${propsList.join(' ')}` : ''
-    return `<${name}${propsCode} />`
-}
 
 /**
  * @param {{propName:string; isRequired: boolean; type: string; defaultValue: string}[]} props 
@@ -142,73 +114,15 @@ const createStyle = ({name, styles}) => {
             res.styleImport = `import "./${res.styleFileName}";`
             res.classExpr = ` className="${res.className}"`
         }
-        res.styleCode = [`.${res.className} {}`]
+        // Если оставить пустой класс, то тесты будут падать.
+        // т.к. вместо <div class="..."></div> будут <div></div> - по крайней мере для module.less
+        res.styleCode = [
+            `.${res.className} {`,
+            '  margin: 0;', // фиктивная инструкция, чтобы блок не был пустым
+            '}',
+        ]
     }
     return res
-}
-
-/**
- * 
- * @param {Object} params
- * @param {string} params.name
- * @param {boolean} params.isTS
- * @param {string} params.className
- * @returns {{specFileName: string; specCode: string[];}}
- */
-const createJest = ({name, isTS, className, useInlineSnapshot, usePretty, props=[]}) => {
-    const containerType = isTS ? `: HTMLDivElement | null` : ''
-    const safe = isTS ? '?' : ''
-    const classExpr = className ? ` class="${className}"` : ''
-    let specCode = 
-`${reactImport}
-import { render, unmountComponentAtNode } from "react-dom";
-import { act } from "react-dom/test-utils";
-import { ${name} } from "./${name}";
-
-describe ("${name}", () => {
-  let container${containerType} = null;
-
-  beforeEach(() => {
-    container = document.createElement("div");
-    document.body.appendChild(container);
-  });
-
-  afterEach(() => {
-    if (container) {
-      unmountComponentAtNode(container);
-      container.remove();
-      container = null;
-    }
-  });
-
-  it("render", () => {
-    act(() => {
-      render(${makeComponentCall({name, props})}, container);
-    });
-    expect(container${safe}.innerHTML).toBe('<div${classExpr}></div>');
-  });
-});`.split('\n')
-
-    const snapCode = `
-  it("inline snapshot", () => {
-    act(() => {
-      render(${makeComponentCall({name, props})}, container);
-    });
-    expect(
-      ${usePretty ? 'pretty' : ''}(container?.innerHTML || "").replace(/"/g, "'")
-    ).toMatchInlineSnapshot();
-  });`
-    if (useInlineSnapshot) {
-        if (usePretty) {
-            specCode.splice(1, 0, 'import pretty from "pretty";')
-        }
-        specCode = [...specCode.slice(0, -1), ...snapCode.split('\n'), ...specCode.slice(-1)]
-    }
-
-    return {
-        specFileName: `${name}.spec.${isTS ? 'tsx' : 'jsx'}`, 
-        specCode,
-    }
 }
 
 const createStorybook = ({ name, props, story, isTS, renderExt }) => {
@@ -254,13 +168,14 @@ ${storyNameOk}.args = { ${args.join(', ')} };`.split('\n')
  * @param {""|"css"|"less"|"module.css"|"module.less"} params.styles
  * @param {{propName:string; isRequired:boolean; type: string; defaultValue: string;}[]} params.props
  * @param {{language:string;}} params.tech
+ * @param {{framework?:string}} params.techVer
  * @returns {{ folders: string[]; files: {name:string; data:string[]}[]; }}
  */
 const createReactComponent = ({
     name, createFolder, useReturn, props, styles,
     useJest, useInlineSnapshot, usePretty,
     useStorybook, story,
-    tech,
+    tech, techVer,
 }) => {
     const isTS = tech.language === 'TypeScript'
     const codeExt = `${isTS ? 't':'j'}s`
@@ -273,7 +188,7 @@ const createReactComponent = ({
         filesDict[styleFileName] = styleCode
     }
     if (useJest) {
-        const {specFileName, specCode} = createJest({name, isTS, className, useInlineSnapshot, usePretty, props})
+        const {specFileName, specCode} = createJest({name, isTS, className, useInlineSnapshot, usePretty, props, techVer, styles})
         filesDict[specFileName] = specCode
     }
     if (useStorybook) {
@@ -293,4 +208,4 @@ const createReactComponent = ({
     return {folders, files}
 }
 
-module.exports = {createReactComponent, createStyle, makeDefaultValues, makeComponentCall, createStorybook }
+module.exports = {createReactComponent, createStyle, makeDefaultValues, createStorybook }

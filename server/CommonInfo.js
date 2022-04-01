@@ -32,9 +32,9 @@ class CommonInfo {
         license: 'ISC',
     }
     static tech = {
-        packageManager: '', // Yarn | NPM=default
+        packageManager: 'NPM', // Yarn | NPM=default
         bundler: '',
-        language: '',
+        language: 'JavaScript',
         transpiler: '',
         framework: '',
         styleCss: true,
@@ -43,6 +43,7 @@ class CommonInfo {
         unitTesting: '',
         vcs: '',
     }
+    static techVer = {} // optional version of tech
     static props = {}
     static extParams = {
         port: 2222,
@@ -53,6 +54,7 @@ class CommonInfo {
         wsSend('commonInfo', {
             common: CommonInfo.info,
             tech: CommonInfo.tech,
+            techVer: CommonInfo.techVer,
             props: CommonInfo.props,
             upgradeTarget: CommonInfo.upgradeTarget,
         })
@@ -60,12 +62,12 @@ class CommonInfo {
 
     /**
      * Получить общую информацию, которая затем будет использоваться другими сущностями при создании.
-     * @param {{
-     * common:{name:string,description:string,author:string,license:string},
-     * tech:{packageManager:string,bundler:string,language:string,transpiler:string,framework:string,
-     *   styleCss:boolean, styleLess:boolean},
-     * extParams:{port:number}
-     * }} data
+     * @param {Object} data
+     * @param {{name:string; description:string; author:string; license:string}} data.common
+     * @param {{packageManager:string; bundler:string; language:string; transpiler:string; framework:string;
+     *   styleCss:boolean; styleLess:boolean}} tech
+     * @param {{framework?: string}} techVer example: '17.0.2'
+     * @param {{port:number}} extParams
      */
     static onCreateApp(data) {
         CommonInfo.setGlobalStatus(CommonInfo.glbStCreate)
@@ -73,6 +75,7 @@ class CommonInfo {
         // Сохранить данные
         Object.assign(CommonInfo.info, data.common)
         Object.assign(CommonInfo.tech, data.tech)
+        Object.assign(CommonInfo.techVer, data.techVer)
         Object.assign(CommonInfo.extParams, data.extParams)
     }
     static get isYarn() {
@@ -102,7 +105,7 @@ class CommonInfo {
         if (tech.language === 'TypeScript') {
             ext = 'ts'
         }
-        if (type === 'render' && tech.framework === 'React') {
+        if (type === 'render' && (tech.framework || '').startsWith('React')) {
             ext += 'x'
         }
         return ext
@@ -121,6 +124,22 @@ class CommonInfo {
      */
     static getTitleStr() {
         return JSON.stringify(CommonInfo.extParams.title)
+    }
+
+    /**
+     * Получить реально используемую версию пакета
+     * Правильный способ: npm list <name> --json
+     *  Но это очень медленно работает.
+     * Поэтому используем прямое чтение файлов менеджера пакетов.
+     * @param {string} name For ex: 'react'
+     * @returns {Promise<string|null>}
+     */
+    static async findPackageVersion(name) {
+        const {entities} = require('./entity/all')
+        const manager = entities[this.tech.packageManager]
+        console.log('this.tech', this.tech)
+        if (!manager) return null
+        return manager.findPackageVersion(name)
     }
 }
 
