@@ -70,7 +70,6 @@ class CommonInfo {
      * @param {{port:number}} extParams
      */
     static onCreateApp(data) {
-        console.log('>>>>>>>>>>>onCreateApp', data)
         CommonInfo.setGlobalStatus(CommonInfo.glbStCreate)
         const {info} = CommonInfo
         // Сохранить данные

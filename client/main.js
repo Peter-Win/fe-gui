@@ -52,7 +52,6 @@ var onStatus = {
         form.ctrlName().focus();
     },
     load: function() {
-        console.log('Loading...')
     },
     ready: startMainScreen,
     error: function () {
@@ -66,12 +65,10 @@ var onStatus = {
         wsSend('upgradePromptAsk');
     },
     create: function () {
-        console.log('--- Create status ---');
         $('.page-content', $activePage).empty();
     }
 };
 function drawGlobalStatus(newStatus) {
-    console.log('drawGlobalStatus', newStatus)
     globalStatus = newStatus || globalStatus;
     var pg = document.getElementById('glbStatus_' + newStatus);
     if (!pg) {

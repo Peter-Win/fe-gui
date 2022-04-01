@@ -21,9 +21,7 @@ class NPM {
      async findPackageVersion(name) {
         try {
             const fname = makeFullName('package-lock.json')
-            console.log('fname', fname)
             const text = await fs.promises.readFile(fname, {encoding: 'utf-8'})
-            console.log('text loaded')
             return findVersionInJson(JSON.parse(text), name)
         } catch (e) {
             console.error(e)

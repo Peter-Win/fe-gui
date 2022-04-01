@@ -23,9 +23,7 @@ class React {
         this.isInit = PackageJson.isDependency('react')
         if (this.isInit) {
             CommonInfo.tech.framework = 'React'
-            console.log('call findPackageVersion')
             CommonInfo.techVer.framework = await CommonInfo.findPackageVersion('react')
-            console.log('CommonInfo.techVer', CommonInfo.techVer)
         }
     }
 

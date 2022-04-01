@@ -34,7 +34,6 @@ function startMainScreen() {
         var fr = $('#app-tech-info').empty();
         
         var key, value, tech = data.tech || {}, techVer = data.techVer || {};
-        console.log('techVer', techVer)
         for (key in tech) {
             value = tech[key]
             if (value && typeof value === 'string') {
