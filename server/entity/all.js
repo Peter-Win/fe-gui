@@ -2,6 +2,7 @@ const {PackageJson} = require('./PackageJson')
 const {Readme} = require('./Readme')
 const {WebPack} = require('./WebPack')
 const {Yarn} = require('./Yarn')
+const {NPM} = require('./NPM')
 const {Babel} = require('./Babel')
 const {TypeScript} = require('./TypeScript')
 const {React} = require('./React')
@@ -25,11 +26,13 @@ const entities = {}
 
 const reg = (Constr) => {
     const inst = new Constr()
+    if (!inst.name) throw new Error('Entity with empty name')
     entities[inst.name] = inst
 }
 reg(PackageJson)
 reg(Readme)
 reg(Yarn)
+reg(NPM)
 reg(WebPack)
 reg(Babel)
 reg(TypeScript)

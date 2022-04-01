@@ -1,29 +1,11 @@
 "use strict"
-/*
-    Jest
-    jest babel-jest
-
-    package.json
-      "jest": {
-    "testPathIgnorePatterns": ["/node_modules/", "/fe-gui/"]
-
-    .babelrc
-    {
-  "env": {
-    "test": {
-      "plugins": ["@babel/plugin-transform-modules-commonjs"]
-    }
-  }
-}
-  }
-
-*/
 const fs = require('fs')
 const {installPackage} = require('../commands/installPackage')
 const {wsSend} = require('../wsServer')
 const {loadTemplate, buildTemplate} = require('../sysUtils/loadTemplate')
 const {CommonInfo} = require('../CommonInfo')
-const {makeSrcName, makeFullName} = require('../fileUtils')
+const {makeSrcName, makeFullName, isFileExists} = require('../fileUtils')
+const {findRule, isLoaderInRule} = require('./WebPack.utils')
 
 class Babel {
     name = 'Babel'
@@ -31,16 +13,20 @@ class Babel {
     isInit = false
 
     async init() {
-        const {entities: {PackageJson}} = require('./all')
+        const {entities: {PackageJson, WebPack}} = require('./all')
         // @babel/core может быть установлено автоматически при установке Storybook
         // При этом, основным транспилером может оставаться например TyprScript
         this.isInit = PackageJson.isDevDependency('@babel/core')
-        if (this.isInit) {
-            wsSend('statusMessage', {text: 'Babel detected'})
-            if (!PackageJson.isDevDependency('typescript')) {
+
+        // Используемый транспилер вычисляется по правилам для ts и js
+        const isWpConfig = await isFileExists(WebPack.getConfigName())
+        if (isWpConfig) {
+            const tx = await WebPack.loadConfigTaxon()
+            if (
+                isLoaderInRule(findRule(tx, '.ts'), 'babel-loader') ||
+                isLoaderInRule(findRule(tx, '.js'), 'babel-loader')
+            ) {
                 CommonInfo.tech.transpiler = 'Babel'
-                const isTS = PackageJson.isDevDependency('@babel/preset-typescript')
-                CommonInfo.tech.language = isTS ? 'TypeScript' : 'JavaScript'
             }
         }
     }

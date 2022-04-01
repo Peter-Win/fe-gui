@@ -172,7 +172,7 @@ describe('createReactComponent', () => {
         expect(res.files[0].name).to.equal('MyComponent/MyComponent.jsx')
         expect(res.files[0].data).to.equal(simpleJSWithCSS)
         expect(res.files[1].name).to.equal('MyComponent/MyComponent.css')
-        expect(res.files[1].data).to.equal(`.my-component {}`)
+        expect(res.files[1].data).to.equal(`.my-component {\n  margin: 0;\n}`)
         expect(res.files[2].name).to.equal('MyComponent/index.js')
         expect(res.files[2].data).to.equal(`export * from "./MyComponent";`)
     })
@@ -196,6 +196,7 @@ describe('createReactComponent', () => {
         folder: 'src/components',
         name: 'HelloWorld',
         tech: { language: 'TypeScript'},
+        techVer: { framework: '17.0.2' },
         props: [],
         useJest: true,
       }

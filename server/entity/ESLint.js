@@ -79,6 +79,11 @@ class ESLint {
         const { entities: { Readme, PackageJson } } = require('./all')
         const config = {
             env: { browser: true, commonjs: true },
+            globals: {
+                // globalThis used for Jest+React18: globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+                // https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html#configuring-your-testing-environment
+                globalThis: false,
+             },
         }
 
         this.addExtend(config, 'eslint:recommended')

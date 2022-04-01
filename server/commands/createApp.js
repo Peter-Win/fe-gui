@@ -9,6 +9,8 @@ const {updateGitIgnoreFileMsg} = require('./updateGitIgnore')
 const createApp = async (data) => {
     try {
         console.log('Start create application')
+        data.techVer = data.techVer || {}
+
         CommonInfo.onCreateApp(data)
         const {info, tech} = CommonInfo
 
@@ -40,8 +42,14 @@ const createApp = async (data) => {
             if (!await createEntity(entities, 'LESS')) return false
         }
 
-        if (tech.framework === 'React') {
-            if (!await createEntity(entities, 'React')) return false
+        if (tech.framework === 'React' || tech.framework === 'React17') {
+            const params = {}
+            if (tech.framework === 'React17') {
+                params.ver = 17
+                tech.framework = 'React'
+            }
+            if (!await createEntity(entities, 'React', params)) return false
+            CommonInfo.techVer.framework = await CommonInfo.findPackageVersion('react')
         }
 
         if (tech.vcs.toLowerCase() === 'git') {

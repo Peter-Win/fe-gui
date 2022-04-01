@@ -66,9 +66,13 @@ const wsServerStart = (config) => {
             console.log('==>', id, data)
             ws.send(JSON.stringify({id, data}))
         }
-        const {CommonInfo} = require('./CommonInfo')
-        CommonInfo.setGlobalStatus()
-        CommonInfo.send()
+        try {
+            const {CommonInfo} = require('./CommonInfo')
+            CommonInfo.setGlobalStatus()
+            CommonInfo.send()
+        } catch (e) {
+            console.error(e)
+        }
     })
 }
 

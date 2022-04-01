@@ -6,8 +6,9 @@ const fs = require('fs')
 const {CommonInfo} = require('../CommonInfo')
 const {wsSend} = require('../wsServer')
 const {loadTemplate, buildTemplate} = require('../sysUtils/loadTemplate')
-const {makeSrcName, makeFullName} = require('../fileUtils')
+const {makeSrcName, makeFullName, isFileExists} = require('../fileUtils')
 const {installPackage} = require('../commands/installPackage')
+const {findRule, isLoaderInRule} = require('./WebPack.utils')
 
 class TypeScript {
     name = 'TypeScript'
@@ -16,11 +17,14 @@ class TypeScript {
 
     async init() {
         const {entities} = require('../entity/all')
-        const {PackageJson} = entities
+        const {PackageJson, WebPack} = entities
         this.isInit = PackageJson.isDevDependency('typescript')
-        if (this.isInit) {
-            CommonInfo.tech.language = 'TypeScript'
-            CommonInfo.tech.transpiler = 'TypeScript'
+        if (await isFileExists(WebPack.getConfigName())) {
+            const tx = await WebPack.loadConfigTaxon()
+            if (isLoaderInRule(findRule(tx, '.ts'), 'ts-loader')) {
+                CommonInfo.tech.language = 'TypeScript'
+                CommonInfo.tech.transpiler = 'TypeScript'
+            }
         }
     }
 

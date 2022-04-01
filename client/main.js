@@ -51,6 +51,9 @@ var onStatus = {
         var form = Rn.curPage().forms.init;
         form.ctrlName().focus();
     },
+    load: function() {
+        console.log('Loading...')
+    },
     ready: startMainScreen,
     error: function () {
         Rn.enable($('.j-retry', $activePage).off().on('click', function(){
@@ -68,6 +71,7 @@ var onStatus = {
     }
 };
 function drawGlobalStatus(newStatus) {
+    console.log('drawGlobalStatus', newStatus)
     globalStatus = newStatus || globalStatus;
     var pg = document.getElementById('glbStatus_' + newStatus);
     if (!pg) {

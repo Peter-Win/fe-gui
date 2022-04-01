@@ -3,6 +3,6 @@ import styles from "./CssModuleDemo.module.css";
 
 export const CssModuleDemo = () => (
   <div className={styles.hello}>
-    <div>CSS Modules demo</div>
+    <div>CSS Module demo</div>
   </div>
 );

@@ -7,6 +7,7 @@ const {CommonInfo} = require('../CommonInfo')
 const {buildTemplate, loadTemplate} = require('../sysUtils/loadTemplate')
 const {makeSrcName, makeFullName} = require('../fileUtils')
 const {splitRows, writeRows} = require('../sysUtils/textFile')
+const {getHiVersion} = require('../sysUtils/versions')
 
 class Jest {
     name = 'Jest'
@@ -147,6 +148,8 @@ ${this.availInlineSnapshots() ? `
 
     async createReactExample(params) {
         const ts = CommonInfo.tech.language === 'TypeScript'
+        const reactVer = getHiVersion(CommonInfo.techVer.framework, 18)
+        const suffix = reactVer <= 17 ? 17 : 18
         const extX = CommonInfo.getExtension('render')
         const folderName = makeSrcName('FormDemo')
         await fs.promises.mkdir(folderName)
@@ -163,7 +166,7 @@ ${this.availInlineSnapshots() ? `
 
         // test
         let rows = []
-        const content = await loadTemplate(`FormDemoSpec.${extX}`)
+        const content = await loadTemplate(`FormDemoSpec-${suffix}.${extX}`)
         rows = splitRows(content)
         if (!params.usePretty) {
             // вырезать использование pretty

@@ -32,11 +32,15 @@ function startMainScreen() {
     }
     function showTech(data) {
         var fr = $('#app-tech-info').empty();
-        var key, value, tech = data.tech || {};
+        
+        var key, value, tech = data.tech || {}, techVer = data.techVer || {};
+        console.log('techVer', techVer)
         for (key in tech) {
             value = tech[key]
             if (value && typeof value === 'string') {
-                $('<li>').text(key+': '+tech[key]).appendTo(fr);
+                var techName = tech[key];
+                if (techVer[key]) techName += ' v'+techVer[key];
+                $('<li>').text(key+': '+techName).appendTo(fr);
             } else if (value && /^style/.test(key)) {
                 $('<li>').text(key.slice(5).toUpperCase()+' styling');
             }
