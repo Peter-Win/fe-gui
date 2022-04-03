@@ -6,7 +6,10 @@ const typeDefaults = {
     'React.Element': '<span />',
 }
 
-const makePropCode = (propName, type, testValue) => {
+const makePropCode = ({propName, type, testValue, mobxStoreName}) => {
+    if (type === 'MobX store') {
+        return `${propName}={${mobxStoreName}}`
+    }
     const value = testValue || typeDefaults[type]
     if (value === 'true') return propName
     if (type === 'string') return `${propName}=${value}`
@@ -18,12 +21,13 @@ const makePropCode = (propName, type, testValue) => {
  * @param {Object} params
  * @param {string} params.name
  * @param {{propName:string; isRequired: boolean; type: string; testValue: string;}[]} params.props
+ * @param {string} params.mobxStoreName
  * @returns {string}
  */
-const makeComponentCall = ({ name, props }) => {
+const makeComponentCall = ({ name, props, mobxStoreName }) => {
     const propsList = props
         .filter(({ isRequired, testValue }) => isRequired || testValue)
-        .map(({ propName, type, testValue }) => makePropCode(propName, type, testValue))
+        .map(({ propName, type, testValue }) => makePropCode({propName, type, testValue, mobxStoreName}))
     const propsCode = propsList.length > 0 ? ` ${propsList.join(' ')}` : ''
     return `<${name}${propsCode} />`
 }

@@ -42,6 +42,14 @@
         padding: 1em;
         color: #555;
     }
+    .rev-line > div {
+        display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    align-items: center;
+    }
+    .rev-line > div > .xc-title { padding-left: 1em; }
+    .rev-line > div > select { width: 10em; }
 </style>
 
 <div class="react-comp-box">
@@ -82,6 +90,20 @@
     </div>
     <div class="rn-ctrl" data-type="Array" data-name="props" data-tm="TmCtrlReactProps" data-item_tm="TmPropItem"></div>
     <hr />
+
+    <div class="rn-ctrl" data-type="Hidden" data-name="availMobX"></div>
+    <div id="react-comp-mobx">
+        <div class="rn-ctrl" data-type="Checkbox" data-name="useMobX" data-title="Create MobX store"></div>
+        <div class="indent" id="mobx-options">
+            <div class="rn-ctrl" data-type="Group" data-name="mobx">
+                <div class="rn-ctrl" data-type="Checkbox" data-name="exportStore"
+                    data-title="Export global instance of the store."
+                ></div>
+            </div>
+        </div>
+        <hr />
+    </div>
+
     <div class="rn-ctrl" data-type="Hidden" data-name="availJest"></div>
     <div id="react-comp-jest">
         <div class="rn-ctrl" data-type="Checkbox" data-name="useJest" data-title="Create a spec file for Jest testing"></div>
@@ -157,6 +179,7 @@
         'boolean',
         'React.Node',
         'React.Element',
+        'any',
     ];
 </script>
 

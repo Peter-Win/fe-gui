@@ -1,6 +1,6 @@
 const { getHiVersion } = require('../../sysUtils/versions')
 const { makeComponentCall } = require('./makeComponentCall')
-
+const { newMobxInstance } = require('./newMobxInstance')
 
 /**
  * Create code for Jest test
@@ -14,15 +14,20 @@ const { makeComponentCall } = require('./makeComponentCall')
  * @param {{propName: string; isRequired: boolean; testValue?: string; }[]} params.props
  * @param {string} params.testRenderBody content of <div> in it('render')
  * @param {string?} params.styles css, less, module.css, module.less
+ * @param {string?} params.mobxStoreName
+ * @param {string?} params.mobxClassName
  * @returns {{specFileName: string; specCode: string[];}}
  */
- const createJest = ({name, isTS, className, useInlineSnapshot, usePretty, props=[], techVer, testRenderBody='', styles=''}) => {
-    const containerType = isTS ? `: HTMLDivElement | null` : ''
-    const safe = isTS ? '?' : ''
-    const classExpr = className ? ` class="${className}"` : ''
-    const componentCall = makeComponentCall({name, props})
+const createJest = ({name, isTS, className, useInlineSnapshot, usePretty, props=[], techVer,
+  testRenderBody='', styles='',
+  mobxClassName, mobxStoreName, mobx,
+}) => {
+  const containerType = isTS ? `: HTMLDivElement | null` : ''
+  const safe = isTS ? '?' : ''
+  const classExpr = className ? ` class="${className}"` : ''
+  const componentCall = makeComponentCall({name, props, mobxStoreName: mobxStoreName || 'store' })
 
-    const specCode17 = 
+  const specCode17 = 
 `import * as React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
@@ -111,6 +116,23 @@ describe("${name}", () => {
             specCode.splice(1, 0, 'import pretty from "pretty";')
         }
         specCode = [...specCode.slice(0, -1), ...snapCode.split('\n'), ...specCode.slice(-1)]
+    }
+
+    if (mobxClassName) {
+      const ipos = specCode.findIndex(row => row.startsWith(`import { ${name} }`))
+      if (ipos >= 0) {
+        specCode.splice(ipos+1, 0, `import { ${mobxStoreName || mobxClassName} } from "./${mobxClassName}";`)
+      }
+      if (!mobxStoreName) {
+        for (let i=0; i<specCode.length; i++) {
+          if (specCode[i].trim().startsWith('it("')) {
+            const spaceArray = /^(\s*)/.exec(specCode[i+1])
+            const space = spaceArray ? spaceArray[0] : ''
+            const line = `${space}const store = ${newMobxInstance({ mobxClassName, mobx })};`
+            specCode.splice(i+1, 0, line)
+          }
+        }
+      }
     }
 
     return {

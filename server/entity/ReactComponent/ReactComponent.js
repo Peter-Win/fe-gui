@@ -7,6 +7,7 @@ const { makeFullName } = require('../../fileUtils')
 const { wsSendCreateEntity } = require('../../wsSend')
 const { injectDemoCode } = require('../../sysUtils/injectDemoCode')
 const { makeComponentCall } = require('./makeComponentCall')
+const { mainFrameUpdate } = require('./mainFrameUpdate')
 
 const makeCreateReactComponentParams = (clientParams) => {
     const {entities} = require('../all')
@@ -29,7 +30,7 @@ class ReactComponent {
 
     async init() {
         const {entities} = require('../all')
-        const {React, CSS, LESS, WebPack, CssModules, Jest, Storybook} = entities
+        const {React, CSS, LESS, WebPack, CssModules, Jest, Storybook, MobX} = entities
         this.isReady = React.isInit
         if (!this.isReady) return
         this.isVisible = true
@@ -46,6 +47,7 @@ class ReactComponent {
         this.defaultParams.availJest = Jest.isInit
         this.defaultParams.availInlineSnapshots = Jest.availInlineSnapshots()
         this.defaultParams.availStorybook = Storybook.isInit
+        this.defaultParams.availMobX = MobX.isInit
     }
     stylesList = []
 
@@ -59,6 +61,8 @@ class ReactComponent {
         useInlineSnapshot: true,
         availStorybook: false,
         useStorybook: false,
+        availMobX: false,
+        useMobX: false,
         story: {
             compTitle: '',
             compDecorator: false,
@@ -77,6 +81,8 @@ class ReactComponent {
      * @param {boolean} params.useInlineSnapshot
      * @param {boolean} params.openEditor // Try to open the component code in the editor.
      * @param {boolean} params.useMainFrame // Вставить вызов компонента на главную страницу
+     * @param {boolean} params.useMobX
+     * @param {{exportStore: boolean;}} params.mobx
      * @param {{propName:string; isRequired:boolean; type: string; defaultValue: string;}[]} params.props
      */
     async create(params) {
@@ -96,13 +102,10 @@ class ReactComponent {
             wsSendCreateEntity(this.name, `Created file: ${fullName}`)
         }
         if (params.useMainFrame) {
-            const importFile = `${params.folder}/${params.name}`
-            await injectDemoCode(
-                `MainFrame.${CommonInfo.getExtension('render')}`,
-                `import { ${params.name} } from ".${importFile.slice(3)}";`,
-                makeComponentCall(params),
-                (msg) => wsSendCreateEntity(this.name, msg)
-            )
+            await injectDemoCode(`MainFrame.${CommonInfo.getExtension('render')}`, {
+                ...mainFrameUpdate({ ...params, ...res }),
+                log: (msg) => wsSendCreateEntity(this.name, msg),
+            })
         }
         if (params.openEditor) {
             exec(`start ${makeFileName(res.files[0].name)}`)

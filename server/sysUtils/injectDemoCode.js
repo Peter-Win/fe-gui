@@ -38,11 +38,22 @@ const injectCode = (rows, containerBegin, code) => {
 /**
  * 
  * @param {string[]} rows IN/OUT
- * @param {string} header import instruction
- * @param {string} code Can be multiple strings, divided by \n
+ * @param {Object} params
+ * @param {string} params.header import instruction
+ * @param {string} params.code Can be multiple strings, divided by \n
+ * @param {string?} params.beforeComp Code before component
  */
-const injectDemoCodeToMainFrame = (rows, header, code) => {
+const injectDemoCodeToMainFrame = (rows, {header, code, beforeComp}) => {
     if (header) injectImport(rows, header)
+
+    if (beforeComp) {
+        const pos = rows.findIndex(row => row.startsWith('export const'))
+        if (pos >= 0) {
+            rows.splice(pos, 0, '')
+            beforeComp.split('\n').forEach((row, i) => rows.splice(pos + i, 0, row))
+        }
+    }
+
     // Случай с использованием <Layout/> из Antd
     const ant = rows.find(row => /^import .* from "antd";$/.test(row))
     if (ant) {
@@ -51,11 +62,11 @@ const injectDemoCodeToMainFrame = (rows, header, code) => {
     injectCode(rows, '<>', code)
 }
 
-const injectDemoCode = async (shortName, header, code, log) => {
+const injectDemoCode = async (shortName, {header, code, beforeComp, log}) => {
     const fullName = makeSrcName(shortName)
     const rows = await readRows(fullName)
     if (/^MainFrame\.[jt]sx$/.test(shortName)) {
-        injectDemoCodeToMainFrame(rows, header, code)
+        injectDemoCodeToMainFrame(rows, {header, code, beforeComp})
     }
     await writeRows(fullName, rows)
     if (log) log(`Updated ${fullName}`)
