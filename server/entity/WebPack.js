@@ -59,6 +59,7 @@ class WebPack {
                 this.isInit = true
                 wsSend('statusMessage', {text: 'Webpack detected'})
                 CommonInfo.tech.bundler = this.name
+                CommonInfo.techVer.bundler = await CommonInfo.findPackageVersion('webpack')
             } else {
                 wsSend('statusMessage', {text: err.message, type: 'err'})
             }

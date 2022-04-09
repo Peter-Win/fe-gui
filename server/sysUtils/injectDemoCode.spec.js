@@ -33,7 +33,6 @@ describe('injectCode', () => {
 })
 
 describe('injectDemoCodeToMainFrame', () => {
-    it('typical', () => {
         const src = 
 `import * as React from "react";
 
@@ -43,6 +42,7 @@ export const MainFrame = () => (
     </>
 );
 `
+    it('typical', () => {
         const dst =
 `import * as React from "react";
 import {CssModuleDemo} from "./cssModulesDemo/CssModuleDemo";
@@ -55,11 +55,33 @@ export const MainFrame = () => (
 );
 `
         const rows = src.split('\n')
-        injectDemoCodeToMainFrame(
-            rows,
-            `import {CssModuleDemo} from "./cssModulesDemo/CssModuleDemo";`,
-            `<CssModuleDemo />`
-        )
+        injectDemoCodeToMainFrame(rows, {
+            header: `import {CssModuleDemo} from "./cssModulesDemo/CssModuleDemo";`,
+            code: `<CssModuleDemo />`,
+        })
+        expect(rows.join('\n')).to.equal(dst)
+    })
+
+    it('beforeCode', () => {
+        const dst = 
+`import * as React from "react";
+import {MyComp, MyCompStore} from "./components/MyComp";
+
+const store = new MyCompStore();
+
+export const MainFrame = () => (
+    <>
+        <h1>Hello, world!</h1>
+        <MyComp store={store} />
+    </>
+);
+`
+        const rows = src.split('\n')
+        injectDemoCodeToMainFrame(rows, {
+            header: `import {MyComp, MyCompStore} from "./components/MyComp";`,
+            beforeComp: `const store = new MyCompStore();`,
+            code: `<MyComp store={store} />`,
+        })
         expect(rows.join('\n')).to.equal(dst)
     })
 })

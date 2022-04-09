@@ -12,7 +12,7 @@ const updateMainFrame = (rows, type, imgId, shortName) => {
     const header = `const ${imgId} = require("./assets/${shortName}");`
     const comment = `{/* Example of ${type} Asset Module */}`
     const code = `<div><img src={${imgId}} height="100px" alt="${type}" /></div>`
-    injectDemoCodeToMainFrame(rows, header, `\n${comment}\n${code}`)
+    injectDemoCodeToMainFrame(rows, {header, code: `\n${comment}\n${code}` })
     return rows
 }
 

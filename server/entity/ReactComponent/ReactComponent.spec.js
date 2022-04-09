@@ -1,5 +1,6 @@
 const {expect} = require('chai')
 const {createReactComponent} = require('./ReactComponent.utils')
+const {compareText} = require('../../sysUtils/compareText')
 
 const indexCode = `export * from "./MyComponent";`
 
@@ -65,7 +66,7 @@ export const MyComponent = () => (
 );`
 
 describe('createReactComponent', () => {
-    it('Most simple', () => {
+  it('Most simple', () => {
         const params = {
             folder: 'src/components',
             name: 'MyComponent',
@@ -77,9 +78,9 @@ describe('createReactComponent', () => {
         expect(res.files).have.lengthOf(1)
         expect(res.files[0].name).to.equal('MyComponent.jsx')
         expect(res.files[0].data).to.equal(simpleJS)
-    })
+  })
 
-    it('Simple JSX with create a folder', () => {
+  it('Simple JSX with create a folder', () => {
         const params = {
             folder: 'src/components',
             name: 'MyComponent',
@@ -94,9 +95,9 @@ describe('createReactComponent', () => {
         expect(res.files[0].data).to.equal(simpleJS)
         expect(res.files[1].name).to.equal('MyComponent/index.js')
         expect(res.files[1].data).to.equal(indexCode)
-    })
+  })
 
-    it('JSX with return', () => {
+  it('JSX with return', () => {
         const params = {
             folder: 'src/components',
             name: 'MyComponent',
@@ -109,9 +110,9 @@ describe('createReactComponent', () => {
         expect(res.files).have.lengthOf(1)
         expect(res.files[0].name).to.equal('MyComponent.jsx')
         expect(res.files[0].data).to.equal(simpleJSwithReturn)
-    })
+  })
 
-    it('Simple TSX', () => {
+  it('Simple TSX', () => {
         const params = {
             folder: 'src/components',
             name: 'MyComponent',
@@ -123,9 +124,9 @@ describe('createReactComponent', () => {
         expect(res.files).have.lengthOf(1)
         expect(res.files[0].name).to.equal('MyComponent.tsx')
         expect(res.files[0].data).to.equal(simpleTS)
-    })
+  })
 
-    it('JSX with required name', () => {
+  it('JSX with required name', () => {
         const params = {
             folder: 'src/components',
             name: 'MyComponent',
@@ -139,9 +140,9 @@ describe('createReactComponent', () => {
         expect(res.files).have.lengthOf(1)
         expect(res.files[0].name).to.equal('MyComponent.jsx')
         expect(res.files[0].data).to.equal(JSXwithRequiredName)
-    })
+  })
 
-    it('TSX with required name', () => {
+  it('TSX with required name', () => {
         const params = {
             folder: 'src/components',
             name: 'MyComponent',
@@ -155,9 +156,9 @@ describe('createReactComponent', () => {
         expect(res.files).have.lengthOf(1)
         expect(res.files[0].name).to.equal('MyComponent.tsx')
         expect(res.files[0].data).to.equal(TSXwithRequiredName)
-    })
+  })
 
-    it('JSX with CSS', () => {
+  it('JSX with CSS', () => {
         const params = {
             folder: 'src/components',
             name: 'MyComponent',
@@ -175,9 +176,9 @@ describe('createReactComponent', () => {
         expect(res.files[1].data).to.equal(`.my-component {\n  margin: 0;\n}`)
         expect(res.files[2].name).to.equal('MyComponent/index.js')
         expect(res.files[2].data).to.equal(`export * from "./MyComponent";`)
-    })
+  })
 
-    it('JSX with default value', () => {
+  it('JSX with default value', () => {
         const params = {
             folder: 'src/components',
             name: 'MyComponent',
@@ -189,9 +190,9 @@ describe('createReactComponent', () => {
         expect(res.files).have.lengthOf(1)
         expect(res.files[0].name).to.equal('MyComponent.jsx')
         expect(res.files[0].data).to.equal(JSXwithDefaultName)
-    })
+  })
 
-    it('TSX with Jest', () => {
+  it('TSX with Jest', () => {
       const params = {
         folder: 'src/components',
         name: 'HelloWorld',
@@ -238,5 +239,55 @@ describe ("HelloWorld", () => {
       for (const i in actualSpec) {
         expect(actualSpec[i]).to.equal(needSpec[i], `in line ${+i+1}`)
       }
+  })
+
+  it('JSX + MobX', () => {
+    const res = createReactComponent({
+      name: 'HelloWorld',
+      folder: 'src/components',
+      tech: {language: 'JavaScript'},
+      useMobX: true,
+      mobx: { exportStore: true },
+      props: [{propName: 'store', isRequired: true, type: 'MobX store'}],
     })
+    expect(res.mobxClassName).to.equal('HelloWorldStore')
+    expect(res.mobxStoreName).to.equal('helloWorldStore')
+    expect(res.folders).to.have.lengthOf(1)
+    expect(res.folders[0]).to.equal('HelloWorld')
+    expect(res.files).to.have.lengthOf(3)
+    expect(res.files[0].name).to.equal('HelloWorld/HelloWorld.jsx')
+    expect(res.files[1].name).to.equal('HelloWorld/HelloWorldStore.js')
+    expect(res.files[2].name).to.equal('HelloWorld/index.js')
+    compareText(res.files[2].data, [
+      'export * from "./HelloWorld";',
+      'export * from "./HelloWorldStore";'
+    ])
+    compareText(res.files[1].data,
+`import { makeAutoObservable } from "mobx";
+
+export class HelloWorldStore {
+  constructor() {
+    makeAutoObservable(this);
+  }
+}
+
+export const helloWorldStore = new HelloWorldStore();
+`
+    )
+    compareText(res.files[0].data,
+`import * as React from "react";
+import PropTypes from "prop-types";
+import { observer } from "mobx-react-lite";
+import { HelloWorldStore } from "./HelloWorldStore";
+
+export const HelloWorld = observer(({ store }) => (
+  <div></div>
+));
+
+HelloWorld.propTypes = {
+  store: PropTypes.instanceOf(HelloWorldStore).isRequired,
+};
+`
+    )
+  })
 })

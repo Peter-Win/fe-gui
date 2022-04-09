@@ -82,6 +82,50 @@
     </div>
     <div class="rn-ctrl" data-type="Array" data-name="props" data-tm="TmCtrlReactProps" data-item_tm="TmPropItem"></div>
     <hr />
+
+    <div class="rn-ctrl" data-type="Hidden" data-name="availMobX"></div>
+    <div id="react-comp-mobx">
+        <div class="rn-ctrl" data-type="Checkbox" data-name="useMobX" data-title="Create MobX store"></div>
+        <div class="indent" id="mobx-options">
+            <div class="rn-ctrl" data-type="Group" data-name="mobx">
+                <div class="rn-ctrl" data-type="Checkbox" data-name="exportStore"
+                    data-title="Export global instance of the store."
+                ></div>
+                <h4>Fields</h4>
+                <div class="prop-line props-header">
+                    <div>Name</div><div>Param</div><div>Type</div><div>Initial value</div><div>Test value (for param)</div>
+                </div>
+                <div class="rn-ctrl" data-name="fields" data-type="Array" data-tm="TmCtrlReactProps"
+                    data-item_tm="TmMobxField" data-add_button_text="Add a new field"
+                ></div>
+            </div>
+        </div>
+        <hr />
+    </div>
+    <script id="TmMobxField" type="text/html">
+        <div class="prop-line">
+            <div class="rn-ctrl" data-name="fieldName" data-type="String">
+                <b class="rn-validator" data-type="NonEmpty" data-msg="The name of field is required"></b>
+                <b class="rn-validator" data-type="Regexp" data-regexp="/^(([a-z][A-Za-z0-9]*)|)$/" data-msg="The name must be camelCaseLower"></b>
+                <b class="rn-validator" data-type="PropNoDup" data-msg="Duplicated"></b>
+            </div>
+            <div class="rn-ctrl" data-name="isParam" data-type="Checkbox" data-value0="false"
+                data-tooltip="This field initialized by constructor parameter"></div>
+            <div class="rn-ctrl" data-name="type" data-type="Droplist" data-value0="string"
+                data-options="g_fieldType" data-option_value="#" data-option_label="#"></div>
+            <div class="rn-ctrl" data-name="initValue" data-type="String">
+                <b class="rn-validator" data-type="PropDefaultValue"></b>
+            </div>
+            <div class="rn-ctrl" data-name="testValue" data-type="String">
+                <b class="rn-validator" data-type="PropDefaultValue"></b>
+            </div>
+            <button type="button" class="rn-del-item">Delete</button>
+        </div>
+    </script>
+    <script>
+        var g_fieldType=['string', 'boolean', 'number', 'any']
+    </script>
+
     <div class="rn-ctrl" data-type="Hidden" data-name="availJest"></div>
     <div id="react-comp-jest">
         <div class="rn-ctrl" data-type="Checkbox" data-name="useJest" data-title="Create a spec file for Jest testing"></div>
@@ -122,7 +166,10 @@
 <script id="TmCtrlReactProps" type="text/html">
     <div>
       <div class="rn-array"></div>
-      <button type="button" class="rn-add-item">Add a new property</button>
+      <button type="button" class="rn-add-item">
+          {{^add_button_text}}Add a new property{{/add_button_text}}
+          {{#add_button_text}}{{add_button_text}}{{/add_button_text}}
+      </button>
     </div>
 </script>
 
@@ -157,6 +204,7 @@
         'boolean',
         'React.Node',
         'React.Element',
+        'any',
     ];
 </script>
 

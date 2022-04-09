@@ -96,8 +96,12 @@ class CssModules {
                 wsSendCreateEntity(this.name, `- Created example: ${fullName}`)
             }
         }
-        for (const {hdr, code} of imports) {
-            await injectDemoCode(`MainFrame.${CommonInfo.getExtension('render')}`, hdr, code)
+        for (const {header, code} of imports) {
+            await injectDemoCode(`MainFrame.${CommonInfo.getExtension('render')}`, {
+                header,
+                code,
+                log: (msg) => wsSendCreateEntity(this.name, msg),
+            })
         }
         if (transpiler === 'TypeScript') {
             await updateDeclaration(styleDef.map(({ext}) => ext), log)

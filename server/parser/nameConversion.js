@@ -28,4 +28,9 @@ const camelToLower = (camel) => {
     return `${camel[0].toLowerCase()}${camel.slice(1)}`
 }
 
-module.exports = {camelToKebab, camelToLower}
+const camelToUpper = (camel) => {
+    if (!camel) return camel
+    return `${camel[0].toUpperCase()}${camel.slice(1)}`
+}
+
+module.exports = {camelToKebab, camelToLower, camelToUpper}

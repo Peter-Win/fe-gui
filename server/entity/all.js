@@ -21,6 +21,7 @@ const {AssetModules} = require('./AssetModules')
 const {Aliases} = require('./Aliases')
 const {CssModules} = require('./CssModules')
 const {ReactComponent} = require('./ReactComponent')
+const {MobX} = require('./MobX')
 
 const entities = {}
 
@@ -52,5 +53,6 @@ reg(AssetModules)
 reg(Aliases)
 reg(CssModules)
 reg(ReactComponent)
+reg(MobX)
 
 module.exports = {entities}

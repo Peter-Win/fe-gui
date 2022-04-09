@@ -44,44 +44,78 @@ Rn.F.ReactComponent = function() {
     var jestOptions = null;
     var availInlineSnapshots = null;
     var availStorybook = null, useStorybook = null;
+    var availMobX = null, useMobX = null;
     this.onUpdate = function() {
-        var isAvailJest = !!this.ctrls.availJest.getValue()
+        var ctrls = this.ctrls, ctrlProps = ctrls.props;
+        var isAvailJest = !!ctrls.availJest.getValue()
         if (isAvailJest !== availJest) {
             availJest = isAvailJest
             $('#react-comp-jest').toggle(availJest)
         }
-        var useJest = !!this.ctrls.useJest.getValue()
+        var useJest = !!ctrls.useJest.getValue()
         if (useJest !== jestOptions) {
             jestOptions = useJest;
             $('#jest-options').toggle(useJest);
         }
         if (availInlineSnapshots === null) {
-            availInlineSnapshots = this.ctrls.availInlineSnapshots.getValue();
-            this.ctrls.useInlineSnapshot.show(availInlineSnapshots)
-            this.ctrls.useInlineSnapshot.setValue(false)
+            availInlineSnapshots = ctrls.availInlineSnapshots.getValue();
+            ctrls.useInlineSnapshot.show(availInlineSnapshots)
+            ctrls.useInlineSnapshot.setValue(false)
         }
         if (availStorybook === null) {
-            availStorybook = this.ctrls.availStorybook.getValue();
+            availStorybook = ctrls.availStorybook.getValue();
             $('#react-comp-storybook').toggle(availStorybook)
         }
-        var isStorybook = this.ctrls.useStorybook.getValue();
+        var isStorybook = ctrls.useStorybook.getValue();
         if (isStorybook !== useStorybook) {
             useStorybook = isStorybook;
             $('#storybook-options').toggle(isStorybook);
         }
+        if (availMobX === null) {
+            availMobX = ctrls.availMobX.getValue();
+            $('#react-comp-mobx').toggle(availMobX)
+        }
+        var newMobx = ctrls.useMobX.getValue();
+        if (useMobX !== newMobx) {
+            if (useMobX) {
+                ctrlProps.delItem(0);
+            }
+            useMobX = newMobx
+            if (useMobX) {
+                var st = ctrlProps.save()
+                st.props.unshift({ propName: 'store', isRequired: true, type: 'MobX store' })
+                ctrlProps.load(st)
+                var st0 = ctrlProps.items[0]
+                $(Rn.p.clsArrayDel, st0.$def).remove();
+                Object.keys(st0.ctrls).forEach(function(k){
+                    st0.ctrls[k].enable(0);
+                })
+            }
+            $('#mobx-options').toggle(useMobX);
+        }        
 
-        var multiFiles = this.ctrls.styles.getValue() || useJest || isStorybook;
+        var multiFiles = this.ctrls.styles.getValue() || useJest || isStorybook || useMobX;
         var ctrlCreateFolder = this.ctrls.createFolder;
         ctrlCreateFolder.enable(!multiFiles);
         if (multiFiles) ctrlCreateFolder.setValue(true);
 
         // Запрещать defaultValue, если isRequired
-        this.ctrls.props.items.forEach(function(row){
+        ctrlProps.items.forEach(function(row){
             var ctrlReq = row.ctrls.isRequired, ctrlVal = row.ctrls.defaultValue;
             var req = ctrlReq.getValue();
             if (req) ctrlVal.setValue('');
             ctrlVal.enable(!req);
         })
+
+        // Если используется MobX, то столбец testValue используется только если isParam
+        if (useMobX) {
+            ctrls.mobx.ctrls.fields.items.forEach(function(row){
+                var isParam = row.ctrls.isParam.getValue();
+                var ctrlTestValue = row.ctrls.testValue;
+                ctrlTestValue.enable(isParam);
+                if (!isParam) ctrlTestValue.setValue('');
+            });
+        }
     }
     this.onPostUpdate = function() {
         if (this.ok) {
@@ -105,11 +139,12 @@ Rn.V.PropNoDup = function() {
     this.superClass = 'Base';
     this.check = function(value) {
         if (!value) return;
+        var ctrlName = this.ctrl.name;
         var curRow = this.ctrl.owner;
         var arr = curRow.owner;
         var dup = arr.items.find(function(row) {
             console.log('>', row)
-            return row !== curRow && row.ctrls.propName.getValue() === value;
+            return row !== curRow && row.ctrls[ctrlName].getValue() === value;
         })
         if (dup) return this.msg;
     }

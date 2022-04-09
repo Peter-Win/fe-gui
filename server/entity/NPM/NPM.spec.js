@@ -34,9 +34,11 @@ const packageLock = `{
 }`
 
 describe('findVersionInJson', () => {
+  it('main', () => {
     const json = JSON.parse(packageLock)
     expect(findVersionInJson(json, '@types/mime')).to.equal('1.3.2')
     expect(findVersionInJson(json, '@types/react')).to.equal('17.0.43')
     expect(findVersionInJson(json, 'css-loader')).to.equal('6.7.1')
     expect(findVersionInJson(json, 'bad-name')).to.equal(null)
+  })
 })

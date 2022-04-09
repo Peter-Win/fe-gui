@@ -1,5 +1,5 @@
 const {expect} = require("chai")
-const {createStorybook} = require('./ReactComponent.utils')
+const {createStorybook} = require('./createStorybook')
 
 describe('createStorybook', () => {
 
