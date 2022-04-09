@@ -1,5 +1,8 @@
 const { camelToKebab, camelToLower } = require("../../parser/nameConversion")
 const { createJest } = require('./createJest')
+const { newMobxInstance } = require('./newMobxInstance')
+const { createMobxStore } = require('./createMobxStore')
+const { createStorybook } = require('./createStorybook')
 
 const reactImport = 'import * as React from "react";';
 
@@ -31,12 +34,15 @@ const propTypesMap = {
 
 
 /**
- * @param {{propName:string; isRequired: boolean; type: string; defaultValue: string}[]} props 
+ * @param {Object} params
+ * @param {{propName:string; isRequired: boolean; type: string; defaultValue: string}[]} params.props
+ * @param {string?} mobxClassName
  * @returns {string[]}
  */
-const makePropTypesList = (props) => {
+const makePropTypesList = ({props, mobxClassName}) => {
     return props.map(({propName, isRequired, type}) => {
-        const typeName = propTypesMap[type] || type;
+        let typeName = propTypesMap[type] || type;
+        if (type === 'MobX store') typeName = `instanceOf(${mobxClassName})`
         return `  ${propName}: PropTypes.${typeName}${isRequired ? `.isRequired` : ''},`
     })
 }
@@ -63,7 +69,7 @@ const createComponentCode = ({name, isTS, useReturn, props=[], classExpr, styleI
     const useMobX = !!mobxClassName
     if (useMobX) {
         rows.push(`import { observer } from "mobx-react-lite";`)
-        if (isTS) rows.push(`import { ${mobxClassName} } from "./${mobxClassName}";`)
+        rows.push(`import { ${mobxClassName} } from "./${mobxClassName}";`)
     }
     if (styleImport) rows.push(styleImport)
     rows.push('')
@@ -79,7 +85,7 @@ const createComponentCode = ({name, isTS, useReturn, props=[], classExpr, styleI
             paramsComp += `: ${iname}`
         } else {
             rows.splice(1, 0, 'import PropTypes from "prop-types";')
-            postRows = [`${name}.propTypes = {`, ...makePropTypesList(props), '};']
+            postRows = [`${name}.propTypes = {`, ...makePropTypesList({props, mobxClassName}), '};']
         }
     }
 
@@ -135,63 +141,8 @@ const createStyle = ({name, styles}) => {
     return res
 }
 
-const createStorybook = ({ name, props, story, isTS, renderExt }) => {
-    const { compTitle, compDecorator, storyName } = story
-    const storyFileName = `${name}.stories.${renderExt}`
-    const storyNameOk = storyName || "Default"
-    const args = props
-        .filter(({ propName, isRequired, testValue }) => isRequired || testValue)
-        .map(({ propName, type, testValue }) => `${propName}: ${testValue || typeDefaults[type]}`)
-    const storyCode = `${reactImport}
-import { ${name} } from "./${name}";
-
-export default {
-    title: "${compTitle || name}",
-    component: ${name},
-    decorators: [
-        (Story) => <div style={{ border: "thick solid silver", padding: "1em" }}><Story /></div>
-    ],
-}${isTS ? ` as ComponentMeta<typeof ${name}>`: ''};
-
-const Template${isTS ? `: ComponentStory<typeof ${name}>` : ''} = (args) => <${name} {...args} />;
-
-export const ${storyNameOk} = Template.bind({});
-${storyNameOk}.args = { ${args.join(', ')} };`.split('\n')
-    if (isTS) storyCode.splice(1, 0, 'import { ComponentMeta, ComponentStory } from "@storybook/react";')
-    if (!compDecorator) {
-        const pos = storyCode.findIndex(s => /component:/.test(s))
-        if (pos >=0) storyCode.splice(pos+1, 3)
-    }
-    return { storyFileName, storyCode }
-}
-
-const createMobxStore = ({name, useMobX, isTS, mobx}) => {
-    if (!useMobX) {
-        return { mobxClassName:'', mobxFileName:'', mobxCode:'' }
-    }
-    const mobxClassName = `${name}Store`
-    const mobxFileName = `${mobxClassName}.${isTS ? 'ts':'js'}`
-    let mobxCode = 
-`import { makeAutoObservable } from "mobx";
-
-export class ${mobxClassName} {
-  constructor() {
-    makeAutoObservable(this);
-  }
-}`.split('\n')
-    let mobxStoreName = ''
-    if (mobx.exportStore) {
-        mobxStoreName = camelToLower(mobxClassName)
-        const glbStore = `
-export const ${mobxStoreName} = new ${mobxClassName}();
-`
-        mobxCode = [...mobxCode, ...glbStore.split('\n')]
-    }
-    return { mobxClassName, mobxStoreName, mobxFileName, mobxCode }
-}
-
-const mobxInstanceCode = ({mobxClassName}) => {
-    return `const store = new ${mobxClassName}();`
+const mobxInstanceCode = ({mobxClassName, mobx}) => {
+    return `const store = new ${newMobxInstance({mobxClassName, mobx})}();`
 }
 
 /**
@@ -208,6 +159,7 @@ const mobxInstanceCode = ({mobxClassName}) => {
  * @param {{propName:string; isRequired:boolean; type: string; defaultValue: string;}[]} params.props
  * @param {{language:string;}} params.tech
  * @param {{framework?:string}} params.techVer
+ * @param {boolean} params.useMobX
  * @param {{exportStore:boolean;}} params.mobx
  * @returns {{ folders: string[]; files: {name:string; data:string[]}[]; mobxClassName?: string; mobxStoreName:string; }}
  */
@@ -234,12 +186,15 @@ const createReactComponent = ({
     if (useJest) {
         const {specFileName, specCode} = createJest({
             name, isTS, className, useInlineSnapshot, usePretty, props, techVer, styles,
-            mobxClassName, mobxStoreName,
+            mobxClassName, mobxStoreName, mobx,
         })
         filesDict[specFileName] = specCode
     }
     if (useStorybook) {
-        const {storyFileName, storyCode} = createStorybook({ name, props, story, isTS, renderExt })
+        const {storyFileName, storyCode} = createStorybook({
+            name, props, story, isTS, renderExt,
+            mobxClassName, mobxStoreName, mobx,
+        })
         filesDict[storyFileName] = storyCode
     }
     const folders = []

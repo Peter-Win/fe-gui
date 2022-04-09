@@ -11,14 +11,14 @@ const mainFrameUpdate = ({ name, folder, props, mobx, mobxClassName, mobxStoreNa
         if (mobxStoreName) {
             storeName = mobxStoreName
         } else {
-            storeName = 'store'
-            beforeComp = `const ${storeName} = ${newMobxInstance({mobxClassName})};`
+            storeName = `local${mobxClassName}`
+            beforeComp = `const ${storeName} = ${newMobxInstance({mobxClassName, mobx})};`
         }
     }
 
     return {
         header: `import { ${fromFile.join(', ')} } from ".${importFile.slice(3)}";`,
-        code: makeComponentCall({ name, props, mobxStoreName: storeName }),
+        code: '\n'+makeComponentCall({ name, props, mobxStoreName: storeName }),
         beforeComp,
     }
 }

@@ -1,5 +1,6 @@
 const {installPackage} = require('../commands/installPackage')
 const {wsSendCreateEntity} = require('../wsSend')
+const {CommonInfo} = require('../CommonInfo')
 
 class MobX {
     name = 'MobX'
@@ -12,6 +13,10 @@ class MobX {
         const {PackageJson, React} = entities
         this.isInit = PackageJson.isDependency('mobx')
         this.isReady = !this.isInit && React.isInit
+        if (this.isInit) {
+          CommonInfo.tech.stateManager = 'MobX'
+          CommonInfo.techVer.stateManager = await CommonInfo.findPackageVersion('mobx')
+        }
     }
 
     async create() {

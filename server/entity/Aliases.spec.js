@@ -66,11 +66,13 @@ describe('loadAliasesList', () => {
 })
 
 describe('separateAliasesList', () => {
-    expect(separateAliasesList([])).to.deep.equal({ reserved: {}, pairs: [] })
-    expect(separateAliasesList([['one']])).to.deep.equal({ reserved: {one: 1}, pairs: [] })
-    expect(separateAliasesList([['a', 'b']])).to.deep.equal({ reserved: {}, pairs: [['a', 'b']] })
-    expect(separateAliasesList([['first', '1'], ['hello']])).to.deep.equal({
-        reserved: {hello: 1}, pairs: [['first', '1']] 
+    it('main', () => {
+        expect(separateAliasesList([])).to.deep.equal({ reserved: {}, pairs: [] })
+        expect(separateAliasesList([['one']])).to.deep.equal({ reserved: {one: 1}, pairs: [] })
+        expect(separateAliasesList([['a', 'b']])).to.deep.equal({ reserved: {}, pairs: [['a', 'b']] })
+        expect(separateAliasesList([['first', '1'], ['hello']])).to.deep.equal({
+            reserved: {hello: 1}, pairs: [['first', '1']] 
+        })    
     })
 })
 

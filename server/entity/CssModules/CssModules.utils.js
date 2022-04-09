@@ -213,7 +213,7 @@ const installStyleModules = async ({
                 await addFile(`${compName}.${language[0].toLowerCase()}sx`, `${compName}.jsx`)
                 await addFile(`${compName}.module.${ext}`)
                 imports.push({
-                    hdr: `import { ${compName} } from "./${exampleFolder}/${compName}"`,
+                    header: `import { ${compName} } from "./${exampleFolder}/${compName}"`,
                     code: `<${compName} />`,
                 })
             }

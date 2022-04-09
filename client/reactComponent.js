@@ -92,7 +92,7 @@ Rn.F.ReactComponent = function() {
                 })
             }
             $('#mobx-options').toggle(useMobX);
-        }
+        }        
 
         var multiFiles = this.ctrls.styles.getValue() || useJest || isStorybook || useMobX;
         var ctrlCreateFolder = this.ctrls.createFolder;
@@ -106,6 +106,16 @@ Rn.F.ReactComponent = function() {
             if (req) ctrlVal.setValue('');
             ctrlVal.enable(!req);
         })
+
+        // Если используется MobX, то столбец testValue используется только если isParam
+        if (useMobX) {
+            ctrls.mobx.ctrls.fields.items.forEach(function(row){
+                var isParam = row.ctrls.isParam.getValue();
+                var ctrlTestValue = row.ctrls.testValue;
+                ctrlTestValue.enable(isParam);
+                if (!isParam) ctrlTestValue.setValue('');
+            });
+        }
     }
     this.onPostUpdate = function() {
         if (this.ok) {
@@ -129,11 +139,12 @@ Rn.V.PropNoDup = function() {
     this.superClass = 'Base';
     this.check = function(value) {
         if (!value) return;
+        var ctrlName = this.ctrl.name;
         var curRow = this.ctrl.owner;
         var arr = curRow.owner;
         var dup = arr.items.find(function(row) {
             console.log('>', row)
-            return row !== curRow && row.ctrls.propName.getValue() === value;
+            return row !== curRow && row.ctrls[ctrlName].getValue() === value;
         })
         if (dup) return this.msg;
     }

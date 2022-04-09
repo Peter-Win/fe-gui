@@ -4,6 +4,7 @@ const typeDefaults = {
     'string': '""',
     'React.Node': 'null',
     'React.Element': '<span />',
+    any: 'null',
 }
 
 const makePropCode = ({propName, type, testValue, mobxStoreName}) => {
@@ -32,4 +33,4 @@ const makeComponentCall = ({ name, props, mobxStoreName }) => {
     return `<${name}${propsCode} />`
 }
 
-module.exports = {makeComponentCall}
+module.exports = {makeComponentCall, typeDefaults}

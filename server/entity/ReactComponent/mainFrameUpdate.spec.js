@@ -55,6 +55,7 @@ export const MainFrame: React.FC = () => (
             mobxClassName: 'MyComponentStore',
             mobxStoreName: '',
             props: [{ propName: 'store', type: 'MobX store', isRequired: true }],
+            mobx: { exportStore: false, fields: [] },
         }))
         compareText(rows, dst)
     })

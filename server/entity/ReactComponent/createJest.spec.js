@@ -66,6 +66,7 @@ describe('createJest', () => {
       usePretty: false,
       mobxClassName: 'HelloWorldStore',
       props: [{propName: 'store', isRequired: true, type: 'MobX store'}],
+      mobx: { fields: [] },
     })
     expect(specFileName).to.equal('HelloWorld.spec.tsx')
     compareText(specCode, tsReact18_mobx)

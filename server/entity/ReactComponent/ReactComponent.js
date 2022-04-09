@@ -82,7 +82,7 @@ class ReactComponent {
      * @param {boolean} params.openEditor // Try to open the component code in the editor.
      * @param {boolean} params.useMainFrame // Вставить вызов компонента на главную страницу
      * @param {boolean} params.useMobX
-     * @param {{exportStore: boolean;}} params.mobx
+     * @param {{exportStore: boolean; fields:{fieldName:string}[]}} params.mobx
      * @param {{propName:string; isRequired:boolean; type: string; defaultValue: string;}[]} params.props
      */
     async create(params) {
