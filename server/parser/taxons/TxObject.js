@@ -105,7 +105,10 @@ class TxObject extends TxExpression {
     }
     deleteItem(name) {
         delete this.dict[name]
-        this.items = this.items.filter(({key}) => key === name)
+        this.items = this.items.filter(({key}) => {
+            const curName = key.type === 'TxConst' ? fromQuoted(key.constValue) : key.name
+            return curName !== name
+        })
     }
 }
 

@@ -17,10 +17,13 @@ class ParserNode {
         this.opcode = null
         this.stopper = '' // Команда остановки
     }
-    isOp = () => this.lexType === 'cmd' || (this.lexType === 'id' && namedOps.has(this.value))
+    isOp() {
+        return this.lexType === 'cmd' || (this.lexType === 'id' && namedOps.has(this.value))
+    }
 
-    isArg = () => this.lexType in constTypes ||
-        (this.lexType === 'id' && !namedOps.has(this.value))
+    isArg() {
+        return this.lexType in constTypes || (this.lexType === 'id' && !namedOps.has(this.value))
+    }
 
     setArgType() {
         if (this.lexType in constTypes) {

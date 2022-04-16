@@ -17,12 +17,25 @@ class Taxon {
 
     /**
      * @param {Taxon} subTax
+     * @param {number} index
      * @return {Taxon}
      */
-    addTaxon(subTax) {
-        this.subTaxons.push(subTax)
+    addTaxon(subTax, index = -1) {
+        if (index < 0) {
+            this.subTaxons.push(subTax)
+        } else {
+            this.subTaxons.splice(index, 0, subTax)
+        }
         subTax.owner = this
         return subTax
+    }
+
+    remove() {
+        if (this.owner) {
+            const pos = this.owner.subTaxons.indexOf(this)
+            if (pos >= 0) this.owner.subTaxons.splice(pos, 1)
+        }
+        this.owner = null
     }
 
     /**
@@ -57,6 +70,26 @@ class Taxon {
     walk(onTaxon) {
         onTaxon(this)
         this.subTaxons.forEach(arg => arg.walk(onTaxon))
+    }
+
+    /**
+     * Поиск объявления переменной вверх
+     * @param {string} name 
+     * @returns {Taxon|null} 
+     */
+    findDeclarationUp(name) {
+        const result = this.findDeclarationDown(name)
+        if (result) return result
+        return this.owner ? this.owner.findDeclarationUp(name) : null
+    }
+    /** Поиск вниз может осуществляться только в некоторых типах таксонов. 
+     * Например в объявлении функции поиск среди параметров. А в блоке - поиск инструкций const/let/var
+     * Т.е. функция переопределяется в наследниках.
+     * @param {string} name
+     * @returns {Taxon|null}
+     */
+    findDeclarationDown(name) {
+        return null
     }
 }
 
