@@ -1,6 +1,7 @@
 const {expect} = require('chai')
 const {parseExpression} = require('./parseExpression')
 const {ReaderCtx} = require('./ReaderCtx')
+const {Lex} = require('./Lex')
 
 const testStr = (text, stoppers) =>
     parseExpression(ReaderCtx.fromText(text), stoppers).toString()
@@ -83,6 +84,25 @@ describe('parseExpression', () => {
         expect(testStr('!await exists(name)')).to.equal(
             'TxUnOp:! (TxUnOp:await (TxFnCall:call (TxName:exists, TxName:name)))')
         expect(testStr('new MyClass()')).to.equal('TxFnCall:call (TxUnOp:new (TxName:MyClass))')
+    })
+    it('arrow function', () => {
+        expect(testStr('() => 123;', [';'])).to.equal('TxArrowFunc:=> (TxArguments:, TxConst:123)')
+        expect(testStr('(x, y, z) => (x + y) * z', [';'])).to.equal(
+            'TxArrowFunc:=> (TxArguments: (TxName:x, TxName:y, TxName:z), TxBinOp:* (TxBrackets:( (TxBinOp:+ (TxName:x, TxName:y)), TxName:z))'
+        )
+        expect(testStr('() => {}', [';'])).to.equal('TxArrowFunc:=> (TxArguments:, TxBody:{)')
+        expect(testStr('(a, b) => {\n return a + b\n }', [';'])).to.equal(
+            'TxArrowFunc:=> (TxArguments: (TxName:a, TxName:b), TxBody:{ (TxReturn:return (TxBinOp:+ (TxName:a, TxName:b))))')
+    })
+    it('arrow func detection', () => {
+        const reader = ReaderCtx.fromText('x, y, z) => (x+y)*z')
+        let nodes = []
+        for (;;) {
+            const node = parseExpression(reader, [',', ')'])
+            nodes.push(node)
+            if (node.stopper === ')') break
+        }
+        expect(reader.getNextLexem()).to.eql(Lex.cmd('=>'))
     })
     it('ternop', () => {
         expect(testStr('a < c ? first : second')).to.equal(

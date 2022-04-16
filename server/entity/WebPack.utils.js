@@ -31,22 +31,43 @@ const findAssign = (moduleTaxon, name) => {
  * @return {TxExpression}
  */
 const findConfigRoot = (moduleTaxon) => {
-    const exp = []
-    moduleTaxon.walk((taxon) => {
-        if (taxon.type === 'TxBinOp' && taxon.opcode === '.') {
-            const {left, right} = taxon
-            if (left.name === 'module' && right.field === 'exports') {
-                exp.push(taxon)
+    const findExport = () => {
+        const exp = []
+        moduleTaxon.walk((taxon) => {
+            if (taxon.type === 'TxBinOp' && taxon.opcode === '.') {
+                const {left, right} = taxon
+                if (left.name === 'module' && right.field === 'exports') {
+                    exp.push(taxon)
+                }
             }
+        })
+        // Желательно получить конструкцию module.exports = ...
+        if (exp.length === 1 && exp[0].owner.type === 'TxBinOp' && exp[0].owner.opcode === '=') {
+            return exp[0].owner.right
         }
-    })
-    // Желательно получить конструкцию module.exports = ...
-    if (exp.length === 1 && exp[0].owner.type === 'TxBinOp' && exp[0].owner.opcode === '=') {
-        return exp[0].owner.right
+        // Теоретически, можно ожидать module.exports.entry и другие разделы.
+        // Но мне такие конфиги не встречались/
+        throw new Error('Unsupported structure of webpack.config.js')
     }
-    // Теоретически, можно ожидать module.exports.entry и другие разделы.
-    // Но мне такие конфиги не встречались/
-    throw new Error('Unsupported structure of webpack.config.js')
+    const rootTaxon = findExport()
+
+    if (rootTaxon.type === 'TxArrowFunc') {
+        // Конфиг вебпака может быть представлен функцией
+        // example: https://webpack.js.org/configuration/mode/#mode-none
+        // Это затрудняет поиск, т.к. появляется слишком много всяких вариантов
+        // Будем надеяться, что функция возвращает объект
+        const body = rootTaxon.getBody()
+        if (body.type === 'TxBody') {
+            const lastCmd = body.subTaxons[body.subTaxons.length - 1]
+            if (!lastCmd || lastCmd.type !== 'TxReturn') {
+                throw new Error("Can't find a 'return' in webpack.config")
+            }
+            return lastCmd.subTaxons[0]
+        } else {
+            
+        }
+    }
+    return rootTaxon
 }
 
 /**
@@ -124,8 +145,12 @@ const findObjectItem = (taxon, key) => {
         return taxon.dict[key]
     }
     if (taxon.type === 'TxName') {
+        const txDecl = taxon.findDeclarationUp(taxon.name)
+        if (!txDecl) throw new Error(`Can't find '${taxon.name}' declaration`)
+        if (txDecl.type === 'TxBinOp' && txDecl.opcode === '=') {
+            return findObjectItem(txDecl.right, key)
+        }
     }
-    // throw new Error()
     return null
 }
 
@@ -145,7 +170,7 @@ const findPath = (taxon, path) => {
 }
 
 const findRule = (sourceTaxon, name, exclude) => {
-    const rootTaxon = findConfigRoot(sourceTaxon)
+    let rootTaxon = findConfigRoot(sourceTaxon)
     let rulesTaxon = findPath(rootTaxon, 'module.rules')
     if (rulesTaxon.type === 'TxName') {
         rulesTaxon = findAssign(sourceTaxon, rulesTaxon.name)

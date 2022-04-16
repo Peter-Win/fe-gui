@@ -83,4 +83,12 @@ second\``
             Lex.space, Lex.id('b')])
         expect(parseLexems('x=/a/i')).to.eql([Lex.id('x'), Lex.cmd('='), Lex.regexp('/a/i')])
     })
+    it('arrow function', () => {
+        expect(parseLexems('() => -123.4')).to.deep.equal([
+            Lex.cmd('('), Lex.cmd(')'), Lex.space, Lex.cmd('=>'), Lex.space, Lex.num('-123.4')
+        ])
+        expect(parseLexems('() => {}')).to.deep.equal([
+            Lex.cmd('('), Lex.cmd(')'), Lex.space, Lex.cmd('=>'), Lex.space, Lex.cmd('{'), Lex.cmd('}')
+        ])
+    })
 })

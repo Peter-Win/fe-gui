@@ -66,7 +66,7 @@ class WriterCtx {
                 // TODO: считаем, что каждый элемент объекта в отдельной строке
                 this.out(',')
             } else if (type === 'itemDiv') {
-                this.out(value.trimEnd())
+                this.out(value)
             } else if (type === 'string') {
                 this.out(this.style.string(value))
             } else {
@@ -76,6 +76,10 @@ class WriterCtx {
         }
     }
     addLine() {
+        const n = this.lines.length
+        if (n > 0) {
+            this.lines[n - 1] = this.lines[n - 1].trimEnd()
+        }
         this.lines.push('')
     }
     out(value) {

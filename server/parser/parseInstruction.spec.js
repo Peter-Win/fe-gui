@@ -47,6 +47,15 @@ describe('parseInstruction', () => {
         const n4 = parseNode('return (\n{x: 1}\n)\n}')
         expect(n4.toString()).to.equal('TxReturn:return (TxBrackets:( (TxObject:{ (TxName:x, TxConst:1)))')
     })
+    it('if', () => {
+        const n1 = parseNode('if (x > 0) { x = 0; }')
+        const dst1 = 'TxIf:if (TxBinOp:> (TxName:x, TxConst:0), TxBody:{ (TxBinOp:= (TxName:x, TxConst:0)))'
+        expect(n1.toString()).to.equal(dst1)
+        
+        const n2 = parseNode('if (param) { return 0; } else { return 1; }')
+        const dst2 = 'TxIf:if (TxName:param, TxBody:{ (TxReturn:return (TxConst:0)), TxBody:{ (TxReturn:return (TxConst:1)))'
+        expect(n2.toString()).to.equal(dst2)
+    })
 })
 
 describe('parseBody', () => {

@@ -311,6 +311,27 @@ module.exports = {
       expect(ruleLess).to.be.instanceOf(TxObject)
       expect(ruleLess.dict.name.constValue).to.equal(`'styles'`)
     })
+
+  it('webpack config as a function', () => {
+    // similar to https://webpack.js.org/configuration/mode/#mode-none
+    const src =
+`const config = {
+  entry: './app.js',
+  module: {
+    rules: [{ test: /\\.js$/, name: 'js' }],
+  },
+};
+module.exports = (env, argv) => {
+  if (argv.mode === 'development') {
+    config.devtool = 'source-map';
+  }
+  return config;
+};`
+    const sourceTaxon = parseModule(ReaderCtx.fromText(src)).createTaxon()
+    const ruleLess = findRule(sourceTaxon, '.js')
+    expect(ruleLess).to.be.instanceOf(TxObject)
+    expect(ruleLess.dict.name.constValue).to.equal(`'js'`)
+  })
 })
 
 describe('makeRuleRegexp', () => {

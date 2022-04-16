@@ -138,11 +138,38 @@ const parseExpression = (reader, stoppers = [], options = {}) => {
                 state = 'postArg'
             } else if (lex.value === '(') {
                 // Скобки для группировки операций (а не список параметров функции)
-                const argNode = parseExpression(reader, [')'])
-                node.initOp(reader)
-                node.args.push(argNode)
-                args.push(node)
+                // А может быть объявление стрелочной функции
+                const argNodes = parseExprList(reader, ')', [','], {canEmpty: true})
+                const arrLexem = reader.getNextLexem()
+                if (arrLexem && Lex.isEqual(arrLexem, Lex.cmd('=>'))) {
+                    node.args = argNodes
+                    node.lexType = 'id'
+                    node.value = '=>'
+                    node.txType = 'TxArrowFunc'
+                    skipSpaces(reader) // =>
+                    const fnArgs = new ParserNode(Lex.empty, 'TxArguments')
+                    node.args = [fnArgs]
+                    fnArgs.args = argNodes
+                    const nextLexem = reader.getNextLexem()
+                    if (nextLexem && Lex.isEqual(nextLexem, Lex.cmd('{'))) {
+                        // Full form with block
+                        const fnBody = new ParserNode(Lex.cmd('{'), 'TxBody')
+                        node.args.push(fnBody)
+                        const [brLex] = skipSpaces(reader)
+                        if (!brLex || brLex.value !== '{') reader.error('Expected "{"')
+                        fnBody.args = parseBody(reader, '}')
+                    } else {
+                        // Short form with expression
+                        node.args.push(parseExpression(reader, stoppers))
+                    }        
+                } else if (argNodes.length === 1) {
+                    node.initOp(reader)
+                    node.args.push(argNodes[0])
+                } else {
+                    reader.error('Too much arguments in brackets')
+                }
                 state = 'postArg'
+                args.push(node)
             } else if (lex.value === '[') {
                 // Начало нового массива или деструктуризация, но не извлечение по индексу
                 node.args = parseExprList(reader, ']', [','], {canEmpty: true})
@@ -266,6 +293,11 @@ const parseInstruction = (reader) => {
     const pos0 = reader.getPos()
     const [lexem] = skipSpaces(reader)
     if (!lexem) return null
+    if (Lex.isEqual(lexem, Lex.cmd('{'))) {
+        const body = new ParserNode(lexem, 'TxBody')
+        body.args = parseBody(reader, '}')
+        return body
+    }
     if (lexem.type === 'id' && varDeclarators.has(lexem.value)) {
         const declNode = new ParserNode(lexem, 'TxVarDecl')
         declNode.args = parseExprList(reader, ';', [','])
@@ -283,6 +315,21 @@ const parseInstruction = (reader) => {
             returnNode.args.push(parseInstruction(reader))
         }
         return returnNode
+    }
+    if (lexem.value === 'if') {
+        const ifNode = new ParserNode(lexem, 'TxIf')
+        const [br] = skipSpaces(reader)
+        if (!br || !Lex.isEqual(br, Lex.cmd('('))) {
+            reader.error('Expected "(" after "if"')
+        }
+        ifNode.args.push(parseExpression(reader, ')'))
+        ifNode.args.push(parseInstruction(reader))
+        const nextLexem = reader.getNextLexem()
+        if (nextLexem && Lex.isEqual(nextLexem, Lex.id('else'))) {
+            skipSpaces(reader) // skip 'else'
+            ifNode.args.push(parseInstruction(reader))
+        }
+        return ifNode
     }
     reader.seek(pos0)
     // В остальных случаях считаем, что это выражение.
