@@ -27,4 +27,18 @@ const updateESLintListRule = (config, ruleName, propName, propValue) => {
     }
 }
 
-module.exports = {updateESLintListRule}
+/**
+ * Add item to "overrides" part of eslint config
+ * @param {{overrides?: {files: string[], rules?: Object}[]}} config IN/OUT
+ * @param {{files: string[], rules?: Object}} item 
+ */
+const appendOverride = (config, item) => {
+    let overrides = config.overrides
+    if (!overrides) {
+        overrides = []
+        config.overrides = overrides
+    }
+    overrides.push(item)
+}
+
+module.exports = {updateESLintListRule, appendOverride}

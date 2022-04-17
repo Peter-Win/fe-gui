@@ -1,5 +1,5 @@
 const {expect} = require('chai')
-const {updateESLintListRule} = require('./updateESLintListRule')
+const {updateESLintListRule, appendOverride} = require('./updateESLintListRule')
 
 const typicalResult = {
     rules: {
@@ -80,6 +80,43 @@ describe('updateESLintListRule', () => {
                 myRule: ["error", { test: "ABC", myProp: ['myPropValue']}],
                 rule2: 2,
             }
+        })
+    })
+})
+
+describe('appendOverride', () => {
+    it('config without overrides', () => {
+        const src = {}
+        const item = { files: ['*.stories.jsx'], rules: {abc: 'hello'} }
+        appendOverride(src, item)
+        expect(src).to.deep.equal({
+            overrides: [
+                {
+                    files: ['*.stories.jsx'],
+                    rules: { abc: 'hello' },
+                }
+            ]
+        })
+    })
+    it('config with overrides', () => {
+        const src = {
+            overrides: [
+                { files: ['*.js'], rules: { first: 'First' } },
+            ]
+        }
+        const item = { files: ['*.stories.jsx'], rules: {second: 'Second'} }
+        appendOverride(src, item)
+        expect(src).to.deep.equal({
+            overrides: [
+                {
+                    files: ['*.js'],
+                    rules: { first: 'First' },
+                },
+                {
+                    files: ['*.stories.jsx'],
+                    rules: { second: 'Second' },
+                },
+            ]
         })
     })
 })
