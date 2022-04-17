@@ -68,12 +68,12 @@ const changeWebPackConfig = (wpConfig, style) => {
     if (!txResolve) {
         txResolve = createTaxonByType('TxObject')
         configObject.addObjectItem('resolve', txResolve, style)
-    } else console.log('resolved found')
+    }
     let txAlias = findObjectItem(txResolve, 'alias')
     if (!txAlias) {
         txAlias = createTaxonByType('TxObject')
         txResolve.addObjectItem('alias', txAlias, style)
-    } else console.log('alias found')
+    }
 
     // Нужно удалить раздел config.resolve.alias['react-dom'], если он есть
     txAlias.deleteItem('react-dom')
