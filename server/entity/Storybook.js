@@ -84,11 +84,12 @@ class Storybook {
 </div>
     `
 
-    async addRule(test, use) {
+    async addRule(test, use, log) {
         const mainName = makeFullName('.storybook/main.js')
         const src = await readRows(mainName)
         const lines = injectStorybookRule(src, test, use)
         await writeRows(mainName, lines)
+        if (log) log(`Changed rule ${test} in ${mainName}`)
     }
 }
 

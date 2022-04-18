@@ -1,7 +1,9 @@
 const {CommonInfo} = require('../CommonInfo')
 const {installPackage} = require('../commands/installPackage')
 const {loadTemplate, buildTemplate} = require('../sysUtils/loadTemplate')
-const {makeSrcName} = require('../fileUtils')
+const {makeSrcName, isFileExists} = require('../fileUtils')
+const {wsSendCreateEntity} = require('../wsSend')
+const { injectStyleImport } = require('../sysUtils/injectStyleImport')
 
 class LESS {
     name = 'LESS'
@@ -30,7 +32,7 @@ class LESS {
         await WebPack.setPart(webpackInjection)
 
         if (CommonInfo.getPreferStyler() === 'LESS') {
-            await buildTemplate('style.less', makeSrcName('style.less'))
+            await this.checkStyleLess((msg) => wsSendCreateEntity(this.name, msg))
         }
     }
 
@@ -57,5 +59,22 @@ class LESS {
 <p class="less-p">Less (which stands for Leaner Style Sheets) is a backwards-compatible language extension for CSS.</p>
 <p><a href="http://lesscss.org/" target="_blank">Official site</a></p>
 `
+    async checkStyleLess(log) {
+        const shortName = 'style.less'
+        const fullName = makeSrcName(shortName)
+        const exists = await isFileExists(fullName)
+        if (!exists) {
+            await buildTemplate('style.less',fullName)
+            if (log) log(`Created ${fullName}`)
+
+            // Нужно внедрить импорт стиля в App.?sx
+            await injectStyleImport({
+                dstFileName: makeSrcName(`App.${CommonInfo.getExtension('render')}`),
+                styleNameForImport: `./${shortName}`,
+                log
+            })
+        }
+        return { shortName, fullName }
+    }
 }
 module.exports = {LESS}

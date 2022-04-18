@@ -4,7 +4,7 @@ const {CommonInfo} = require('../../CommonInfo')
 const {readRows, writeRows} = require('../../sysUtils/textFile')
 const {updateStyle, makeMainFrame, updateApp} = require('./AntdLayoutUtils')
 const {Style} = require('../../parser/Style')
-const {wsSend} = require('../../wsServer')
+const {wsSendCreateEntity} = require('../../wsSend')
 
 class AntdLayout {
     name = 'AntdLayout'
@@ -51,17 +51,17 @@ class AntdLayout {
         const mfName = makeSrcName(`MainFrame.${CommonInfo.getExtension('render')}`)
         const mfText = makeMainFrame(params, style, CommonInfo.tech.language)
         await fs.promises.writeFile(mfName, mfText)
-        wsSend('createEntityMsg', {name: this.name, message: `Overwritten ${mfName}`})
+        wsSendCreateEntity(this.name, `Overwritten ${mfName}`)
 
         // style
-        const styleName = makeSrcName('style.less')
-        let styleRows = []
-        if (await isFileExists(styleName)) {
-            const styleRows = await readRows(styleName)
-        }
+        const {entities} = require('../all')
+        const {LESS} = entities
+        const {fullName: styleName} =
+            await LESS.checkStyleLess((msg, type) => wsSendCreateEntity(this.name, msg, type))
+        const styleRows = await readRows(styleName)
         updateStyle(styleRows, params)
         await writeRows(styleName, styleRows)
-        wsSend('createEntityMsg', {name: this.name, message: `Updated ${styleName}`})
+        wsSendCreateEntity(this.name, `Updated ${styleName}`)
 
         // App
         if (params.locale) {
@@ -69,7 +69,7 @@ class AntdLayout {
             const appRows = await readRows(appName)
             updateApp(appRows, params)
             await writeRows(appName, appRows)
-            wsSend('createEntityMsg', {name: this.name, message: `Updated ${appName}`})
+            wsSendCreateEntity(this.name, `Updated ${appName}`)
         }
     }
     defaultParams = {
