@@ -28,9 +28,15 @@ const makePropCode = ({propName, type, testValue, mobxStoreName}) => {
 const makeComponentCall = ({ name, props, mobxStoreName }) => {
     const propsList = props
         .filter(({ isRequired, testValue }) => isRequired || testValue)
+        .filter(({propName}) => propName !== 'children')
         .map(({ propName, type, testValue }) => makePropCode({propName, type, testValue, mobxStoreName}))
     const propsCode = propsList.length > 0 ? ` ${propsList.join(' ')}` : ''
-    return `<${name}${propsCode} />`
+    const children = props.find(({ propName }) => propName === 'children')
+    let suffix = ' />'
+    if (children && children.testValue) {
+        suffix = `>\n  ${children.testValue}\n</${name}>`
+    }
+    return `<${name}${propsCode}${suffix}`
 }
 
 module.exports = {makeComponentCall, typeDefaults}

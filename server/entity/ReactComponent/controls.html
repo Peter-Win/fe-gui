@@ -18,6 +18,10 @@
     .props-header>div {
         background: #DDD;
     }
+    .props-buttons {
+        padding: .4em 0;
+    }
+    .props-buttons > * { margin-right: .4em; }
 
     .file-preview { margin-bottom: 1em; }
     .file-preview > label {
@@ -42,6 +46,7 @@
         padding: 1em;
         color: #555;
     }
+    #react-comp-folders-reload {margin-left: 0.6em;}
 </style>
 
 <div class="react-comp-box">
@@ -166,10 +171,12 @@
 <script id="TmCtrlReactProps" type="text/html">
     <div>
       <div class="rn-array"></div>
-      <button type="button" class="rn-add-item">
+      <div class="props-buttons">
+        <button type="button" class="rn-add-item">
           {{^add_button_text}}Add a new property{{/add_button_text}}
           {{#add_button_text}}{{add_button_text}}{{/add_button_text}}
-      </button>
+        </button>
+      </div>
     </div>
 </script>
 
@@ -202,8 +209,8 @@
         'string',
         'number',
         'boolean',
-        'React.Node',
-        'React.Element',
+        'React.ReactNode',
+        'React.ReactElement',
         'any',
     ];
 </script>

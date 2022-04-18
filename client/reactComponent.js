@@ -20,6 +20,7 @@ Rn.F.ReactComponent = function() {
         wsSend('srcFoldersAsk');
     }
     this.superClass = 'Upgrade';
+    var btnChildren = null;
     this.onInit = function () {
         wsOff('srcFolders');
         wsOn('srcFolders', function(folders){
@@ -39,12 +40,27 @@ Rn.F.ReactComponent = function() {
             srcAsk();
         });
         srcAsk();
+        var ctrlProps = this.ctrls.props
+        btnChildren = $('<button/>').attr({type: 'button'}).text('Use Children')
+            .appendTo($('.props-buttons', ctrlProps.$def));
+        btnChildren.on('click', function(){
+            var stream = ctrlProps.save();
+            stream.props.push({
+                propName: 'children',
+                isRequired: false,
+                type: 'React.ReactNode',
+                initValue: '',
+                testValue: '<div>Test</div>',
+            });
+            ctrlProps.load(stream);
+        });
     }
     var availJest = null;
     var jestOptions = null;
     var availInlineSnapshots = null;
     var availStorybook = null, useStorybook = null;
     var availMobX = null, useMobX = null;
+    var useChildren = null;
     this.onUpdate = function() {
         var ctrls = this.ctrls, ctrlProps = ctrls.props;
         var isAvailJest = !!ctrls.availJest.getValue()
@@ -99,13 +115,21 @@ Rn.F.ReactComponent = function() {
         ctrlCreateFolder.enable(!multiFiles);
         if (multiFiles) ctrlCreateFolder.setValue(true);
 
+        var hasChildren = false;
         // Запрещать defaultValue, если isRequired
         ctrlProps.items.forEach(function(row){
-            var ctrlReq = row.ctrls.isRequired, ctrlVal = row.ctrls.defaultValue;
+            var ctrlReq = row.ctrls.isRequired,
+                ctrlVal = row.ctrls.defaultValue,
+                ctrlName = row.ctrls.propName;
             var req = ctrlReq.getValue();
             if (req) ctrlVal.setValue('');
             ctrlVal.enable(!req);
-        })
+            if (ctrlName.getValue() === 'children') hasChildren = true;
+        });
+        if (hasChildren !== useChildren) {
+            useChildren = hasChildren;
+            Rn.enable(btnChildren, !hasChildren);
+        }
 
         // Если используется MobX, то столбец testValue используется только если isParam
         if (useMobX) {

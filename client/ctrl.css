@@ -6,8 +6,15 @@ button {
     outline: none;
     cursor: pointer;
     border-radius: 5px;
+    padding: 6px 12px;
+    background: #DDD;
 }
-button:focus {outline: none;}
+button:focus {outline: none; box-shadow: 0 0 1px 1px #8bc540; }
+button.disabled {
+    cursor: default;
+    background: #AAA;
+    color: #555;
+}
 
 /* Кнопка сабмита */
 .rn-submit {
