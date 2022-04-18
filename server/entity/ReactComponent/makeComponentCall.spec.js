@@ -43,4 +43,13 @@ describe('makeComponentCall', () => {
             { propName: 'd', isRequired: false, type: 'number' },
         ]})).to.equal('<Number a={123.4} b={0} c={-1} />')
     })
+    it('children', () => {
+        expect(makeComponentCall({ name: "Box", props: [
+            { propName: 'children', isRequired: false, type: 'React.ReactNode', testValue: '<Inbox />' },
+        ]})).to.equal('<Box>\n  <Inbox />\n</Box>')
+        expect(makeComponentCall({ name: "Box", props: [
+            { propName: 'children', isRequired: false, type: 'React.ReactNode', testValue: '<Inbox />' },
+            { propName: 'active', isRequired: false, type: 'boolean', initValue: 'false', testValue: 'true' },
+        ]})).to.equal('<Box active>\n  <Inbox />\n</Box>')
+    })
 })

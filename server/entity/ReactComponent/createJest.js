@@ -25,7 +25,12 @@ const createJest = ({name, isTS, className, useInlineSnapshot, usePretty, props=
   const containerType = isTS ? `: HTMLDivElement | null` : ''
   const safe = isTS ? '?' : ''
   const classExpr = className ? ` class="${className}"` : ''
-  const componentCall = makeComponentCall({name, props, mobxStoreName: mobxStoreName || 'store' })
+  const componentCallSrc = makeComponentCall({name, props, mobxStoreName: mobxStoreName || 'store' })
+  const ccList = componentCallSrc.split('\n')
+  const componentCall = ccList.length === 1 ? componentCallSrc :
+    ccList.map((row, i) => i === 0 ? row : `      ${row}`).join('\n')
+  const children = props.find(({propName}) => propName === 'children')
+  const renderBody = testRenderBody || (children ? children.testValue : '')
 
   const specCode17 = 
 `import * as React from "react";
@@ -53,7 +58,7 @@ describe ("${name}", () => {
     act(() => {
       render(${componentCall}, container);
     });
-    expect(container${safe}.innerHTML).toBe('<div${classExpr}>${testRenderBody}</div>');
+    expect(container${safe}.innerHTML).toBe('<div${classExpr}>${renderBody}</div>');
   });
 });`
 
@@ -89,7 +94,7 @@ describe("${name}", () => {
     act(() => {
       root${safe}.render(${componentCall});
     });
-    expect(container${safe}.innerHTML).toBe('<div${classExpr}>${testRenderBody}</div>');
+    expect(container${safe}.innerHTML).toBe('<div${classExpr}>${renderBody}</div>');
   });
 });`
 

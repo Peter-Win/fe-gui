@@ -28,8 +28,8 @@ const createPropsInterface = ({iname, props, mobxClassName}) => {
 // Кроме того, нет механизма, который находит импорты для используемых сущностей.
 const propTypesMap = {
     'boolean': 'bool',
-    'React.Node': 'node',
-    'React.Element': 'element',
+    'React.ReactNode': 'node',
+    'React.ReactElement': 'element',
 }
 
 
@@ -53,7 +53,11 @@ const makePropTypesList = ({props, mobxClassName}) => {
  * @returns {string[]}
  */
 const makeDefaultValues = (name, props) => {
-    const vProps = props.filter(({defaultValue}) => !!defaultValue)
+    const vProps = props
+        .map((p) =>
+            p.propName === 'children' && !p.isRequired && !p.defaultValue ?
+            {...p, defaultValue: 'null'} : p
+        ).filter(({defaultValue}) => !!defaultValue)
     const res = []
     if (vProps.length > 0) {
         res.push('')
@@ -77,6 +81,7 @@ const createComponentCode = ({name, isTS, useReturn, props=[], classExpr, styleI
     const iname = `Props${name}`;
     let paramsFC = ''
     let paramsComp = ''
+    const children = props.find(({propName}) => propName === 'children')
     if (props.length > 0) {
         paramsComp = `{ ${props.map(({propName}) => propName).join(', ')} }`
         if (isTS) {
@@ -94,7 +99,8 @@ const createComponentCode = ({name, isTS, useReturn, props=[], classExpr, styleI
     const observerBegin = useMobX ? 'observer(' : ''
     const observerEnd = useMobX ? ')' : ''
     rows.push(`export const ${name}${compType} = ${observerBegin}(${paramsComp}) => ${mainBounds[0]}`)
-    const body = `<div${classExpr}></div>`
+    const inside = children ? '{children}' : ''
+    const body = `<div${classExpr}>${inside}</div>`
     if (!useReturn) {
         rows.push(`  ${body}`)
     } else {

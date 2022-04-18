@@ -1,6 +1,12 @@
 const {typeDefaults} = require('./makeComponentCall')
 const {newMobxInstance} = require('./newMobxInstance')
 
+const nodeConst = (value) => {
+    if (value in {'true':1, 'false':1, 'null':1, 'undefined':1}) return value
+    if (/^<.*>$/.test(value.trim())) return value
+    return JSON.stringify(value)
+}
+
 const createStorybook = ({ name, props, story, isTS, renderExt, mobxClassName, mobxStoreName, mobx }) => {
     const { compTitle, compDecorator, storyName } = story
     const storyFileName = `${name}.stories.${renderExt}`
@@ -16,6 +22,7 @@ const createStorybook = ({ name, props, story, isTS, renderExt, mobxClassName, m
         .filter(({ propName, isRequired, testValue }) => isRequired || testValue)
         .map(({ propName, type, testValue }) => {
             if (type === 'MobX store') return `${propName}: ${mobxStoreArg}`
+            if (type === 'React.ReactNode') return `${propName}: ${nodeConst(testValue)}`
             return `${propName}: ${testValue || typeDefaults[type]}`
         })
 
