@@ -4,12 +4,11 @@
 
 const {wsSendCreateEntity} = require('../../wsSend')
 const {makeFullName} = require('../../fileUtils')
-const {readRows, writeRows} = require('../../sysUtils/textFile')
-const {injectImport} = require('../../parser/injectImport')
+const {injectStyleImport} = require('../../sysUtils/injectStyleImport')
 
 module.exports.storybookLess = async (name, entities) => {
-    const {Storybook} = entities
-    wsSendCreateEntity(this.name, 'Adding support for LESS to the Storybook configuration')
+    const {Storybook, LESS} = entities
+    wsSendCreateEntity(name, 'Adding support for LESS to the Storybook configuration')
 
     // Модификация .storybook/main.js
     const use = [
@@ -24,11 +23,13 @@ module.exports.storybookLess = async (name, entities) => {
             },
         },
     ]
-    await Storybook.addRule('/\\.less$/', use)
+    await Storybook.addRule('/\\.less$/', use, (msg) => wsSendCreateEntity(name, `  ${msg}`))
 
     // Update ./storybook/preview.js
-    const previewName = makeFullName('.storybook/preview.js')
-    const previewRows = await readRows(previewName)
-    injectImport(previewRows, 'import "../src/style.less";')
-    await writeRows(previewName, previewRows)
+    const {shortName} = await LESS.checkStyleLess((msg, t) => wsSendCreateEntity(name, msg, t))
+    await injectStyleImport({
+        dstFileName: makeFullName('.storybook/preview.js'),
+        styleNameForImport: `../src/${shortName}`,
+        log: (msg, type) => wsSendCreateEntity(name, msg, type),
+    })
 }

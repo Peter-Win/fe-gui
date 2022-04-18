@@ -9,6 +9,7 @@ const {createEntity} = require('../commands/createEntity')
 const {findRule, findPath} = require('./WebPack.utils')
 const {parseExpression} = require('../parser/parseExpression')
 const {ReaderCtx} = require('../parser/ReaderCtx')
+const { wsSendCreateEntity } = require('../wsSend')
 
 class Antd {
     name = 'Antd'
@@ -56,50 +57,24 @@ class Antd {
         }
         await WebPack.saveConfigTaxon(configTaxon)
 
-
         // Необходимо внедрить импорт стилей в файл приложения
         const antdStyles = [
             "@import '~antd/dist/antd.less'; // Import Ant Design styles by less entry",
             "",
             "@primary-color: @blue-base; // primary color for all components",
         ]
-        const styleName = makeSrcName('style.less')
-        if (await isFileExists(styleName)) {
-            const styleRows = await readRows(styleName)
-            const templateRows = await readRows(makeTemplateName('style.less'))
-            // Если style.less остался такой же, как при генерации LESS, то его можно полностью перезаписать
-            const isOld = styleRows.join('\n') === templateRows.join('\n')
-            const newStyleRows = isOld ? antdStyles : [...antdStyles, ...styleRows]
-            await writeRows(styleName, newStyleRows)
-        } else {
-            wsSend('createEntityMsg', {
-                name: this.name,
-                message: `Create new styles file: ${styleName}`,
-            })
-            await writeRows(styleName, antdStyles)
-            // Нужно внедрить импорт стиля в App.?sx
-            const appName = makeSrcName(`App.${CommonInfo.getExtension('render')}`)
-            if (await isFileExists(appName)) {
-                const appRows = await readRows(appName)
-                const oldImportPos = appRows.findIndex(row => /^import [\'\"]\.\/style\./.test(row))
-                if (oldImportPos >= 0) {
-                    appRows[oldImportPos] += ' // TODO: It\'s recommended to remove this import.'
-                }
-                injectImport(appRows, `import './style.less';`)
-                await writeRows(appName, appRows)
-            } else {
-                wsSend('createEntityMsg', {
-                    name: this.name,
-                    message: `File not found: ${appName}`,
-                    type: 'warn',
-                })
-            }
-        }
-        wsSend('createEntityMsg', {
-            name: this.name,
-            message: 'You can use AntdLayout addon to generate base antd application.',
-            type: 'success',
-        })
+
+        const { fullName: styleName, shortName } =
+            await LESS.checkStyleLess((msg, type) => wsSendCreateEntity(this.name, msg, type))
+        const styleRows = await readRows(styleName)
+        const templateRows = await readRows(makeTemplateName(shortName))
+        // Если style.less остался такой же, как при генерации LESS, то его можно полностью перезаписать
+        const isOld = styleRows.join('\n') === templateRows.join('\n')
+        const newStyleRows = isOld ? antdStyles : [...antdStyles, ...styleRows]
+        await writeRows(styleName, newStyleRows)
+        wsSendCreateEntity(this.name,
+            'You can use AntdLayout addon to generate base antd application.',
+            'success')
     }
     defaultParams = {
         icons: true,
