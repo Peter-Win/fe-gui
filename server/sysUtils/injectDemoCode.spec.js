@@ -1,7 +1,7 @@
 const {expect} = require('chai')
 const {injectDemoCodeToMainFrame, injectCode, getStartSpace} = require('./injectDemoCode')
 
-describe('getStartSpace', () => {
+it('getStartSpace', () => {
     expect(getStartSpace('hello')).to.equal('')
     expect(getStartSpace('')).to.equal('')
     expect(getStartSpace(' abc ')).to.equal(' ')

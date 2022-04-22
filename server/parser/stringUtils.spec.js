@@ -1,7 +1,7 @@
 const {expect} = require('chai')
 const {fromQuoted} = require('./stringUtils')
 
-describe('fromQuoted', () => {
+it('fromQuoted', () => {
     expect(fromQuoted('')).to.equal('')
     expect(fromQuoted('""')).to.equal('')
     expect(fromQuoted('A')).to.equal('A')

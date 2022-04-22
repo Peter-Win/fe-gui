@@ -2,7 +2,7 @@ const {expect} = require('chai')
 const {makeInstallCommand} = require('./makeInstallCommand')
 const {CommonInfo} = require('../CommonInfo')
 
-describe('makeInstallCommand', () => {
+it('makeInstallCommand', () => {
     CommonInfo.tech.packageManager = 'Yarn'
     expect(CommonInfo.isYarn).to.equal(true)
     expect(makeInstallCommand('react')).to.equal('yarn add react')
