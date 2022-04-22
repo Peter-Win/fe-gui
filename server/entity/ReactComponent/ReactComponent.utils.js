@@ -99,13 +99,17 @@ const createComponentCode = ({name, isTS, useReturn, props=[], classExpr, styleI
     const observerBegin = useMobX ? 'observer(' : ''
     const observerEnd = useMobX ? ')' : ''
     rows.push(`export const ${name}${compType} = ${observerBegin}(${paramsComp}) => ${mainBounds[0]}`)
-    const inside = children ? '{children}' : ''
-    const body = `<div${classExpr}>${inside}</div>`
-    if (!useReturn) {
-        rows.push(`  ${body}`)
-    } else {
-        rows.push(`  return ${body};`)
+    const inside = []
+    if (children) inside.push('{children}')
+    let bodyBegin = `<div${classExpr}>`
+    let bodyEnd = `</div>`
+    if (useReturn) {
+        bodyBegin = `return ${bodyBegin}`
+        bodyEnd += ';'
     }
+    rows.push(`  ${bodyBegin}`)
+    inside.forEach(row => rows.push(`    ${row}`))
+    rows.push(`  ${bodyEnd}`)
     rows.push(`${mainBounds[1]}${observerEnd};`)
     if (postRows.length > 0) {
         rows = [...rows, '', ...postRows]

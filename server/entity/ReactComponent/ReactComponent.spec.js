@@ -7,19 +7,22 @@ const indexCode = `export * from "./MyComponent";`
 const simpleJS = `import * as React from "react";
 
 export const MyComponent = () => (
-  <div></div>
+  <div>
+  </div>
 );`
 
 const simpleJSwithReturn = `import * as React from "react";
 
 export const MyComponent = () => {
-  return <div></div>;
+  return <div>
+  </div>;
 };`
 
 const simpleTS = `import * as React from "react";
 
 export const MyComponent: React.FC = () => (
-  <div></div>
+  <div>
+  </div>
 );`
 
 const TSXwithRequiredName = `import * as React from "react";
@@ -29,14 +32,16 @@ interface PropsMyComponent {
 }
 
 export const MyComponent: React.FC<PropsMyComponent> = ({ name }: PropsMyComponent) => (
-  <div></div>
+  <div>
+  </div>
 );`
 
 const JSXwithRequiredName = `import * as React from "react";
 import PropTypes from "prop-types";
 
 export const MyComponent = ({ name }) => (
-  <div></div>
+  <div>
+  </div>
 );
 
 MyComponent.propTypes = {
@@ -47,7 +52,8 @@ const JSXwithDefaultName = `import * as React from "react";
 import PropTypes from "prop-types";
 
 export const MyComponent = ({ name }) => (
-  <div></div>
+  <div>
+  </div>
 );
 
 MyComponent.propTypes = {
@@ -62,7 +68,8 @@ const simpleJSWithCSS = `import * as React from "react";
 import "./MyComponent.css";
 
 export const MyComponent = () => (
-  <div className="my-component"></div>
+  <div className="my-component">
+  </div>
 );`
 
 describe('createReactComponent', () => {
@@ -77,7 +84,7 @@ describe('createReactComponent', () => {
         expect(res.folders).have.lengthOf(0)
         expect(res.files).have.lengthOf(1)
         expect(res.files[0].name).to.equal('MyComponent.jsx')
-        expect(res.files[0].data).to.equal(simpleJS)
+        compareText(res.files[0].data, simpleJS)
   })
 
   it('Simple JSX with create a folder', () => {
@@ -109,87 +116,87 @@ describe('createReactComponent', () => {
         expect(res.folders).have.lengthOf(0)
         expect(res.files).have.lengthOf(1)
         expect(res.files[0].name).to.equal('MyComponent.jsx')
-        expect(res.files[0].data).to.equal(simpleJSwithReturn)
+        compareText(res.files[0].data, simpleJSwithReturn)
   })
 
   it('Simple TSX', () => {
-        const params = {
-            folder: 'src/components',
-            name: 'MyComponent',
-            props: [],
-            tech: { language: 'TypeScript' },
-        }
-        const res = createReactComponent(params)
-        expect(res.folders).have.lengthOf(0)
-        expect(res.files).have.lengthOf(1)
-        expect(res.files[0].name).to.equal('MyComponent.tsx')
-        expect(res.files[0].data).to.equal(simpleTS)
+    const params = {
+      folder: 'src/components',
+      name: 'MyComponent',
+      props: [],
+      tech: { language: 'TypeScript' },
+    }
+    const res = createReactComponent(params)
+    expect(res.folders).have.lengthOf(0)
+    expect(res.files).have.lengthOf(1)
+    expect(res.files[0].name).to.equal('MyComponent.tsx')
+    compareText(res.files[0].data, simpleTS)
   })
 
   it('JSX with required name', () => {
-        const params = {
-            folder: 'src/components',
-            name: 'MyComponent',
-            props: [
-                { propName: 'name', isRequired: true, type: 'string' }
-            ],
-            tech: { language: 'JavaScript' },
-        }
-        const res = createReactComponent(params)
-        expect(res.folders).have.lengthOf(0)
-        expect(res.files).have.lengthOf(1)
-        expect(res.files[0].name).to.equal('MyComponent.jsx')
-        expect(res.files[0].data).to.equal(JSXwithRequiredName)
+    const params = {
+      folder: 'src/components',
+      name: 'MyComponent',
+      props: [
+          { propName: 'name', isRequired: true, type: 'string' }
+      ],
+      tech: { language: 'JavaScript' },
+    }
+    const res = createReactComponent(params)
+    expect(res.folders).have.lengthOf(0)
+    expect(res.files).have.lengthOf(1)
+    expect(res.files[0].name).to.equal('MyComponent.jsx')
+    compareText(res.files[0].data, JSXwithRequiredName)
   })
 
   it('TSX with required name', () => {
-        const params = {
-            folder: 'src/components',
-            name: 'MyComponent',
-            props: [
-                { propName: 'name', isRequired: true, type: 'string' }
-            ],
-            tech: { language: 'TypeScript' },
-        }
-        const res = createReactComponent(params)
-        expect(res.folders).have.lengthOf(0)
-        expect(res.files).have.lengthOf(1)
-        expect(res.files[0].name).to.equal('MyComponent.tsx')
-        expect(res.files[0].data).to.equal(TSXwithRequiredName)
+    const params = {
+      folder: 'src/components',
+      name: 'MyComponent',
+      props: [
+          { propName: 'name', isRequired: true, type: 'string' }
+      ],
+      tech: { language: 'TypeScript' },
+    }
+    const res = createReactComponent(params)
+    expect(res.folders).have.lengthOf(0)
+    expect(res.files).have.lengthOf(1)
+    expect(res.files[0].name).to.equal('MyComponent.tsx')
+    compareText(res.files[0].data, TSXwithRequiredName)
   })
 
   it('JSX with CSS', () => {
-        const params = {
-            folder: 'src/components',
-            name: 'MyComponent',
-            styles: 'css',
-            props: [],
-            tech: { language: 'JavaScript' },
-        }
-        const res = createReactComponent(params)
-        expect(res.files).have.lengthOf(3)
-        expect(res.folders).have.lengthOf(1)
-        expect(res.folders[0]).to.equal('MyComponent')
-        expect(res.files[0].name).to.equal('MyComponent/MyComponent.jsx')
-        expect(res.files[0].data).to.equal(simpleJSWithCSS)
-        expect(res.files[1].name).to.equal('MyComponent/MyComponent.css')
-        expect(res.files[1].data).to.equal(`.my-component {\n  margin: 0;\n}`)
-        expect(res.files[2].name).to.equal('MyComponent/index.js')
-        expect(res.files[2].data).to.equal(`export * from "./MyComponent";`)
+    const params = {
+      folder: 'src/components',
+      name: 'MyComponent',
+      styles: 'css',
+      props: [],
+      tech: { language: 'JavaScript' },
+    }
+    const res = createReactComponent(params)
+    expect(res.files).have.lengthOf(3)
+    expect(res.folders).have.lengthOf(1)
+    expect(res.folders[0]).to.equal('MyComponent')
+    expect(res.files[0].name).to.equal('MyComponent/MyComponent.jsx')
+    compareText(res.files[0].data, simpleJSWithCSS)
+    expect(res.files[1].name).to.equal('MyComponent/MyComponent.css')
+    expect(res.files[1].data).to.equal(`.my-component {\n  margin: 0;\n}`)
+    expect(res.files[2].name).to.equal('MyComponent/index.js')
+    expect(res.files[2].data).to.equal(`export * from "./MyComponent";`)
   })
 
   it('JSX with default value', () => {
-        const params = {
-            folder: 'src/components',
-            name: 'MyComponent',
-            props: [{ propName: 'name', isRequired: false, type: 'string', defaultValue: "'World'"}],
-            tech: { language: 'JavaScript'},
-        }
-        const res = createReactComponent(params)
-        expect(res.folders).have.lengthOf(0)
-        expect(res.files).have.lengthOf(1)
-        expect(res.files[0].name).to.equal('MyComponent.jsx')
-        expect(res.files[0].data).to.equal(JSXwithDefaultName)
+    const params = {
+      folder: 'src/components',
+      name: 'MyComponent',
+      props: [{ propName: 'name', isRequired: false, type: 'string', defaultValue: "'World'"}],
+      tech: { language: 'JavaScript'},
+    }
+    const res = createReactComponent(params)
+    expect(res.folders).have.lengthOf(0)
+    expect(res.files).have.lengthOf(1)
+    expect(res.files[0].name).to.equal('MyComponent.jsx')
+    compareText(res.files[0].data, JSXwithDefaultName)
   })
 
   it('TSX with Jest', () => {
@@ -281,7 +288,8 @@ import { observer } from "mobx-react-lite";
 import { HelloWorldStore } from "./HelloWorldStore";
 
 export const HelloWorld = observer(({ store }) => (
-  <div></div>
+  <div>
+  </div>
 ));
 
 HelloWorld.propTypes = {
