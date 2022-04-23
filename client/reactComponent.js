@@ -63,7 +63,12 @@ Rn.F.ReactComponent = function() {
     var useChildren = null;
     this.onUpdate = function() {
         var ctrls = this.ctrls, ctrlProps = ctrls.props;
-        var isAvailJest = !!ctrls.availJest.getValue()
+
+        var isForwardRef = ctrls.useForwardRef.getValue();
+        $('#forwardRefOptions').toggle(isForwardRef);
+        console.log('refOwner=', ctrls.refOwner.getValue());
+
+        var isAvailJest = !!ctrls.availJest.getValue();
         if (isAvailJest !== availJest) {
             availJest = isAvailJest
             $('#react-comp-jest').toggle(availJest)

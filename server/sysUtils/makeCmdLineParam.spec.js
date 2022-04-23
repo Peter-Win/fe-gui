@@ -1,7 +1,7 @@
 const {expect} = require('chai')
 const {makeCmdLineParam} = require('./makeCmdLineParam')
 
-describe('makeCmdLineParam', () => {
+it('makeCmdLineParam', () => {
     expect(makeCmdLineParam('hello', true)).to.equal('"hello"')
     expect(makeCmdLineParam('hello', false)).to.equal('hello')
     expect(makeCmdLineParam('hello world', true)).to.equal('"hello world"')

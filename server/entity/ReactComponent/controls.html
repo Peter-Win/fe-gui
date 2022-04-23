@@ -1,7 +1,7 @@
 <style>
     .react-comp-box h3 { margin-top: 1em; }
     .react-comp-box>div { margin: .2em 0; }
-    .react-comp-box>.line { display: flex; flex-direction: row; }
+    .react-comp-box .line { display: flex; flex-direction: row; }
     .react-comp-box .title { width: 10em; display: inline-block; }
     .react-comp-box .indent { margin-left: 2em; }
     .prop-line {
@@ -75,6 +75,14 @@
             data-title="Mandatory creation of the component in a separate folder. (Useful for adding additional files)"></div>
         <div class="rn-ctrl" data-type="Checkbox" data-name="useReturn"
             data-title="Use return instruction. (Useful for adding some code before creating an React element)"></div>
+        <div class="rn-ctrl" data-type="Checkbox" data-name="useForwardRef"
+            data-title="Use forwardRef"></div>
+        <div class="line indent" id="forwardRefOptions">
+            <div class="title">Element for ref</div>
+            <div class="rn-ctrl" data-type="Droplist" data-name="refOwner" data-value0=""
+                data-options="g_refOwners" data-option_value="@" ></div>
+            <!-- g_refOwners see in server side ReactComponent.js -->
+        </div>
     </div>
 
     <h3>Props</h3>

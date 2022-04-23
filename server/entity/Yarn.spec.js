@@ -21,7 +21,7 @@ css-loader@^6.7.1:
   integrity sha512-yB5CNFa14MbPJcomwNh3wLThtkZgcNyI2bNMRt8iE5Z8Vwl7f8vQXFAzn2HDOJvtDq2NTZBUGMSUNNyrv3/+cw==
 `.split('\n')
 
-describe('findVersionInRows', () => {
+it('findVersionInRows', () => {
     expect(findVersionInRows(yarnLock, '@types/mime')).to.equal('1.3.2')
     expect(findVersionInRows(yarnLock, '@types/react')).to.equal('17.0.43')
     expect(findVersionInRows(yarnLock, 'css-loader')).to.equal('6.7.1')

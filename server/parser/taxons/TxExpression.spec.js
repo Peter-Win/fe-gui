@@ -11,7 +11,7 @@ const write = taxon => {
     return chunks2text(chunks)
 }
 
-describe('TxBinOp', () => {
+it('TxBinOp', () => {
     expect(write(parse('a+1'))).to.equal('a + 1')
     expect(write(parse('1+a**2'))).to.equal('1 + a ** 2')
     expect(write(parse('first.org.x*2'))).to.equal('first.org.x * 2')
