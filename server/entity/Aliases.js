@@ -87,7 +87,7 @@ var AliasData = {
 <script id="TmCtrlAliasesArray" type="text/html">
   <div>
     <div class="rn-array"></div>
-    <button type="button" class="rn-add-item">Добавить элемент</button>
+    <button type="button" class="rn-add-item">Add a new item</button>
   </div>
 </script>
     `
