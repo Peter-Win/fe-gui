@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const { exec } = require('child_process')
-const { createReactComponent } = require('./ReactComponent.utils')
+const { createReactComponent, refOwners } = require('./ReactComponent.utils')
 const { CommonInfo } = require('../../CommonInfo')
 const { makeFullName } = require('../../fileUtils')
 const { wsSendCreateEntity } = require('../../wsSend')
@@ -77,6 +77,8 @@ class ReactComponent {
      * @param {""|"css"|"less"|"module.css"|"module.less"} params.styles
      * @param {boolean} params.createFolder Create special folder for component in any case
      * @param {boolean} params.useReturn
+     * @param {boolean} params.useForwardRef
+     * @param {string}  params.refOwner key of refOwners dictionary
      * @param {boolean} params.useJest
      * @param {boolean} params.useInlineSnapshot
      * @param {boolean} params.openEditor // Try to open the component code in the editor.
@@ -120,6 +122,7 @@ class ReactComponent {
 <script src="reactComponent.js"></script>
 <script>
   var g_compStyles = ${JSON.stringify(this.stylesList)};
+  var g_refOwners = ${JSON.stringify(refOwners)};
 </script>
 `
     }

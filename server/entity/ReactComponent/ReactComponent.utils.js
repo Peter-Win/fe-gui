@@ -6,6 +6,14 @@ const { createStorybook } = require('./createStorybook')
 
 const reactImport = 'import * as React from "react";';
 
+const refOwners = {
+    '': { label: 'container', code: '', refType: 'HTMLDivElement' },
+    button: { label: 'button', code: `<button ref={ref} type="button">The Button</button>`, refType: 'HTMLButtonElement' },
+    input: { label: 'input', code: '<input ref={ref} type="string" />', refType: 'HTMLInputElement' },
+    select: { label: 'select', code: '<select ref={ref}></select>', refType: 'HTMLSelectElement' },
+    textarea: { label: 'textarea', code: '<textarea ref={ref}></textarea>', refType: 'HTMLTextAreaElement' },
+}
+
 /**
  * @param {Object} params
  * @param {string} params.iname interface name
@@ -68,7 +76,7 @@ const makeDefaultValues = (name, props) => {
     return res
 }
 
-const createComponentCode = ({name, isTS, useReturn, props=[], classExpr, styleImport, mobxClassName, mobx}) => {
+const createComponentCode = ({name, isTS, useReturn, useForwardRef, refOwner, props=[], classExpr, styleImport, mobxClassName, mobx}) => {
     let rows = [reactImport]
     const useMobX = !!mobxClassName
     if (useMobX) {
@@ -94,23 +102,40 @@ const createComponentCode = ({name, isTS, useReturn, props=[], classExpr, styleI
         }
     }
 
-    const compType = isTS ? `: React.FC${paramsFC}` : ''
+    let compType = isTS ? `: React.FC${paramsFC}` : ''
     const mainBounds = useReturn ? ['{', '}'] : ['(', ')']
     const observerBegin = useMobX ? 'observer(' : ''
     const observerEnd = useMobX ? ')' : ''
-    rows.push(`export const ${name}${compType} = ${observerBegin}(${paramsComp}) => ${mainBounds[0]}`)
-    const inside = []
-    if (children) inside.push('{children}')
-    let bodyBegin = `<div${classExpr}>`
+
+    const containerInside = []
+    const fwdRef = { containerAttr: '', begin: '', end: '', param: '' }
+    if (useForwardRef) {
+        const { code, refType } = refOwners[refOwner]
+        compType = ''
+        const paramType = isTS ? `: React.ForwardedRef<${refType}>` : ''
+        fwdRef.begin = `React.forwardRef(`
+        fwdRef.end = ')'
+        fwdRef.param = `, ref${paramType}`
+        if (code) {
+            containerInside.push(code)
+        } else {
+            fwdRef.containerAttr = ' ref={ref}'
+        }
+        if (!paramsComp) paramsComp = '{}'
+    }
+
+    rows.push(`export const ${name}${compType} = ${observerBegin}${fwdRef.begin}(${paramsComp}${fwdRef.param}) => ${mainBounds[0]}`)
+    if (children) containerInside.push('{children}')
+    let bodyBegin = `<div${classExpr}${fwdRef.containerAttr}>`
     let bodyEnd = `</div>`
     if (useReturn) {
         bodyBegin = `return ${bodyBegin}`
         bodyEnd += ';'
     }
     rows.push(`  ${bodyBegin}`)
-    inside.forEach(row => rows.push(`    ${row}`))
+    containerInside.forEach(row => rows.push(`    ${row}`))
     rows.push(`  ${bodyEnd}`)
-    rows.push(`${mainBounds[1]}${observerEnd};`)
+    rows.push(`${mainBounds[1]}${fwdRef.end}${observerEnd};`)
     if (postRows.length > 0) {
         rows = [...rows, '', ...postRows]
     }
@@ -161,6 +186,8 @@ const mobxInstanceCode = ({mobxClassName, mobx}) => {
  * @param {string} params.folder Owner folder of the component. The first segment is always "src".
  * @param {boolean} params.createFolder
  * @param {boolean} params.useReturn
+ * @param {boolean} params.useForwardRef
+ * @param {string}  params.refOwner key of refOwners
  * @param {boolean} params.useJest
  * @param {boolean} params.availInlineSnapshots Бывают конфигурации, где не работают inline snapshots
  * @param {boolean} params.useInlineSnapshot
@@ -175,6 +202,7 @@ const mobxInstanceCode = ({mobxClassName, mobx}) => {
  */
 const createReactComponent = ({
     name, createFolder, useReturn, props, styles,
+    useForwardRef, refOwner,
     useJest, useInlineSnapshot, usePretty, useMobX, mobx,
     useStorybook, story,
     tech, techVer,
@@ -186,7 +214,9 @@ const createReactComponent = ({
     const filesDict = {}
     const {className, classExpr, styleImport, styleCode, styleFileName} = createStyle({name, styles})
     const {mobxClassName, mobxStoreName, mobxFileName, mobxCode} = createMobxStore({ name, useMobX, mobx, isTS, mobx })
-    filesDict[componentName] = createComponentCode({name, isTS, createFolder, useReturn, props, classExpr, styleImport, mobxClassName, mobx })
+    filesDict[componentName] = createComponentCode({name, isTS, 
+        createFolder, useReturn, useForwardRef, refOwner, props, classExpr, styleImport, mobxClassName, mobx 
+    })
     if (mobxFileName) {
         filesDict[mobxFileName] = mobxCode
     }
@@ -222,4 +252,4 @@ const createReactComponent = ({
     return {folders, files, mobxClassName, mobxStoreName}
 }
 
-module.exports = {createReactComponent, createStyle, makeDefaultValues, createStorybook, mobxInstanceCode }
+module.exports = {createReactComponent, createStyle, makeDefaultValues, createStorybook, mobxInstanceCode, refOwners }
