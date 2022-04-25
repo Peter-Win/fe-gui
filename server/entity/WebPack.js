@@ -143,11 +143,12 @@ class WebPack {
      * Происходит умное смерживание
      * @param {string} part
      */
-    async setPart(part) {
+    async setPart(part, log) {
         const configName = this.getConfigName()
         const configSource = await fs.promises.readFile(configName)
         const result = merge(configSource, part)
         await fs.promises.writeFile(configName, result)
+        if (log) log(`Updated ${configName}`)
     }
 
     async loadConfigTaxon() {
