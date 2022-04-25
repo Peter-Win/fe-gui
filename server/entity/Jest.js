@@ -93,7 +93,7 @@ ${this.availInlineSnapshots() ? `
         }}`
         await fs.promises.writeFile(configName, configText)
 
-        await installPackage(this.name, 'jest')
+        await installPackage(this.name, 'jest@27.0.0')
         if (originalTypeScript) {
             await installPackage(this.name, 'ts-jest @types/jest')
         } else if (tech.transpiler === 'Babel') {
