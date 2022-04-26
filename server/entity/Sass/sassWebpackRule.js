@@ -6,7 +6,7 @@ const src = `{
         use: [
           'style-loader',
           'css-loader',
-          'less-loader',
+          'sass-loader',
         ],
       },
     ],
@@ -14,28 +14,28 @@ const src = `{
 }`
 
 const srcMap = `{
-    module: {
-        rules: [
-            {
-                test: /\.s[ac]ss$/,
-                use: [
-                    'style-loader',
-                    {
-                        loader: "css-loader",
-                        options: {
-                            sourceMap: true,
-                        },
-                    },
-                    {
-                        loader: "sass-loader",
-                        options: {
-                            sourceMap: true,
-                        },
-                    },
-                ],
+  module: {
+    rules: [
+      {
+        test: /\.s[ac]ss$/,
+        use: [
+          'style-loader',
+          {
+            loader: "css-loader",
+            options: {
+              sourceMap: true,
             },
+          },
+          {
+            loader: "sass-loader",
+            options: {
+              sourceMap: true,
+            },
+          },
         ],
-    },
+      },
+    ],
+  },
 }`
   
 /**
