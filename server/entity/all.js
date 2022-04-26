@@ -22,6 +22,7 @@ const {Aliases} = require('./Aliases')
 const {CssModules} = require('./CssModules')
 const {ReactComponent} = require('./ReactComponent')
 const {MobX} = require('./MobX')
+const {Sass} = require('./Sass')
 
 const entities = {}
 
@@ -41,6 +42,7 @@ reg(React)
 reg(ReactRouter)
 reg(CSS)
 reg(LESS)
+reg(Sass)
 reg(Jest)
 reg(ESLint)
 reg(Standard)

@@ -14,8 +14,8 @@ class LESS {
         const {entities: {PackageJson}} = require('./all')
         this.isInit = PackageJson.isDevDependency('less-loader')
         if (this.isInit) {
-            console.log('LESS styler detected')
             CommonInfo.tech.styleLess = true
+            if (await isFileExists(makeSrcName('style.less'))) CommonInfo.tech.preferStyle = 'less'
         } else {
             const styler = CommonInfo.getPreferStyler()
             this.isReady = !styler || styler === 'CSS'

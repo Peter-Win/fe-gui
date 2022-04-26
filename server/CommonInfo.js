@@ -39,6 +39,8 @@ class CommonInfo {
         framework: '',
         styleCss: true,
         styleLess: false,
+        styleSass: false,
+        preferStyle: '', // css, less, sass, scss
         codeStyle: '', // ESLint, Standard
         unitTesting: '',
         vcs: '',
@@ -85,6 +87,7 @@ class CommonInfo {
     static getPreferStyler() {
         const {tech} = CommonInfo
         if (tech.styleLess) return 'LESS'
+        if (tech.styleSass) return 'Sass'
         if (tech.styleCss) return 'CSS'
         return ''
     }
@@ -96,10 +99,7 @@ class CommonInfo {
     static getExtension(type) {
         const {tech} = CommonInfo
         if (type === 'style') {
-            if (tech.styleLess) {
-                return 'less'
-            }
-            return 'css'
+            return this.tech.preferStyle || 'css'
         }
         let ext = 'js'
         if (tech.language === 'TypeScript') {

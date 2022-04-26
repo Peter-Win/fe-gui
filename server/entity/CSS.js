@@ -14,7 +14,10 @@ class CSS {
         if (this.isInit) {
             console.log('CSS styler detected')
             CommonInfo.tech.styleCss = true
-        }
+            if (!CommonInfo.tech.preferStyle) {
+                CommonInfo.tech.preferStyle = 'css'
+            }
+       }
     }
 
     async create() {

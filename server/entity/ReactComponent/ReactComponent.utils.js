@@ -147,7 +147,7 @@ const createComponentCode = ({name, isTS, useReturn, useForwardRef, refOwner, pr
  * 
  * @param {Object} params
  * @param {string} params.name Nameof the component
- * @param {""|"css"|"module.css"|"less"|"module.less"} params.styles
+ * @param {""|"css"|"module.css"|"less"|"module.less"|"sass"|"scss"} params.styles
  * @returns {{className: string; classExpr: string; styleImport: string; styleCode: string; styleFileName: string;}}
  */
 const createStyle = ({name, styles}) => {
@@ -172,6 +172,12 @@ const createStyle = ({name, styles}) => {
             '  margin: 0;', // фиктивная инструкция, чтобы блок не был пустым
             '}',
         ]
+        if (styles.endsWith('sass')) {
+            res.styleCode = [
+                `.${res.className}`,
+                '    margin: 0'
+            ]    
+        }
     }
     return res
 }

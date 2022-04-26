@@ -12,4 +12,12 @@ const fromQuoted = (quoted) => {
     return quoted
 }
 
-module.exports = {fromQuoted}
+const multiplication = (src, count) => {
+    let dst = ''
+    for (let i = 0; i<count; i++) {
+        dst += src
+    }
+    return dst
+}
+
+module.exports = {fromQuoted, multiplication}

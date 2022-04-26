@@ -30,7 +30,7 @@ class ReactComponent {
 
     async init() {
         const {entities} = require('../all')
-        const {React, CSS, LESS, WebPack, CssModules, Jest, Storybook, MobX} = entities
+        const {React, CSS, LESS, Sass, WebPack, CssModules, Jest, Storybook, MobX} = entities
         this.isReady = React.isInit
         if (!this.isReady) return
         this.isVisible = true
@@ -39,6 +39,10 @@ class ReactComponent {
         this.stylesList = [{ label: 'None', value: '' }]
         if (CSS.isInit) this.stylesList.push({ label: 'CSS', value: 'css' })
         if (LESS.isInit) this.stylesList.push({ label: 'LESS', value: 'less'})
+        if (Sass.isInit) this.stylesList.push(
+            { label: 'Sass', value: 'sass'},
+            { label: 'SCSS', value: 'scss'}
+        )
         const moduleExts = await CssModules.getUsedExtensions(WebPack)
         moduleExts.forEach(ext => {
             const [m, e] = ext.split('.')
