@@ -4,6 +4,7 @@ const {installPackage} = require('../commands/installPackage')
 const {makeSrcName, isFileExists} = require('../fileUtils')
 const {wsSend} = require('../wsServer')
 const {buildTemplate} = require('../sysUtils/loadTemplate')
+const { wsSendCreateEntity } = require('../wsSend')
 
 const getReactHiVer = async () => {
     const ver = await CommonInfo.findPackageVersion('react')
@@ -47,6 +48,15 @@ class React {
             await Babel.updatePreset('@babel/preset-react')
         } else if (transpiler === 'TypeScript') {
             await installPackage(this.name, '@types/react @types/react-dom', true)
+        } else if (transpiler === 'SWC') {
+            await entities.SWC.updateConfig((configObject) => {
+                const { jsc = {} } = configObject
+                configObject.jsc = jsc
+                const { parser = {} } = jsc
+                jsc.parser = parser
+                parser.tsx = true
+                parser.jsx = true
+            }, (msg, t) => wsSendCreateEntity(this.name, msg, t))
         }
         if (language === 'JavaScript') {
             await installPackage(this.name, 'prop-types', false)

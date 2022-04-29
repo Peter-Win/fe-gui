@@ -2,6 +2,7 @@
 const fs = require('fs')
 const {installPackage} = require('../commands/installPackage')
 const {wsSend} = require('../wsServer')
+const {wsSendCreateEntity} = require('../wsSend')
 const {loadTemplate, buildTemplate} = require('../sysUtils/loadTemplate')
 const {CommonInfo} = require('../CommonInfo')
 const {makeSrcName, makeFullName, isFileExists} = require('../fileUtils')
@@ -27,54 +28,23 @@ class Babel {
                 isLoaderInRule(findRule(tx, '.js'), 'babel-loader')
             ) {
                 CommonInfo.tech.transpiler = 'Babel'
+                CommonInfo.techVer.transpiler = await CommonInfo.findPackageVersion('@babel/core')
             }
         }
     }
 
     async create() {
-        const indexExt = CommonInfo.getExtension('render');
-        const shortExt = CommonInfo.getExtension('logic');
-        const {entities} = require('../entity/all')
-        const {WebPack} = entities
         const isTypeScript = CommonInfo.tech.language === 'TypeScript'
-        // --- add packages
-        let packages = 'babel-loader @babel/core'
-        if (isTypeScript) {
-            packages += ' @babel/preset-typescript'
-        } else {
-            packages += ' @babel/preset-env'
-        }
-        await installPackage(this.name, packages)
-
-        // ---  modify webpack config
-        const rules = {
-            js: {rule: /\.jsx?$/, exts: ['js']},
-            ts: {rule: /\.tsx?$/, exts: ['ts', 'js']},
-            jsx: {rule: /\.jsx?$/, exts: ['jsx', 'js']},
-            tsx: {rule: /\.tsx?$/, exts: ['tsx', 'ts', 'js']},
-        }
-        const webpackParams = {
-            extRule: rules[indexExt].rule,
-            extensions: rules[indexExt].exts.map(s => `'.${s}'`).join(', ')
-        }
-        const template = await loadTemplate('babelForWebpack.js', webpackParams)
-        await WebPack.setPart(template)
+        const {createTranspiler} = require('../sysUtils/createTranspiler')
+        const preset = isTypeScript ? '@babel/preset-typescript' : '@babel/preset-env'
+        await createTranspiler(this.name, 'babel-loader', ['@babel/core', preset])
 
         // --- babel.config.json
         const babelConfig = {
-            presets: [isTypeScript ? '@babel/preset-typescript' : '@babel/preset-env'],
+            presets: [preset],
         }
         await fs.promises.writeFile(this.getConfigName(), JSON.stringify(babelConfig, null, '  '))
-
-
-        // Обновить заготовку scr/index.*
-        const templateName = `babelIndex.${CommonInfo.getExtension('logic')}`
-        const indexFullName = makeSrcName(`index.${indexExt}`)
-        const indexParams = {
-            titleStr: CommonInfo.getTitleStr(),
-        }
-        wsSend('createEntityMsg', {name: this.name, message: `Update file ${indexFullName}`})
-        await buildTemplate(templateName, indexFullName, indexParams)
+        wsSendCreateEntity(this.name, `Created ${this.getConfigName()}`)
     }
 
     getConfigName = () => makeFullName('babel.config.json')

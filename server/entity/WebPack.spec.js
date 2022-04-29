@@ -385,6 +385,17 @@ describe('isLoaderInRule', () => {
     expect(isLoaderInRule(tx, 'less-loader')).to.equal(true)
     expect(isLoaderInRule(tx, 'babel-loader')).to.equal(false)
   })
+  it('use as object', () => {
+    const source = `      {
+      test: /\.module\.css$/,
+      use: {
+        loader: 'css-loader',
+      },
+    }`
+    const node = parseExpression(ReaderCtx.fromText(source))
+    const tx = node.createTaxon()
+    expect(isLoaderInRule(tx, 'css-loader')).to.equal(true)
+  }) 
   it('use is mixed array', () => {
     const source = `      {
       test: /\.module\.css$/,

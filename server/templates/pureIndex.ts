@@ -8,6 +8,6 @@ window.addEventListener('load', ():void => {
     root.append(heading);
 
     const p: HTMLParagraphElement = document.createElement('p');
-    p.innerHTML = 'Made by Babel with TypeScript loader and no framework';
+    p.innerHTML = 'Made by <%= transpiler %> with TypeScript loader and no framework';
     root.append(p);
 });

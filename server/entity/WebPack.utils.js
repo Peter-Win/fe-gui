@@ -209,6 +209,10 @@ const isLoaderInRule = (ruleTaxon, loaderName) => {
             return false
         })
     }
+    if (txUse.type === 'TxObject') {
+        const {loader} = txUse.dict
+        if (isConst(loader)) return true
+    }
     return false
 }
 
