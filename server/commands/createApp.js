@@ -30,7 +30,7 @@ const createApp = async (data) => {
         if (!await createEntity(entities, 'Readme')) return false
 
         const transpiler = tech.transpiler
-        if (transpiler in {Babel:1, TypeScript:1}) {
+        if (transpiler in { Babel:1, TypeScript:1, SWC:1 }) {
             if (!await createEntity(entities, transpiler)) return false
         }
 

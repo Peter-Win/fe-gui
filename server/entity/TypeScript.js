@@ -39,7 +39,7 @@ class TypeScript {
         // --- add packages
         await installPackage(this.name, 'typescript ts-loader')
 
-        WebPack.setPart(await loadTemplate('tsForWebpack.js'))
+        await WebPack.setPart(await loadTemplate('tsForWebpack.js'))
 
         // tsconfig.json
         await buildTemplate('tsconfig.json', this.getConfigName())

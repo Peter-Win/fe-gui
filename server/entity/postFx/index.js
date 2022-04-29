@@ -1,5 +1,6 @@
 const {jestStandard} = require('./jestStandard')
 const {jestESLint} = require('./jestESLint')
+const {jestSwc} = require('./jestSwc')
 const {gitIgnoreUpdate} = require('./gitIgnoreUpdate')
 const {storybookLess} = require('./storybookLess')
 const {storybookESLint} = require('./storybookESLint')
@@ -21,6 +22,7 @@ const postFx = [
     {ids: ['Git', 'Jest'], fn: gitIgnoreUpdate},
     {ids: ['Jest', 'ESLint'], fn: jestESLint},
     {ids: ['Jest', 'Standard'], fn: jestStandard},
+    {ids: ['Jest', 'SWC'], fn: jestSwc},
     {ids: ['LESS', 'Storybook'], fn: storybookLess},
 ]
 

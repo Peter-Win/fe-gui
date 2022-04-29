@@ -9,7 +9,7 @@ describe('CommonInfo', () => {
         expect(CommonInfo.getExtension('render')).to.equal('js')
         expect(CommonInfo.getExtension('logic')).to.equal('js')
         expect(CommonInfo.getExtension('style')).to.equal('css')
-        CommonInfo.tech.styleLess = true
+        CommonInfo.tech.preferStyle = 'less'
         expect(CommonInfo.getExtension('style')).to.equal('less')
         CommonInfo.tech.language = 'TypeScript'
         expect(CommonInfo.getExtension('render')).to.equal('ts')

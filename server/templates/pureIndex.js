@@ -6,6 +6,6 @@ window.addEventListener('load', () => {
     root.append(heading);
 
     const p = document.createElement('p');
-    p.innerHTML = 'Made by Babel with JavaScript and no framework';
+    p.innerHTML = 'Made by <%= transpiler %> with JavaScript and no framework';
     root.append(p);
 });

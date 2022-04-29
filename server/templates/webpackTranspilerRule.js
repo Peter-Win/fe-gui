@@ -3,7 +3,9 @@
         rules: [
             {
                 test: <%= extRule %>,
-                use: 'babel-loader',
+                use: {
+                    loader: '<%= loader %>',
+                },
                 exclude: /node_modules/,
             },
         ],

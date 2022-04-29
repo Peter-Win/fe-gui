@@ -8,10 +8,11 @@ const {buildTemplate, loadTemplate} = require('../sysUtils/loadTemplate')
 const {makeSrcName, makeFullName} = require('../fileUtils')
 const {splitRows, writeRows} = require('../sysUtils/textFile')
 const {getHiVersion} = require('../sysUtils/versions')
+const { SWC } = require('./SWC')
 
 class Jest {
     name = 'Jest'
-    depends = ['Babel', 'TypeScript']
+    depends = ['Babel', 'TypeScript', 'SWC']
     isInit = false
     isReady = false
     description = `
@@ -48,12 +49,12 @@ ${this.availInlineSnapshots() ? `
     }
 
     async init() {
-        const {entities: {PackageJson, Babel, TypeScript}} = require('./all')
+        const {entities: {PackageJson, Babel, TypeScript, SWC}} = require('./all')
         this.isInit = PackageJson.isDevDependency('jest')
         if (this.isInit) {
             CommonInfo.tech.unitTesting = this.name
         } else {
-            this.isReady = Babel.isInit || TypeScript.isInit
+            this.isReady = Babel.isInit || TypeScript.isInit || SWC.isInit
         }
     }
 
