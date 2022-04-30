@@ -7,6 +7,7 @@ const { makeFullName } = require('../fileUtils')
 const { findConfigRoot, findObjectItem } = require('./WebPack.utils')
 const { TxObject } = require('../parser/taxons/TxObject')
 const { TxConst } = require('../parser/taxons/TxConst')
+const { TxArray } = require('../parser/taxons/TxArray')
 
 /**
  * Установить значение в блок transform
@@ -32,6 +33,32 @@ const setJestTransform = ({moduleTaxon, transpiler, key, value, style}) => {
 }
 
 /**
+ * 
+ * @param {Object} params
+ * @param {Taxon} params.moduleTaxon IN/OUT
+ * @param {string} params.preset
+ * @param {Style} params.style
+ */
+const addPreset = ({moduleTaxon, preset, style}) => {
+    const rootTaxon = findConfigRoot(moduleTaxon)
+    const txPresetName = TxConst.create('string', style.string(preset))
+    const txPreset = findObjectItem(rootTaxon, 'preset')
+    if (!txPreset) {
+        rootTaxon.addObjectItem('preset', txPresetName)
+    } else if (txPreset.type === 'TxArray') {
+        txPreset.addTaxon(txPresetName)
+    } else if (txPreset.type === 'TxConst') {
+        const {owner} = txPreset
+        if (owner.type === 'TxObject') {
+            const txArr = new TxArray()
+            txArr.addTaxon(txPreset)
+            txArr.addTaxon(txPresetName)
+            owner.changeObjectItem('preset', 'preset', txArr, style)
+        }
+    }
+}
+
+/**
  * Внести изменения в конфиг Jest
  * @param {function(Taxon, Style)} fnUpdate 
  * @param {function(string, string)} fnMessage 
@@ -54,4 +81,4 @@ const updateJestConfig = async (fnUpdate, fnMessage) => {
     if (fnMessage) fnMessage(`Jest config updated: ${configName}`)
 }
 
-module.exports = {updateJestConfig, setJestTransform}
+module.exports = {updateJestConfig, setJestTransform, addPreset}

@@ -31,7 +31,7 @@ const createApp = async (data) => {
 
         const transpiler = tech.transpiler
         if (transpiler in { Babel:1, TypeScript:1, SWC:1 }) {
-            if (!await createEntity(entities, transpiler)) return false
+            if (!await createEntity(entities, transpiler, {})) return false
         }
 
         // stylers...
