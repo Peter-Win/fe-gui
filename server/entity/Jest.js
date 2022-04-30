@@ -83,9 +83,6 @@ ${this.availInlineSnapshots() ? `
             roots: ["<rootDir>/src"],
             testEnvironment: 'jsdom',
         }
-        // if (originalTypeScript) {
-        //     configParams.preset = 'ts-jest'
-        // }
         const configName = makeFullName('jest.config.js')
         const configText = `module.exports = {\n${
             Object.entries(configParams)
@@ -95,9 +92,6 @@ ${this.availInlineSnapshots() ? `
         await fs.promises.writeFile(configName, configText)
 
         await installPackage(this.name, 'jest@27.0.0')
-        // if (originalTypeScript) {
-        //     await installPackage(this.name, 'ts-jest @types/jest')
-        // } else 
         if (tech.transpiler === 'Babel') {
             await installPackage(this.name, 'babel-jest @babel/preset-env')
             await Babel.updatePreset(['@babel/preset-env', {targets: {node: 'current'}}])
