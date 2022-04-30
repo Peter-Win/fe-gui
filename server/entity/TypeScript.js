@@ -5,6 +5,7 @@
 const fs = require('fs')
 const {CommonInfo} = require('../CommonInfo')
 const {wsSend} = require('../wsServer')
+const {wsSendCreateEntity} = require('../wsSend')
 const {loadTemplate, buildTemplate} = require('../sysUtils/loadTemplate')
 const {makeSrcName, makeFullName, isFileExists} = require('../fileUtils')
 const {installPackage} = require('../commands/installPackage')
@@ -18,8 +19,10 @@ class TypeScript {
     async init() {
         const {entities} = require('../entity/all')
         const {PackageJson, WebPack} = entities
+        // TypeScript is init if installed dev dependency 'typescript'
         this.isInit = PackageJson.isDevDependency('typescript')
         if (await isFileExists(WebPack.getConfigName())) {
+            // But TypeScript can be not primary. For ex in case Babel+TS
             const tx = await WebPack.loadConfigTaxon()
             if (isLoaderInRule(findRule(tx, '.ts'), 'ts-loader')) {
                 CommonInfo.tech.language = 'TypeScript'
@@ -32,22 +35,36 @@ class TypeScript {
         return makeFullName('tsconfig.json')
     }
 
-    async create() {
-        // const indexExt = CommonInfo.getExtension('render');
+    /**
+     * 
+     * @param {Object} params
+     * @param {boolean} params.isPrimary = true. Если false, то не включается в WebPack.
+     */
+    async create({isPrimary = true}) {
         const {entities} = require('../entity/all')
         const {WebPack} = entities
         // --- add packages
-        await installPackage(this.name, 'typescript ts-loader')
+        const packages = ['typescript']
+        if (isPrimary) packages.push('ts-loader')
+        await installPackage(this.name, packages.join(' '))
 
-        await WebPack.setPart(await loadTemplate('tsForWebpack.js'))
+        if (isPrimary) {
+            wsSendCreateEntity(this.name, `Update ${WebPack.getConfigName()}`)
+            await WebPack.setPart(await loadTemplate('tsForWebpack.js'))
+        }
 
         // tsconfig.json
-        await buildTemplate('tsconfig.json', this.getConfigName())
+        if (!await isFileExists(this.getConfigName())) {
+            wsSendCreateEntity(this.name, `Create ${this.getConfigName()}`)
+            await buildTemplate('tsconfig.json', this.getConfigName())
+        }
 
         // index.ts
-        const fullIndexName = makeSrcName('index.ts')
-        wsSend('createEntityMsg', {name: this.name, message: `Create ${fullIndexName}`})
-        await buildTemplate('tsIndex.ts', fullIndexName)
+        if (isPrimary) {
+            const fullIndexName = makeSrcName('index.ts')
+            wsSendCreateEntity(this.name, `Create ${fullIndexName}`)
+            await buildTemplate('tsIndex.ts', fullIndexName)
+        }
     }
 
     /**

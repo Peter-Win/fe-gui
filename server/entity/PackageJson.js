@@ -60,10 +60,11 @@ class PackageJson {
                 ent.addScript('build', 'webpack --mode=production')
            })
      */
-    async update(callback) {
+    async update(callback, log) {
         await this.load()
         await callback(this)
         await this.save()
+        if (log) log(`Updated ${this.makeFileName()}`)
     }
 
     addScript(name, code) {

@@ -47,7 +47,7 @@ class React {
             const {Babel} = entities
             await Babel.updatePreset('@babel/preset-react')
         } else if (transpiler === 'TypeScript') {
-            await installPackage(this.name, '@types/react @types/react-dom', true)
+            await this.installTS(this.name)
         } else if (transpiler === 'SWC') {
             await entities.SWC.updateConfig((configObject) => {
                 const { jsc = {} } = configObject
@@ -99,6 +99,10 @@ class React {
 
         await buildTemplate(`reactApp.${ext}`, appName, tmParams)
         await buildTemplate(`stdMainFrame.${ext}`, mainFrameName, tmParams)
+    }
+
+    async installTS(name) {
+        await installPackage(name, '@types/react @types/react-dom', true)
     }
 }
 
