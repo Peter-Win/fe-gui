@@ -3,7 +3,7 @@ const {Style} = require('../parser/Style')
 const {parseModule} = require('../parser/parseExpression')
 const {ReaderCtx} = require('../parser/ReaderCtx')
 const {formatChunks} = require('../parser/WriterCtx')
-const {setJestTransform, addPreset} = require('./Jest.utils')
+const {setJestTransform, addPreset, setModuleNameMapper} = require('./Jest.utils')
 const {compareText} = require('../sysUtils/compareText')
 
 const style = new Style()
@@ -92,6 +92,44 @@ describe('addPreset', () => {
   ],
 };
 `
+    compareText(makeCode(moduleTaxon), dst)
+  })
+})
+
+describe('setModuleNameMapper', () => {
+  it('create partition', () => {
+    const src = `module.exports = {}`
+    const dst =
+`module.exports = {
+  moduleNameMapper: {
+    "^src/(.*)$": "<rootDir>/src/$1",
+    "^components/(.*)$": "<rootDir>/src/components/$1",
+  },
+};
+`
+    const aliases = [['src', 'src'], ['components', 'src/components']]
+    const moduleTaxon = parseCode(src)
+    setModuleNameMapper({moduleTaxon, style, aliases})
+    compareText(makeCode(moduleTaxon), dst)
+  })
+
+  it('exchange partition', () => {
+    const src = `module.exports = {
+  name: "Exchange",
+  moduleNameMapper: {oldKey: 'oldValue'} 
+}`
+    const dst =
+`module.exports = {
+  name: "Exchange",
+  moduleNameMapper: {
+    "^src/(.*)$": "<rootDir>/src/$1",
+    "^components/(.*)$": "<rootDir>/src/components2/$1",
+  },
+};
+`
+    const aliases = [['src', 'src'], ['components', 'src/components2']]
+    const moduleTaxon = parseCode(src)
+    setModuleNameMapper({moduleTaxon, style, aliases})
     compareText(makeCode(moduleTaxon), dst)
   })
 })
