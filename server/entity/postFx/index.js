@@ -1,3 +1,4 @@
+const {aliasesJest} = require('./aliasesJest')
 const {jestStandard} = require('./jestStandard')
 const {jestESLint} = require('./jestESLint')
 const {jestSwc} = require('./jestSwc')
@@ -15,6 +16,7 @@ const {cssModulesLess} = require('./cssModuleLess')
  */
 const postFx = [
     {ids: ['Aliases', 'ESLint'], fn: aliasesESLint},
+    {ids: ['Aliases', 'Jest'], fn: aliasesJest },
     {ids: ['Aliases', 'TypeScript'], fn: aliasesTypeScript},
     {ids: ['CssModules', 'Jest'], fn: cssModulesJest},
     {ids: ['CssModules', 'LESS'], fn: cssModulesLess},

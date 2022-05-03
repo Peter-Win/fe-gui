@@ -8,6 +8,7 @@ const { findConfigRoot, findObjectItem } = require('./WebPack.utils')
 const { TxObject } = require('../parser/taxons/TxObject')
 const { TxConst } = require('../parser/taxons/TxConst')
 const { TxArray } = require('../parser/taxons/TxArray')
+const { makeTaxonFromData } = require('../parser/makeTaxonFromData')
 
 /**
  * Установить значение в блок transform
@@ -59,6 +60,26 @@ const addPreset = ({moduleTaxon, preset, style}) => {
 }
 
 /**
+ * Раздел moduleNameMapper полностью формируется заново из списка
+ * @param {Object} params
+ * @param {Taxon} params.moduleTaxon IN/OUT
+ * @param {string[][]} params.aliases
+ * @param {Style} params.style
+ */
+ const setModuleNameMapper = ({moduleTaxon, style, aliases}) => {
+    const rootTaxon = findConfigRoot(moduleTaxon)
+    if (rootTaxon && rootTaxon.type === 'TxObject') {
+        const newMap = {}
+        aliases.forEach(([key, value]) => {
+            newMap[`^${key}/(.*)$`] = `<rootDir>/${value}/$1`
+        })
+        const txNewMap = makeTaxonFromData(newMap, style)
+        const part = 'moduleNameMapper'
+        rootTaxon.changeObjectItem(part, part, txNewMap, style)
+    }
+}
+
+/**
  * Внести изменения в конфиг Jest
  * @param {function(Taxon, Style)} fnUpdate 
  * @param {function(string, string)} fnMessage 
@@ -81,4 +102,4 @@ const updateJestConfig = async (fnUpdate, fnMessage) => {
     if (fnMessage) fnMessage(`Jest config updated: ${configName}`)
 }
 
-module.exports = {updateJestConfig, setJestTransform, addPreset}
+module.exports = {updateJestConfig, setJestTransform, addPreset, setModuleNameMapper}
