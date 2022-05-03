@@ -1,5 +1,6 @@
 const {exec} = require('child_process')
 const {getRootPath} = require('../fileUtils')
+const {wsSendCreateEntity} = require('../wsSend')
 
 /**
  *
@@ -21,4 +22,26 @@ const asyncExec = (command, options) => new Promise((resolve, reject) => {
     })
 })
 
-module.exports = {asyncExec}
+/**
+ * 
+ * @param {string|null} name 
+ * @param {string} command 
+ * @param {object?} options 
+ */
+const asyncExecShell = async (name, command, options) => {
+    const log = (msg, type) => {
+        if (name) wsSendCreateEntity(name, msg, type)
+    }
+    try {
+        log(command, 'info')
+        const {stderr} = await asyncExec(command, options)
+        if (stderr) {
+            log(stderr, 'warn')
+        }
+    } catch (e) {
+        log(e.message, 'err')
+        throw e
+    }
+}
+
+module.exports = {asyncExec, asyncExecShell}

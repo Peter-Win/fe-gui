@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const {asyncExec} = require('../sysUtils/asyncExec')
+const {asyncExecShell} = require('../sysUtils/asyncExec')
 const {wsSendCreateEntity} = require('../wsSend')
 const {readRows, writeRows} = require('../sysUtils/textFile')
 const {makeFullName, makeSrcName} = require('../fileUtils')
@@ -30,14 +30,8 @@ class Storybook {
     }
 
     async create(params) {
-        // Обнаружена несовместимость Storybook и less-loader 8+
-        // Была попытка явным образом указать использование webpack 5.
-        // Но успеха она не принесла.
-        const cmd = 'npx sb init --builder webpack5'
-
-        // const cmd = 'npx sb init'
-        wsSendCreateEntity(this.name, cmd)
-        await asyncExec(cmd)
+        const cmd = CommonInfo.packageManager.makeNpx('sb init --builder webpack5 --type react')
+        await asyncExecShell(this.name, cmd)
 
         if (params.removeStdExample) {
             const dirName = makeSrcName('stories')

@@ -6,18 +6,7 @@ const {CommonInfo} = require('../CommonInfo')
  * @param {{ force?: boolean}?} options
  */
 const makeInstallCommand = (names, isDev, options = {}) => {
-    let cmd = ''
-    if (CommonInfo.isYarn) {
-        cmd = `yarn add ${names}`
-        if (isDev) {
-            cmd += ' --dev'
-        }
-    } else {
-        cmd = `npm i ${names}`
-        cmd += isDev ? ' -D' : ' -S'
-        if (options.force) cmd += ' --force'
-    }
-    return cmd
+    return CommonInfo.packageManager.makeInstall(names, isDev ? 'dev' : 'prod', options)
 }
 
 module.exports = {makeInstallCommand}

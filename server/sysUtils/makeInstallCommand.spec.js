@@ -1,15 +1,32 @@
 const {expect} = require('chai')
 const {makeInstallCommand} = require('./makeInstallCommand')
 const {CommonInfo} = require('../CommonInfo')
+const {PMgrPnpm} = require('../packageManagers/PMgrPnpm')
+const {PMgrYarn} = require('../packageManagers/PMgrYarn')
 
-it('makeInstallCommand', () => {
-    CommonInfo.tech.packageManager = 'Yarn'
-    expect(CommonInfo.isYarn).to.equal(true)
-    expect(makeInstallCommand('react')).to.equal('yarn add react')
-    expect(makeInstallCommand('webpack babel', true)).to.equal('yarn add webpack babel --dev')
+describe('makeInstallCommand', () => {
+    let savedPackageManager = null
+    beforeEach(() => {
+        savedPackageManager = CommonInfo.packageManager
+    })
+    afterEach(() => {
+        CommonInfo.packageManager = savedPackageManager
+    })
 
-    CommonInfo.tech.packageManager = 'NPM'
-    expect(CommonInfo.isYarn).to.equal(false)
-    expect(makeInstallCommand('react')).to.equal('npm i react -S')
-    expect(makeInstallCommand('webpack babel', true)).to.equal('npm i webpack babel -D')
+    it('Yarn', () => {
+        CommonInfo.packageManager = new PMgrYarn()
+        expect(makeInstallCommand('react')).to.equal('yarn add react')
+        expect(makeInstallCommand('webpack babel', true)).to.equal('yarn add webpack babel --dev')    
+    })
+
+    it('NPM', () => {
+        expect(makeInstallCommand('react')).to.equal('npm i react -S')
+        expect(makeInstallCommand('webpack babel', true)).to.equal('npm i webpack babel -D')    
+    })
+
+    it('pnpm', () => {
+        CommonInfo.packageManager = new PMgrPnpm()
+        expect(makeInstallCommand('react')).to.equal('pnpm add react -P')
+        expect(makeInstallCommand('webpack babel', true)).to.equal('pnpm add webpack babel -D')    
+    })
 })

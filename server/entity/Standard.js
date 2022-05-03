@@ -35,8 +35,7 @@ class Standard {
             }
             const addScript = (use, name, isFix) => {
                 if (use) {
-                    let cmd = CommonInfo.isYarn ? 'yarn' : 'npm'
-                    cmd += ' standard'
+                    let cmd = 'standard'
                     if (isFix) cmd += ' --fix'
                     pj.addScript(name, cmd)
                 }

@@ -1,5 +1,5 @@
 const {expect} = require('chai')
-const {findVersionInRows} = require('./Yarn')
+const {findVersionInRows} = require('./PMgrYarn')
 
 const yarnLock = `
 "@types/mime@^1":
