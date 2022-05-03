@@ -23,9 +23,11 @@ const createApp = async (data) => {
 
         // Создание сущностей
         if (!await createEntity(entities, 'PackageJson')) return false
-        if (CommonInfo.isYarn) {
-            if (!await createEntity(entities, 'Yarn')) return false
+        const {packageManager} = CommonInfo.tech
+        if (packageManager !== 'NPM') {
+            if (!await createEntity(entities, packageManager)) return false
         }
+        CommonInfo.packageManager = entities[packageManager].createManager()
         if (!await createEntity(entities, 'WebPack')) return false
         if (!await createEntity(entities, 'Readme')) return false
 

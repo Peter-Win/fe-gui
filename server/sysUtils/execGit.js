@@ -1,12 +1,7 @@
-const {asyncExec} = require('./asyncExec')
-const {wsSendCreateEntity} = require('../wsSend')
+const {asyncExecShell} = require('./asyncExec')
 
 const execGit = async (name, command) => {
     const cmdExt = `git ${command}`
-    wsSendCreateEntity(name, cmdExt)
-    const {stdout, stderr} = await asyncExec(cmdExt)
-    if (typeof stderr === 'string' && stderr.trim()) {
-        wsSendCreateEntity(name, stderr, 'warn')
-    }
+    await asyncExecShell(name, cmdExt)
 }
 module.exports = {execGit}

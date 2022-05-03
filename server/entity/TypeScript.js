@@ -27,6 +27,9 @@ class TypeScript {
             if (isLoaderInRule(findRule(tx, '.ts'), 'ts-loader')) {
                 CommonInfo.tech.language = 'TypeScript'
                 CommonInfo.tech.transpiler = 'TypeScript'
+                CommonInfo.findPackageVersion('typescript').then(ver => {
+                    CommonInfo.techVer.transpiler = ver
+                })
             }
         }
     }

@@ -1,8 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 const {CommonInfo} = require('../CommonInfo')
-const {wsSendCreateEntity} = require('../wsSend')
-const {asyncExec} = require('../sysUtils/asyncExec')
+const {asyncExecShell} = require('../sysUtils/asyncExec')
 const {makeFullName} = require('../fileUtils')
 const {makeScriptCommand} = require('../sysUtils/makeScriptCommand')
 
@@ -33,18 +32,12 @@ class Husky {
      */
     async create(params) {
         const {name} = this
-        const exec = async (cmd) => {
-            const {stdout, stderr} = await asyncExec(cmd)
-            wsSendCreateEntity(name, cmd)
-            if (typeof stderr === 'string' && stderr.trim()) {
-                wsSendCreateEntity(name, stderr, 'warn')
-            }
-        }
-        await exec('npx husky-init')
-        await exec(CommonInfo.isYarn ? 'yarn' : 'npm i')
+        const {packageManager} = CommonInfo
+        await asyncExecShell(name, packageManager.makeNpx('husky-init'))
+        await asyncExecShell(name, packageManager.makeInstallAll())
         params.hooks.forEach(e => console.log(e.type, '=>', e.cmd))
         for (let e of params.hooks) {
-            await exec(`npx husky add .husky/${e.type} "${e.cmd}"`)
+          await asyncExecShell(name, packageManager.makeNpx(`husky add .husky/${e.type} "${e.cmd}"`))
         }
     }
 

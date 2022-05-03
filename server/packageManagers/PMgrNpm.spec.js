@@ -1,5 +1,5 @@
 const {expect} = require('chai')
-const {findVersionInJson} = require('./NPM')
+const {findVersionInJson} = require('./PMgrNpm')
 
 const packageLock = `{
   "name": "fe-gui-test",

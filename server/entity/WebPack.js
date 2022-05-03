@@ -57,7 +57,6 @@ class WebPack {
             const err = this.loadConfig(configName)
             if (!err) {
                 this.isInit = true
-                wsSend('statusMessage', {text: 'Webpack detected'})
                 CommonInfo.tech.bundler = this.name
                 CommonInfo.techVer.bundler = await CommonInfo.findPackageVersion('webpack')
             } else {

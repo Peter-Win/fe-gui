@@ -1,5 +1,6 @@
 const path = require('path')
 const {getRootPath} = require('./fileUtils')
+const { PMgrNpm } = require('./packageManagers/PMgrNpm')
 const {wsSend} = require('./wsServer')
 
 class CommonInfo {
@@ -80,9 +81,8 @@ class CommonInfo {
         Object.assign(CommonInfo.techVer, data.techVer)
         Object.assign(CommonInfo.extParams, data.extParams)
     }
-    static get isYarn() {
-        return CommonInfo.tech.packageManager.toLowerCase() === 'yarn'
-    }
+
+    static packageManager = new PMgrNpm()
 
     static getPreferStyler() {
         const {tech} = CommonInfo
@@ -135,11 +135,7 @@ class CommonInfo {
      * @returns {Promise<string|null>}
      */
     static async findPackageVersion(name) {
-        const {entities} = require('./entity/all')
-        const manager = entities[this.tech.packageManager]
-        console.log('this.tech', this.tech)
-        if (!manager) return null
-        return manager.findPackageVersion(name)
+        return CommonInfo.packageManager.findPackageVersion(name)
     }
 }
 

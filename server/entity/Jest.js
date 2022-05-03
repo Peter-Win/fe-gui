@@ -51,8 +51,12 @@ ${this.availInlineSnapshots() ? `
     async init() {
         const {entities: {PackageJson, Babel, TypeScript, SWC}} = require('./all')
         this.isInit = PackageJson.isDevDependency('jest')
+        this.isReady = false
         if (this.isInit) {
             CommonInfo.tech.unitTesting = this.name
+            CommonInfo.findPackageVersion('jest').then(ver => {
+                CommonInfo.techVer.unitTesting = ver
+            })
         } else {
             this.isReady = Babel.isInit || TypeScript.isInit || SWC.isInit
         }
@@ -105,27 +109,38 @@ ${this.availInlineSnapshots() ? `
         }
 
         PackageJson.update(pjEntity => {
-            pjEntity.addScript('test', 'jest')
-            const testCmd = CommonInfo.isYarn ? 'yarn test OR yarn jest' : 'npm t'
-            wsSend('createEntityMsg', {name: 'Jest', message: 'Test command: ' + testCmd})
-            if (params.coverage) {
-                const key = 'test:coverage'
-                const coverageCmd = (CommonInfo.isYarn ? 'yarn' : 'npm run') + ' ' + key
-                pjEntity.addScript(key, 'jest --coverage')
-                wsSend('createEntityMsg', {name: 'Jest', message: 'Test with coverage: ' + coverageCmd})
-            }
-            if (params.watch) {
-                const key = 'test:watch'
-                const watchCmd = (CommonInfo.isYarn ? 'yarn' : 'npm run') + ' ' + key
-                pjEntity.addScript(key, 'jest --watch')
-                wsSend('createEntityMsg', {name: 'Jest', message: 'Test with watch: ' + watchCmd})
-            }
-            if (params.useSnapshots) {
-                const key = 'test:update'
-                const updateCmd = (CommonInfo.isYarn ? 'yarn' : 'npm run') + ' ' + key
-                pjEntity.addScript(key, 'jest --updateSnapshot')
-                wsSendCreateEntity(this.name, 'Snapshons update: ' + updateCmd)
-            }
+            const {packageManager, tech} = CommonInfo;
+            [
+                {
+                    key: 'test',
+                    cond: true,
+                    cmd: 'jest',
+                    label: 'Test command',
+                    cli: tech.packageManager === 'Yarn' ? 'yarn test OR yarn jest' : '',
+                },
+                {
+                    key: 'test:coverage',
+                    cond: params.coverage,
+                    cmd: 'jest --coverage',
+                    label: 'Test with coverage',
+                },
+                {
+                    key: 'test:watch',
+                    cond: params.watch,
+                    cmd: 'jest --watch',
+                    label: 'Test with watch',
+                },
+                {
+                    key: 'test:update',
+                    cond: params.useSnapshots,
+                    cmd: 'jest --updateSnapshot',
+                    label: 'Snapshots update',
+                },
+            ].filter(({cond}) => cond).forEach(({key, cmd, label, cli}) => { 
+                pjEntity.addScript(key, cmd)
+                const xcmd = cli || packageManager.makeRun(key)
+                wsSendCreateEntity('Jest', `${label}: ${xcmd}`)
+            })
         })
 
         if (params.example) {
