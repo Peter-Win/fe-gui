@@ -22,4 +22,22 @@ const installPackage = async (name, packages, isDev = true, options = {}) => {
     }
 }
 
-module.exports = {installPackage}
+/**
+ * Установка с проверкой.
+ * Если все пакеты из списка уже установлены, то команда не выполняется.
+ * Рекомендуется предварительно вызвать await PackageJson.load()
+ * @param {string} name 
+ * @param {string[]} packages 
+ * @param {boolean=} isDev 
+ * @param {{ force?: boolean}=} options 
+ * @returns {Promise<void>}
+ */
+const installPackageSmart = async (name, packages, isDev = true, options = {}) => {
+    const {entities: { PackageJson }} = require('../entity/all')
+    const list = packages.filter(pk => isDev ? !PackageJson.isDevDependency(pk) : !PackageJson.isDependency(pk))
+    if (list.length > 0) {
+        await installPackage(name, list.join(' '), isDev, options)
+    }
+}
+
+module.exports = {installPackage, installPackageSmart}

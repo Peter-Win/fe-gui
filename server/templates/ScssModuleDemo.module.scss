@@ -1,0 +1,13 @@
+.hello {
+    background: rgb(163, 73, 164);
+    padding: 1rem;
+    margin: 2px 0;
+
+    > div {
+        border: thin solid silver;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        color: #808;
+        background: white;
+    }
+}

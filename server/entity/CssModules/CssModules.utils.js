@@ -7,6 +7,16 @@ const { Style } = require('../../parser/Style')
 const { loadTemplate } = require('../../sysUtils/loadTemplate')
 const { makeFullName, isFileExists } = require('../../fileUtils')
 const { readRows, writeRows } = require('../../sysUtils/textFile')
+const { capitalize } = require('../../parser/stringUtils')
+
+/**
+ * 
+ * @param {{ agent: string; exts: string[] }[]} styleDef 
+ * @param {Record<string, boolean>} selections 
+ * @returns {string[]}
+ */
+const selectedExtsList = (styleDef, selections) =>
+    styleDef.filter(({ agent }) => selections[agent]).flatMap(({ exts }) => exts)
 
 /**
  * Проверить наличие правил для модулей указанных расширений
@@ -45,7 +55,7 @@ const testRule = async (ruleTaxon, extensions) => {
 /**
  * Get types of existing style modules
  * @param {Taxon} wpConfigTaxon
- * @param {string[]} extensions 'css'|'less'
+ * @param {string[]} extensions 'css'|'less'|'sass'|'scss'
  * @returns {Promise<Record<string,Taxon>>}
  */
 const testModuleTypes = async (wpConfigTaxon, extensions) => {
@@ -83,12 +93,13 @@ const getAvailableExtensions = async (WebPack, extensions) => {
  * Добавить правило для CSS модуля
  * Кроме того, добавляется exclude в правило для простого лоадера, если оно есть
  * @param {Taxon} wpConfigTaxon 
- * @param {string} ext 
+ * @param {string[]} exts
+ * @param {string} extRule example for sass & scss: s[ac]ss
  * @param {Object} rule 
  * @param {Style} style 
  * @returns {Promise<void>}
  */
-const injectRule = async (wpConfigTaxon, ext, rule, style) => {
+const injectRule = async (wpConfigTaxon, exts, extRule, rule, style) => {
     const txRoot = findConfigRoot(wpConfigTaxon)
     let txModule = findObjectItem(txRoot, 'module')
     if (!txModule) {
@@ -102,10 +113,10 @@ const injectRule = async (wpConfigTaxon, ext, rule, style) => {
     }
     txRules.addTaxon(makeTaxonFromData(rule, style))
     // exclude
-    const dict = await testModuleTypes(wpConfigTaxon, [ext])
-    const simpleRule = dict[ext]
+    const dict = await testModuleTypes(wpConfigTaxon, exts)
+    const simpleRule = dict[exts[0]]
     if (simpleRule && simpleRule.type === 'TxObject') {
-        const txExclude = TxConst.create('regexp', `/\\.module\\.${ext}$/`)
+        const txExclude = TxConst.create('regexp', `/\\.module\\.${extRule}$/`)
         simpleRule.changeObjectItem('exclude', 'exclude', txExclude)
     }
 }
@@ -115,7 +126,7 @@ const injectRule = async (wpConfigTaxon, ext, rule, style) => {
  * @param {Object} params
  * @param {function(string, string?): void} params.log
  * @param {function(string, boolean): Promise<void>} params.addDependency
- * @param {{ext:string; loaders:string[]; devDeps?:string}[]} params.styleDef
+ * @param {{exts:string[]; agent: string; extRule: string; loaders:string[]; devDeps?:string}[]} params.styleDef
  * @param {{css: boolean; cssExample: boolean; cssLocalName: string;}} params.params
  * @param {string} params.language TypeScript|JavaScript
  * @param {string} params.transpiler TypeScript|Babel|None
@@ -142,11 +153,10 @@ const installStyleModules = async ({
     style.singleQuote = true
     const isTS = transpiler === 'TypeScript'
     const wpConfigTaxon = await WebPack.loadConfigTaxon()
-    for (const {ext, loaders, devDeps} of styleDef) {
-        if (!params[ext]) continue
-        log(`Install ${ext.toUpperCase()} Modules`, 'success')
+    for (const {agent, exts, extRule, loaders} of styleDef) {
+        if (!params[agent]) continue
+        log(`Install ${agent} Modules`, 'success')
         nInstalled++
-        await addDependency('style-loader', true)
         if (isTS) {
             // Сначала использовался этот лоадер для генерации файлов типа <name>.module.<ext>.d.ts
             // Но эти файлы при первой сборке не подхватывались, т.к. видимо генерились позже чем компилировался компонент
@@ -156,33 +166,22 @@ const installStyleModules = async ({
 
             await addDependency('typescript-plugin-css-modules', true)
         }
-        await addDependency('css-loader', true)
-        for (const loader of loaders) {
-            await addDependency(loader, true)
-        }
-        if (devDeps) {
-            await addDependency(devDeps, true)
-        }
         const rule = {
-            test: new RegExp(`\\.module\\.${ext}$`),
+            test: new RegExp(`\\.module\\.${extRule}$`),
             use: [
                 'style-loader',
                 {
                     loader: 'css-loader',
                     options: {
                         modules: {
-                            localIdentName: params[`${ext}LocalName`]
+                            localIdentName: params[`${agent}LocalName`]
                         },
                     },
                 },
                 ...loaders
             ]
         }
-        // См. коммент выше
-        // if (transpiler === 'TypeScript') {
-        //     rule.use.splice(1, 0, 'css-modules-typescript-loader')
-        // }
-        await injectRule(wpConfigTaxon, ext, rule, style)
+        await injectRule(wpConfigTaxon, exts, extRule, rule, style)
         
         if (isTS) {
             await TypeScript.updateConfig((config) => {
@@ -203,19 +202,21 @@ const installStyleModules = async ({
         }
 
         // Examples
-        if (params[`${ext}Example`]) {
-            if (framework === 'React') {
-                const compName = `${ext[0].toUpperCase()}${ext.slice(1)}ModuleDemo`
-                const addFile = async (name, tmName) => {
-                    const data = await loadTemplate(tmName || name, {})
-                    files.push({ name, data })
+        if (framework === 'React') {
+            for (const ext of exts) {
+                if (params[`${ext}Example`]) {
+                    const compName = `${capitalize(ext)}ModuleDemo`
+                    const addFile = async (name, tmName) => {
+                        const data = await loadTemplate(tmName || name, {})
+                        files.push({ name, data })
+                    }
+                    await addFile(`${compName}.${language[0].toLowerCase()}sx`, `${compName}.jsx`)
+                    await addFile(`${compName}.module.${ext}`)
+                    imports.push({
+                        header: `import { ${compName} } from "./${exampleFolder}/${compName}"`,
+                        code: `<${compName} />`,
+                    })    
                 }
-                await addFile(`${compName}.${language[0].toLowerCase()}sx`, `${compName}.jsx`)
-                await addFile(`${compName}.module.${ext}`)
-                imports.push({
-                    header: `import { ${compName} } from "./${exampleFolder}/${compName}"`,
-                    code: `<${compName} />`,
-                })
             }
         }
     }
@@ -242,12 +243,13 @@ const installStyleModules = async ({
  * @param {string[]} extList
  */
 const updateDeclaration = async (extList, log) => {
+    if (extList.length === 0) return
     const fname = makeFullName('declaration.d.ts')
     const exists = await isFileExists(fname)
     const rows = exists ? await readRows(fname) : []
     if (updateDeclarationRows(rows, extList)) {
         await writeRows(fname, rows)
-        if (log) log(`${exists ? 'Updated':'Created'} ${fname}`)
+        if (log) log(`${exists ? 'Updated':'Created'} [${extList.join(', ')}] in ${fname}`)
     }
 }
 
@@ -277,6 +279,7 @@ module.exports = {
     testRule,
     injectRule,
     installStyleModules,
+    selectedExtsList,
     updateDeclaration,
     updateDeclarationRows,
 }

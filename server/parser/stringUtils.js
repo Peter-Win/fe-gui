@@ -20,4 +20,9 @@ const multiplication = (src, count) => {
     return dst
 }
 
-module.exports = {fromQuoted, multiplication}
+const capitalize = (str) => {
+    if (!str || typeof str !== 'string') return str
+    return str[0].toUpperCase() + str.slice(1).toLowerCase()
+}
+
+module.exports = {fromQuoted, multiplication, capitalize}

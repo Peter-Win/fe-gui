@@ -1,5 +1,5 @@
 const {CommonInfo} = require('../CommonInfo')
-const {installPackage} = require('../commands/installPackage')
+const {installPackageSmart} = require('../commands/installPackage')
 const {loadTemplate, buildTemplate} = require('../sysUtils/loadTemplate')
 const {makeSrcName, isFileExists} = require('../fileUtils')
 const {wsSendCreateEntity} = require('../wsSend')
@@ -11,8 +11,14 @@ class LESS {
     isInit = false
 
     async init() {
-        const {entities: {PackageJson}} = require('./all')
-        this.isInit = PackageJson.isDevDependency('less-loader')
+        const {entities: {WebPack}} = require('./all')
+        const {findRule, isLoaderInRule} = require('./WebPack.utils')
+        this.isInit = false
+        if (WebPack.isInit) {
+            const wpConfig = await WebPack.loadConfigTaxon()
+            const rule = findRule(wpConfig, '.less')
+            this.isInit = isLoaderInRule(rule, 'less-loader')
+        }
         if (this.isInit) {
             CommonInfo.tech.styleLess = true
             if (await isFileExists(makeSrcName('style.less'))) CommonInfo.tech.preferStyle = 'less'
@@ -23,9 +29,8 @@ class LESS {
     }
 
     async create() {
-        const {entities: {WebPack}} = require('./all')
-        const packages = 'less style-loader css-loader less-loader'
-        await installPackage(this.name, packages)
+        const {entities: {WebPack, CssModules}} = require('./all')
+        await installPackageSmart(this.name, ['less', 'style-loader', 'css-loader', 'less-loader'])
 
         // webpack
         const webpackInjection = await loadTemplate('lessForWebpack.js')
@@ -34,6 +39,8 @@ class LESS {
         if (CommonInfo.getPreferStyler() === 'LESS') {
             await this.checkStyleLess((msg) => wsSendCreateEntity(this.name, msg))
         }
+        this.isInit = true
+        await CssModules.init()
     }
 
     description = `
