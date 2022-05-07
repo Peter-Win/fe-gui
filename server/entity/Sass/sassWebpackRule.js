@@ -2,7 +2,7 @@ const src = `{
   module: {
     rules: [
       {
-        test: /\.s[ac]ss$/,
+        test: /\\.s[ac]ss$/,
         use: [
           'style-loader',
           'css-loader',
@@ -17,7 +17,7 @@ const srcMap = `{
   module: {
     rules: [
       {
-        test: /\.s[ac]ss$/,
+        test: /\\.s[ac]ss$/,
         use: [
           'style-loader',
           {

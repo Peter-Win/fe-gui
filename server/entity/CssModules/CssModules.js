@@ -1,26 +1,37 @@
 const path = require('path')
 const fs = require('fs')
-const { getAvailableExtensions, installStyleModules, updateDeclaration } = require('./CssModules.utils')
+const { getAvailableExtensions, installStyleModules, updateDeclaration, selectedExtsList } = require('./CssModules.utils')
 const { CommonInfo } = require('../../CommonInfo')
 const { wsSendCreateEntity } = require('../../wsSend')
-const { installPackage } = require('../../commands/installPackage')
+const { installPackageSmart } = require('../../commands/installPackage')
 const { isFileExists, makeSrcName } = require('../../fileUtils')
 const { injectDemoCode } = require('../../sysUtils/injectDemoCode')
 
 const styleDef = [
     {
-        ext: 'css',
+        exts: ['css'],
+        extRule: 'css',
         agent: 'CSS',
         avail: true,
+        disable: false,
         loaders: [],
     },
     {
-        ext: 'less',
+        exts: ['less'],
+        extRule: 'less',
         agent: 'LESS',
         avail: true,
+        disable: false,
         loaders: ['less-loader'],
-        devDeps: 'less',
     },
+    {
+        exts: ['sass', 'scss'],
+        extRule: 's[ac]ss',
+        agent: 'Sass',
+        avail: true,
+        disable: false,
+        loaders: ['sass-loader'],
+    }
 ]
 
 class CssModules {
@@ -35,15 +46,16 @@ class CssModules {
         this.isInit = WebPack.isInit
         const wpOk = await isFileExists(WebPack.getConfigName())
         if (!wpOk) return
-        const availExts = await getAvailableExtensions(WebPack, styleDef.map(({ext}) => ext))
+        const availExts = await getAvailableExtensions(WebPack, styleDef.flatMap(({exts}) => exts))
         this.isReady = availExts.size > 0
         styleDef.forEach(item => {
-            item.avail = availExts.has(item.ext)
+            item.avail = item.exts.find(ext => availExts.has(ext))
+            item.disable = !entities[item.agent].isInit
         })
         this.defaultParams = {
-            ...styleDef.reduce((acc, {ext}) => ({
+            ...styleDef.reduce((acc, {agent}) => ({
                 ...acc,
-                [`${ext}LocalName`]: '[path][name]__[local]--[hash:base64:5]',
+                [`${agent}LocalName`]: '[path][name]__[local]--[hash:base64:5]',
             }), {})
         }
     }
@@ -54,22 +66,33 @@ class CssModules {
         return allExts.filter(ext => !avails.has(ext)).map(ext => `module.${ext}`)
     }
 
-    defaultParams = {}
+    defaultParams = {
 
+    }
+
+    /**
+     * Parameters patterns: {agent}:bool, {ext}Example:bool, {agent}LocalName:str
+     * @param {Object} params 
+     * @param {boolean} params.CSS
+     * @param {boolean} params.cssExample
+     * @param {string}  params.CSSLocalName
+     * @param {boolean} params.LESS
+     * @param {boolean} params.lessExample
+     * @param {string}  params.LESSLocalName
+     * @param {boolean} params.Sass
+     * @param {boolean} params.sassExample
+     * @param {boolean} params.scssExample
+     * @param {string}  params.SassLocalName
+     */
     async create(params) {
         const {entities} = require('../all')
         const {WebPack, TypeScript, PackageJson} = entities;
         const {language, transpiler, framework} = CommonInfo.tech
         const exampleFolder = 'cssModulesDemo'
         const log = (msg, type) => wsSendCreateEntity(this.name, msg, type)
+        await PackageJson.load()
         const addDependency = async (packageName, isDev=true) => {
-            await PackageJson.load()
-            if (isDev) {
-                if (PackageJson.isDevDependency(packageName)) return
-            } else {
-                if (PackageJson.isDependency(packageName)) return
-            }
-            await installPackage(this.name, packageName, isDev)
+            await installPackageSmart(this.name, packageName.split(' '), isDev)
         }
         const {files, imports} = await installStyleModules({
             log,
@@ -104,7 +127,7 @@ class CssModules {
             })
         }
         if (transpiler === 'TypeScript') {
-            await updateDeclaration(styleDef.map(({ext}) => ext), log)
+            await updateDeclaration(selectedExtsList(styleDef, params), log)
         }
     }
 
@@ -137,17 +160,18 @@ ${CommonInfo.tech.transpiler === 'TypeScript' ? `
     get controls() {
         return styleDef.map(item => this.drawStyleItem(item)).join('')
     }
-    drawStyleItem({ext, avail}) {
+    drawStyleItem({exts, avail, agent, disable}) {
+        const status = disable ? 'is not ready for installation' : 
+            (avail ? 'ready to install' : 'already installed')
         return `
 <div class="css-module-item">
-  <div class="css-module-header">
-  ${ext.toUpperCase()} Modules ${avail ? ' ready to install' : ' already installed'}
-  </div>
-  ${(avail || '') && `  <div>
-    <div class="rn-ctrl" data-type="Checkbox" data-name="${ext}" data-title="Install"></div>
+  <div class="css-module-header">${agent} Modules ${status}</div>
+  ${disable ? `<div>First you need to install ${agent} addon.</div>` : ''}
+  ${((avail && !disable) || '') && `  <div>
+    <div class="rn-ctrl" data-type="Checkbox" data-name="${agent}" data-title="Install"></div>
     <div class="css-module-inbox">
-      <div class="rn-ctrl" data-type="Checkbox" data-name="${ext}Example" data-title="Create an example"></div>
-      <div class="rn-ctrl local-name" data-type="String" data-name="${ext}LocalName" data-title="Local Ident Name"></div>
+      ${exts.map(ext => `<div class="rn-ctrl" data-type="Checkbox" data-name="${ext}Example" data-title="Create a ${ext} example"></div>`).join('\n')}
+      <div class="rn-ctrl local-name" data-type="String" data-name="${agent}LocalName" data-title="Local Ident Name"></div>
       <div><a href="https://webpack.js.org/loaders/css-loader/#localidentname" target="_blank">More about parameter <code>localIdentName</code></a></div>
     </div>
   </div>`}

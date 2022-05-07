@@ -4,7 +4,7 @@ const {parseModule} = require('../../parser/parseExpression')
 const {findConfigRoot, findPath} = require('../WebPack.utils')
 const {Style} = require('../../parser/Style')
 const {formatChunks} = require('../../parser/WriterCtx')
-const {getAvailableExtensions, testModuleTypes, testRule, injectRule, updateDeclarationRows} = require('./CssModules.utils')
+const {getAvailableExtensions, testModuleTypes, testRule, injectRule, updateDeclarationRows, selectedExtsList} = require('./CssModules.utils')
 
 const parseText = (text) => {
     const sourceNode = parseModule(ReaderCtx.fromText(text))
@@ -194,7 +194,7 @@ describe('injectRule', () => {
     style.singleQuote = true
     it('with simple rule', async () => {
         const tx = parseText(configCss)
-        await injectRule(tx, 'css', { test: new RegExp(`\\.module\\.css$`) }, style)
+        await injectRule(tx, ['css'], 'css', { test: new RegExp(`\\.module\\.css$`) }, style)
         const dst =
 `module.exports = {
   entry: './src/index.jsx',
@@ -218,7 +218,7 @@ describe('injectRule', () => {
     })
     it('with empty config', async () => {
         const tx = parseText(`module.exports = { entry: './src/index.jsx' }`)
-        await injectRule(tx, 'css', {test: /\.module\.css$/}, style)
+        await injectRule(tx, ['css'], 'css', {test: /\.module\.css$/}, style)
         const dst = 
 `module.exports = {
   entry: './src/index.jsx',
@@ -253,5 +253,23 @@ describe('updateDeclarationRows', () => {
     const res = updateDeclarationRows(rows, ['css', 'less'])
     expect(res).to.equal(false)
     expect(rows.join('\n')).to.equal(`declare module "*.module.css";\ndeclare module "*.module.less";`)
+  })
+})
+
+describe('selectedExtsList', () => {
+  const styleDef = [
+    { agent: 'CSS', exts: ['css'] },
+    { agent: 'LESS', exts: ['less'] },
+    { agent: 'Sass', exts: ['sass', 'scss'] },
+  ]
+  it('all', () => {
+    expect(selectedExtsList(styleDef, {CSS: true, LESS: true, Sass: true}))
+      .to.deep.equal(['css', 'less', 'sass', 'scss'])
+  })
+  it('empty', () => {
+    expect(selectedExtsList(styleDef, {CSS: false, LESS: false, Sass: false})).to.deep.equal([])
+  })
+  it('single', () => {
+    expect(selectedExtsList(styleDef, {Sass: true})).to.deep.equal(['sass', 'scss'])
   })
 })

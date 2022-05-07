@@ -1,4 +1,4 @@
-const {installPackage} = require('../../commands/installPackage')
+const {installPackageSmart} = require('../../commands/installPackage')
 const {wsSendCreateEntity} = require('../../wsSend')
 const {sassWebpackRule} = require('./sassWebpackRule')
 const {makeSrcName, isFileExists} = require('../../fileUtils')
@@ -41,14 +41,11 @@ class Sass {
     }
 
     async create(params) {
-        const {entities: {WebPack, PackageJson}} = require('../all')
+        const {entities: {WebPack, PackageJson, CssModules}} = require('../all')
 
         // install dev dependencies
         await PackageJson.load()
-        const packages = [
-            'sass-loader', 'sass', 'style-loader', 'css-loader'
-        ].filter(name => !PackageJson.isDevDependency(name))
-        await installPackage(this.name, packages.join(' '))
+        await installPackageSmart(this.name, ['sass-loader', 'sass', 'style-loader', 'css-loader'])
 
         // add rule to webpack config
         await WebPack.setPart(
@@ -81,6 +78,8 @@ class Sass {
                 wsSendCreateEntity(this.name, `Updated ${appName}`)
             }
         }
+        this.isInit = true
+        await CssModules.init()
         wsSendCreateEntity(this.name, 'To make it easier to include Sass/SCSS styles in your code, use "ReactComponent".', 'success')
     }
 
