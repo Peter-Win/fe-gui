@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const {installPackage} = require('../commands/installPackage')
+const {installPackage, installPackageSmart} = require('../commands/installPackage')
 const {wsSend} = require('../wsServer')
 const {wsSendCreateEntity} = require('../wsSend')
 const {CommonInfo} = require('../CommonInfo')
@@ -95,7 +95,7 @@ ${this.availInlineSnapshots() ? `
         }}`
         await fs.promises.writeFile(configName, configText)
 
-        await installPackage(this.name, 'jest@27.0.0')
+        await installPackageSmart(this.name, ['jest', 'jest-environment-jsdom'])
         if (tech.transpiler === 'Babel') {
             await installPackage(this.name, 'babel-jest @babel/preset-env')
             await Babel.updatePreset(['@babel/preset-env', {targets: {node: 'current'}}])
