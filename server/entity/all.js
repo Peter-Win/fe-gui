@@ -26,6 +26,7 @@ const {ReactComponent} = require('./ReactComponent')
 const {MobX} = require('./MobX')
 const {Sass} = require('./Sass')
 const {TypeCheck} = require('./TypeCheck')
+const {ReactTestingLibrary} = require('./ReactTestingLibrary')
 
 const entities = {}
 
@@ -62,5 +63,6 @@ reg(CssModules)
 reg(ReactComponent)
 reg(MobX)
 reg(TypeCheck)
+reg(ReactTestingLibrary)
 
 module.exports = {entities}

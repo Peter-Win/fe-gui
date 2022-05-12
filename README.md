@@ -78,8 +78,9 @@ Some addons become available only under certain conditions.
 | Jest | | [Jest](https://jestjs.io/) unit testing |
 | LESS | | [Less](https://lesscss.org/) language extension for CSS |
 | MobX | | [MobX](https://mobx.js.org/) state manager |
-| ReactComponent | React | Component source code generation. Allows you to reduce the time to create new components. Functionality depends on installed technologies: styles, Jest, MobX, Storybook. |
+| ReactComponent | React | Component source code generation. Allows you to reduce the time to create new components. Functionality depends on installed technologies: styles, Jest, MobX, ReactTestingLibrary, Storybook. |
 | ReactRouter | React | [ReactRouter](https://reactrouter.com/) The most popular navigation system for React. |
+| ReactTestingLibrary | React and Jest | [React Testing Library](https://testing-library.com/docs/react-testing-library/intro) |
 | Sass | | [Sass](https://sass-lang.com/) Another popular style description language. |
 | Standard | JavaScript only | [JavaScript Standard Style](https://standardjs.com/). Alternative system for ESLint. |
 | Storybook | React | [Storybook](https://storybook.js.org/) A tool for building UI components |

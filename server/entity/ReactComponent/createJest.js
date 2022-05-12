@@ -7,6 +7,7 @@ const { newMobxInstance } = require('./newMobxInstance')
  * @param {Object} params
  * @param {string} params.name
  * @param {boolean} params.isTS
+ * @param {boolean} params.isReactTestingLibrary
  * @param {string} params.className
  * @param {{framework?:string;}} params.techVer
  * @param {boolean} params.useInlineSnapshot
@@ -19,6 +20,7 @@ const { newMobxInstance } = require('./newMobxInstance')
  * @returns {{specFileName: string; specCode: string[];}}
  */
 const createJest = ({name, isTS, className, useInlineSnapshot, usePretty, props=[], techVer,
+  isReactTestingLibrary,
   testRenderBody='', styles='',
   mobxClassName, mobxStoreName, mobx,
 }) => {
@@ -62,6 +64,19 @@ describe ("${name}", () => {
   });
 });`
 
+    const specCodeRTL = 
+`import * as React from "react";
+import { render } from "@testing-library/react";
+import "@testing-library/jest-dom";
+import { ${name} } from "./${name}";
+
+describe ("${name}", () => {
+  it("render", () => {
+    const { container } = render(${componentCall});
+    expect(container${safe}.innerHTML).toBe('<div${classExpr}>${renderBody}</div>');
+  });
+});`
+
     const rootType = isTS ? ': Root | null' : ''
     const rootImport = isTS ? ', Root' : ''
     const specCode18 =
@@ -98,15 +113,19 @@ describe("${name}", () => {
   });
 });`
 
-    const isReact17 = getHiVersion(techVer.framework, 18) <= 17
-    let specCode = (isReact17 ? specCode17 : specCode18).split('\n')
+    let specCode = []
 
-    if (isTS) {
+    if (isReactTestingLibrary) {
+      specCode = specCodeRTL.split('\n')
+    } else {
+      const isReact17 = getHiVersion(techVer.framework, 18) <= 17
+      specCode = (isReact17 ? specCode17 : specCode18).split('\n')  
+      if (isTS) {
         const pos = specCode.findIndex(row => row.startsWith('globalThis.'))
         if (pos >= 0) specCode.splice(pos, 0, `// @ts-ignore`)
-    }
+      }
 
-    const snapCode = `
+      const snapCode = `
   it("inline snapshot", () => {
     act(() => {
       ${isReact17 ? `render(${componentCall}, container)` : `root${safe}.render(${componentCall})`};
@@ -116,12 +135,14 @@ describe("${name}", () => {
     ).toMatchInlineSnapshot();
   });`
 
-    if (useInlineSnapshot) {
+      if (useInlineSnapshot) {
         if (usePretty) {
             specCode.splice(1, 0, 'import pretty from "pretty";')
         }
         specCode = [...specCode.slice(0, -1), ...snapCode.split('\n'), ...specCode.slice(-1)]
+      }
     }
+
 
     if (mobxClassName) {
       const ipos = specCode.findIndex(row => row.startsWith(`import { ${name} }`))

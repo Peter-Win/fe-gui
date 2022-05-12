@@ -212,6 +212,7 @@ const createReactComponent = ({
     useJest, useInlineSnapshot, usePretty, useMobX, mobx,
     useStorybook, story,
     tech, techVer,
+    isReactTestingLibrary,
 }) => {
     const isTS = tech.language === 'TypeScript'
     const codeExt = `${isTS ? 't':'j'}s`
@@ -232,7 +233,7 @@ const createReactComponent = ({
     if (useJest) {
         const {specFileName, specCode} = createJest({
             name, isTS, className, useInlineSnapshot, usePretty, props, techVer, styles,
-            mobxClassName, mobxStoreName, mobx,
+            mobxClassName, mobxStoreName, mobx, isReactTestingLibrary,
         })
         filesDict[specFileName] = specCode
     }
