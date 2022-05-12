@@ -18,6 +18,7 @@ const makeCreateReactComponentParams = (clientParams) => {
         usePretty,
         availInlineSnapshots: entities.Jest.availInlineSnapshots(),
         techVer: CommonInfo.techVer,
+        isReactTestingLibrary: entities.ReactTestingLibrary.isInit,
     }
 }
 
@@ -30,7 +31,7 @@ class ReactComponent {
 
     async init() {
         const {entities} = require('../all')
-        const {React, CSS, LESS, Sass, WebPack, CssModules, Jest, Storybook, MobX} = entities
+        const {React, CSS, LESS, Sass, WebPack, CssModules, Jest, Storybook, MobX, ReactTestingLibrary } = entities
         this.isReady = React.isInit
         if (!this.isReady) return
         this.isVisible = true
@@ -49,7 +50,7 @@ class ReactComponent {
             if (e) this.stylesList.push({ label: `${e.toUpperCase()} module`, value: ext})
         })
         this.defaultParams.availJest = Jest.isInit
-        this.defaultParams.availInlineSnapshots = Jest.availInlineSnapshots()
+        this.defaultParams.availInlineSnapshots = Jest.availInlineSnapshots() && !ReactTestingLibrary.isInit
         this.defaultParams.availStorybook = Storybook.isInit
         this.defaultParams.availMobX = MobX.isInit
     }
