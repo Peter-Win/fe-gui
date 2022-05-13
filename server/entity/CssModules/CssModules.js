@@ -61,7 +61,7 @@ class CssModules {
     }
 
     async getUsedExtensions(WebPack) {
-        const allExts = styleDef.map(({ext}) => ext)
+        const allExts = styleDef.flatMap(({exts}) => exts)
         const avails = await getAvailableExtensions(WebPack, allExts)
         return allExts.filter(ext => !avails.has(ext)).map(ext => `module.${ext}`)
     }
