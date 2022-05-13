@@ -1,5 +1,6 @@
 const { PMgrAbs } = require("./PMgrAbs");
 const {readRows} = require('../sysUtils/textFile')
+const { makeFullName } = require('../fileUtils')
 
 class PMgrYarn extends PMgrAbs {
     makeInstallAll() {
@@ -35,6 +36,7 @@ class PMgrYarn extends PMgrAbs {
             const fname = makeFullName('yarn.lock')
             return findVersionInRows(await readRows(fname), name)
         } catch (e) {
+            console.error(e)
             return null
         }
     }

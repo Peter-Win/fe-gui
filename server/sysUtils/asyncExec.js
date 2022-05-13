@@ -14,7 +14,6 @@ const asyncExec = (command, options) => new Promise((resolve, reject) => {
     }
     exec(command, options, (error, stdout, stderr) => {
         if (error) {
-            // console.error(error)
             reject(new Error(`Can't execute "${command}": ${error.message}`))
         } else {
             resolve({stdout, stderr})
@@ -27,6 +26,7 @@ const asyncExec = (command, options) => new Promise((resolve, reject) => {
  * @param {string|null} name 
  * @param {string} command 
  * @param {object?} options 
+ * @returns {string?} stdout
  */
 const asyncExecShell = async (name, command, options) => {
     const log = (msg, type) => {
@@ -34,10 +34,11 @@ const asyncExecShell = async (name, command, options) => {
     }
     try {
         log(command, 'info')
-        const {stderr} = await asyncExec(command, options)
+        const {stderr, stdout} = await asyncExec(command, options)
         if (stderr) {
             log(stderr, 'warn')
         }
+        return {stdout}
     } catch (e) {
         log(e.message, 'err')
         throw e
