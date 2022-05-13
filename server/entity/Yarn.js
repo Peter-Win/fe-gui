@@ -1,5 +1,4 @@
 const {asyncExecShell} = require('../sysUtils/asyncExec')
-const {wsSendCreateEntity} = require('../wsSend')
 const {makeFullName, isFileExists} = require('../fileUtils')
 const {CommonInfo} = require('../CommonInfo')
 const {PMgrYarn} = require('../packageManagers/PMgrYarn')

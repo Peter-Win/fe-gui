@@ -1,5 +1,6 @@
 const fs = require('fs')
 const {PMgrAbs} = require('./PMgrAbs')
+const { makeFullName } = require('../fileUtils')
 
 class PMgrNpm extends PMgrAbs {
     makeInstallAll() {
