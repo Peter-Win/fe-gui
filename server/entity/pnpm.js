@@ -18,10 +18,7 @@ class Pnpm {
     }
     
     async create() {
-        const {stdout} = await asyncExecShell(this.name, 'npm i -g pnpm --json')
-        console.log('-----')
-        console.log('typeof stdout=', typeof stdout)
-        console.log(stdout)
+        await asyncExecShell(this.name, 'npm i -g pnpm --json')
     }
 
     createManager() {
