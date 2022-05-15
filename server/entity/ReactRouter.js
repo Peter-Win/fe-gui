@@ -24,7 +24,7 @@ class ReactRouter {
     async init() {
         const {entities} = require('./all')
         this.isInit = entities.PackageJson.isDependency('react-router-dom')
-        this.isReady = !this.isInit
+        this.isReady = !this.isInit && entities.React.isInit
     }
 
     /**
