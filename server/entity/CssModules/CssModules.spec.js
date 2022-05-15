@@ -235,27 +235,6 @@ describe('injectRule', () => {
     })
 })
 
-describe('updateDeclarationRows', () => {
-  it('empty', () => {
-    const rows = []
-    const res = updateDeclarationRows(rows, ['css', 'less'])
-    expect(res).to.equal(true)
-    expect(rows.join('\n')).to.equal(`declare module "*.module.css";\ndeclare module "*.module.less";`)
-  })
-  it('partial', () => {
-    const rows = [`declare module "*.module.less";`]
-    const res = updateDeclarationRows(rows, ['css', 'less'])
-    expect(res).to.equal(true)
-    expect(rows.join('\n')).to.equal(`declare module "*.module.less";\ndeclare module "*.module.css";`)
-  })
-  it('empty', () => {
-    const rows = `declare module "*.module.css";\ndeclare module "*.module.less";`.split('\n')
-    const res = updateDeclarationRows(rows, ['css', 'less'])
-    expect(res).to.equal(false)
-    expect(rows.join('\n')).to.equal(`declare module "*.module.css";\ndeclare module "*.module.less";`)
-  })
-})
-
 describe('selectedExtsList', () => {
   const styleDef = [
     { agent: 'CSS', exts: ['css'] },

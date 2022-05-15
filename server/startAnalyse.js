@@ -41,6 +41,7 @@ const startAnalyse = async () => {
                 })
             }, 1000)
         } catch (e) {
+            console.error(e)
             wsSend('statusMessage', {text: e.message, type: 'err'})
         }
     }, 1)

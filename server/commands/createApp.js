@@ -52,6 +52,9 @@ const createApp = async (data) => {
             }
             if (!await createEntity(entities, 'React', params)) return false
             CommonInfo.techVer.framework = await CommonInfo.findPackageVersion('react')
+        } else if (tech.framework === 'Vue') {
+            if (!await createEntity(entities, tech.framework, {})) return false
+
         }
 
         if (tech.vcs.toLowerCase() === 'git') {

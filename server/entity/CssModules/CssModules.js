@@ -1,6 +1,7 @@
 const path = require('path')
 const fs = require('fs')
-const { getAvailableExtensions, installStyleModules, updateDeclaration, selectedExtsList } = require('./CssModules.utils')
+const { getAvailableExtensions, installStyleModules, selectedExtsList } = require('./CssModules.utils')
+const { updateDeclaration } = require('../../sysUtils/updateDeclaration')
 const { CommonInfo } = require('../../CommonInfo')
 const { wsSendCreateEntity } = require('../../wsSend')
 const { installPackageSmart } = require('../../commands/installPackage')
@@ -127,7 +128,8 @@ class CssModules {
             })
         }
         if (transpiler === 'TypeScript') {
-            await updateDeclaration(selectedExtsList(styleDef, params), log)
+            const modulesExts = selectedExtsList(styleDef, params).map(ext => `module.${ext}`)
+            await updateDeclaration(modulesExts, log)
         }
     }
 

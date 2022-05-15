@@ -155,6 +155,25 @@ const findObjectItem = (taxon, key) => {
 }
 
 /**
+ * Доступ к элементу объекта по ключу.
+ * Если элемента нет, то он будет создан
+ * @param {Taxon} taxon 
+ * @param {string} key
+ * @param {Style} style
+ * @param {string=} itemType Тип используется, если надо создать элемент
+ */
+const accessObjectItem = (taxon, key, style, itemType='TxObject') => {
+    if (taxon instanceof TxObject) {
+        if (!(key in taxon.dict)) {
+            const { createTaxonByType } = require('../parser/taxons/all')
+            const item = createTaxonByType(itemType)
+            taxon.addObjectItem(key, item, style)        }
+        return taxon.dict[key]
+    }
+    throw new Error(`Can't access to "${key}" in ${taxon.type}`)
+}
+
+/**
  * Поиск вложенного таксона
  * @param {Taxon} taxon
  * @param {string} path example: 'module.rules'
@@ -243,6 +262,7 @@ module.exports = {
     findAssign, 
     findConfigRoot,
     findObjectItem,
+    accessObjectItem,
     findPath, 
     findRule,
     isLoaderInRule,

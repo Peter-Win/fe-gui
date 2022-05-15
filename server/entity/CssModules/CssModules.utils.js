@@ -8,6 +8,7 @@ const { loadTemplate } = require('../../sysUtils/loadTemplate')
 const { makeFullName, isFileExists } = require('../../fileUtils')
 const { readRows, writeRows } = require('../../sysUtils/textFile')
 const { capitalize } = require('../../parser/stringUtils')
+const { updateDeclarationInTsConfig } = require('../../sysUtils/updateDeclaration')
 
 /**
  * 
@@ -194,10 +195,7 @@ const installStyleModules = async ({
                     typeof item === 'object' && item.name === name)
                 if (!need) compilerOptions.plugins.push({name})
                 // declaration.d.ts
-                config.include = config.include || []
-                if (config.include.indexOf('declaration.d.ts') < 0) {
-                    config.include.push('declaration.d.ts')
-                }
+                updateDeclarationInTsConfig(config)
             }, log)
         }
 
@@ -229,50 +227,6 @@ const installStyleModules = async ({
     return {files, imports}
 }
 
-
-/**
- * Когда используется TypeScript транспилер, то к нему прилагается плагин вебпака css-modules-typescript-loader
- * Этот плагин генерирует для каждого файла <name>.module.<ext> еще один файл <name>.module.<ext>.d.ts
- * Однако, при первой компиляции может вылезать ошибка:
- * ERROR in ...\<name>.tsx
- *    TS2307: Cannot find module './<name>.module.<ext>' or its corresponding type declarations
- * При повторной компиляции ошибка не появляется.
- * Но чтобы она вообще не появлялась, необходимо сделать файл declaration.d.ts
- * PS. Эта фича позволила вообще избавиться от css-modules-typescript-loader и генерации лишних файлов
- * 
- * @param {string[]} extList
- */
-const updateDeclaration = async (extList, log) => {
-    if (extList.length === 0) return
-    const fname = makeFullName('declaration.d.ts')
-    const exists = await isFileExists(fname)
-    const rows = exists ? await readRows(fname) : []
-    if (updateDeclarationRows(rows, extList)) {
-        await writeRows(fname, rows)
-        if (log) log(`${exists ? 'Updated':'Created'} [${extList.join(', ')}] in ${fname}`)
-    }
-}
-
-/**
- * Добавление конструкций типа declare module "*.module.css";
- * Если такие конструкции уже есть, то добавления не происходит
- * @param {string[]} rows строки файла declaration.d.ts
- * @param {string[]} extList список добавляемых расширений: css, less, sass, scss
- * @returns {boolean} true, если произошли изменения
- */
-const updateDeclarationRows = (rows, extList) => {
-    const makeDecl = (ext) => `declare module "*.module.${ext}";`
-    const extSet = new Set(extList)
-    extList.forEach(ext => {
-        if (rows.find(row => row === makeDecl(ext))) extSet.delete(ext)
-    })
-    const newExts = Array.from(extSet)
-    if (newExts.length === 0) return false
-    newExts.forEach(ext => rows.push(makeDecl(ext)))
-    return true
-}
-
-
 module.exports = {
     getAvailableExtensions,
     testModuleTypes,
@@ -280,6 +234,4 @@ module.exports = {
     injectRule,
     installStyleModules,
     selectedExtsList,
-    updateDeclaration,
-    updateDeclarationRows,
 }

@@ -1,6 +1,6 @@
 const fs = require('fs')
 const {CommonInfo} = require('../CommonInfo')
-const {installPackage} = require('../commands/installPackage')
+const {installPackage, installPackageSmart} = require('../commands/installPackage')
 const {makeSrcName, isFileExists} = require('../fileUtils')
 const {wsSend} = require('../wsServer')
 const {buildTemplate} = require('../sysUtils/loadTemplate')
@@ -102,7 +102,14 @@ class React {
     }
 
     async installTS(name) {
-        await installPackage(name, '@types/react @types/react-dom', true)
+        const { entities } = require('./all')
+        await installPackageSmart(name, ['@types/react', '@types/react-dom'], true)
+        await entities.TypeScript.updateConfig(
+            (config) => {
+                config.compilerOptions = config.compilerOptions || {}
+                config.compilerOptions.jsx = "react"
+            }, (msg, t) => wsSendCreateEntity(name, msg, t)
+        )
     }
 }
 

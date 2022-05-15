@@ -12,10 +12,13 @@ const {
   mergeObjectTaxons,
   merge,
   makeRuleRegexp,
-  findConstValueTaxon
+  findConstValueTaxon,
+  accessObjectItem
 } = require('./WebPack.utils')
 const {Taxon} = require('../parser/taxons/Taxon')
 const {TxObject} = require('../parser/taxons/TxObject')
+const {makeTaxonFromData} = require('../parser/makeTaxonFromData')
+const { TxArray } = require('../parser/taxons/TxArray')
 
 describe('find config root', () => {
     it('minimal', () => {
@@ -410,5 +413,38 @@ describe('isLoaderInRule', () => {
     expect(isLoaderInRule(tx, 'css-loader')).to.equal(true)
     expect(isLoaderInRule(tx, 'less-loader')).to.equal(false)
     expect(isLoaderInRule(tx, 'babel-loader')).to.equal(false)
+  })
+})
+
+describe('accessObjectItem', () => {
+  const style = new Style()
+  style.singleQuote = true
+  it('Object with item', () => {
+    const taxon = makeTaxonFromData({ options: {} }, style)
+    const options = accessObjectItem(taxon, 'options', style)
+    expect(options).instanceof(TxObject)
+    expect(options).to.equal(taxon.dict.options)
+  })
+  it('Object without item', () => {
+    const taxon = makeTaxonFromData({ name: 'A' }, style)
+    const options = accessObjectItem(taxon, 'options', style)
+    expect(options).instanceof(TxObject)
+    const chunks = []
+    taxon.exportChunks(chunks, style)
+    expect(formatChunks(chunks, style)).to.equal(`{\n  name: 'A',\n  options: {\n  },\n}`)
+  })
+  it('Object with array item', () => {
+    const taxon = makeTaxonFromData({ list: [ 123 ] }, style)
+    const list = accessObjectItem(taxon, 'list', style, 'TxArray')
+    expect(list).instanceof(TxArray)
+    expect(list).to.equal(taxon.dict.list)
+  })
+  it('Object without array item', () => {
+    const taxon = makeTaxonFromData({ name: 'A' }, style)
+    const list = accessObjectItem(taxon, 'list', style, 'TxArray')
+    expect(list).instanceof(TxArray)
+    const chunks = []
+    taxon.exportChunks(chunks, style)
+    expect(formatChunks(chunks, style)).to.equal(`{\n  name: 'A',\n  list: [\n  ],\n}`)
   })
 })
