@@ -68,28 +68,12 @@ describe('addPreset', () => {
     const dst = `module.exports = {\n  preset: "react",\n};\n`
     compareText(makeCode(moduleTaxon), dst)
   })
-  it('add preset to array', () => {
-    const moduleTaxon = parseCode(`module.exports = { preset: ["first"] }`)
-    addPreset({moduleTaxon, preset: 'second', style})
-    const dst =
-`module.exports = {
-  preset: [
-    "first",
-    "second",
-  ],
-};
-`
-    compareText(makeCode(moduleTaxon), dst)
-  })
-  it('transform const to array', () => {
+  it('overwrite existing preset', () => {
     const moduleTaxon = parseCode(`module.exports = { preset: "first" }`)
     addPreset({moduleTaxon, preset: 'second', style})
     const dst =
 `module.exports = {
-  preset: [
-    "first",
-    "second",
-  ],
+  preset: "second",
 };
 `
     compareText(makeCode(moduleTaxon), dst)
