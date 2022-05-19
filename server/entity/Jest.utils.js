@@ -49,17 +49,6 @@ const addPreset = ({moduleTaxon, preset, style}) => {
     } else {
         rootTaxon.changeObjectItem('preset', 'preset', txPresetName, style)
     }
-    // } else if (txPreset.type === 'TxArray') {
-    //     txPreset.addTaxon(txPresetName)
-    // } else if (txPreset.type === 'TxConst') {
-    //     const {owner} = txPreset
-    //     if (owner.type === 'TxObject') {
-    //         const txArr = new TxArray()
-    //         txArr.addTaxon(txPreset)
-    //         txArr.addTaxon(txPresetName)
-    //         owner.changeObjectItem('preset', 'preset', txArr, style)
-    //     }
-    // }
 }
 
 /**

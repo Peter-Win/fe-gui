@@ -77,7 +77,7 @@ class Vue {
             if (config.compilerOptions) {
                 // to prevent TS5095: Option 'preserveValueImports' can only be used when 'module' is set to 'es2015' or later.
                 delete config.compilerOptions.module
-                
+                // clear target, because it inherited from @vue/tsconfig
                 delete config.compilerOptions.target
             }
             updateDeclarationInTsConfig(config)
