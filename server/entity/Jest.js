@@ -145,9 +145,15 @@ ${this.availInlineSnapshots() ? `
 
         if (params.example) {
             const ext = CommonInfo.getExtension('logic')
+            const t = (value) => CommonInfo.tech.language === 'TypeScript' ? value : ''
+            const fnParams = {
+                typeDecl1: t(': number'),
+                type2: t('<T>'),
+                typeDecl2: t(': T[]'),
+            }
             const exampleFn = makeSrcName('jestExample.' + ext)
             const exampleTest = makeSrcName('jestExample.test.' + ext)
-            await buildTemplate(`jestExample.${ext}`, exampleFn)
+            await buildTemplate(`jestExample.js`, exampleFn, fnParams)
             await buildTemplate(`jestExample.test.js`, exampleTest)
             wsSend('createEntityMsg', {name: this.name, message: `Example code: ${exampleTest}`})
             if (CommonInfo.tech.framework === 'React') {

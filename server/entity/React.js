@@ -5,6 +5,7 @@ const {makeSrcName, isFileExists} = require('../fileUtils')
 const {wsSend} = require('../wsServer')
 const {buildTemplate} = require('../sysUtils/loadTemplate')
 const { wsSendCreateEntity } = require('../wsSend')
+const { addType } = require('../sysUtils/tsConfig')
 
 const getReactHiVer = async () => {
     const ver = await CommonInfo.findPackageVersion('react')
@@ -108,6 +109,8 @@ class React {
             (config) => {
                 config.compilerOptions = config.compilerOptions || {}
                 config.compilerOptions.jsx = "react"
+                // to prevent errors: new Set, Array.from,  Cannot find name 'Iterable', etc
+                addType(config, 'node')
             }, (msg, t) => wsSendCreateEntity(name, msg, t)
         )
     }

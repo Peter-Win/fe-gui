@@ -1,5 +1,5 @@
 const { makeFullName, isFileExists } = require('../fileUtils')
-const { writeRows } = require('../sysUtils/textFile')
+const { readRows, writeRows } = require('../sysUtils/textFile')
 
 const shortDeclarationName = 'declaration.d.ts'
 

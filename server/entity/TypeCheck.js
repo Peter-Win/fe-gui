@@ -3,6 +3,7 @@
  * it will be useful to use TypeScript for type checking.
  * See https://www.typescriptlang.org/docs/handbook/babel-with-typescript.html
  */
+const { installPackageSmart } = require('../commands/installPackage')
 const {CommonInfo} = require('../CommonInfo')
 const { wsSendCreateEntity } = require('../wsSend')
 
@@ -36,22 +37,29 @@ class TypeCheck {
     async create(params) {
         const {createEntity} = require('../commands/createEntity')
         const {entities} = require('../entity/all')
-        const {TypeScript, PackageJson, React} = entities
+        const {TypeScript, PackageJson, React, Vue} = entities
+        const log = (msg, t) => wsSendCreateEntity(this.name, msg, t)
         // install non-primary TypeScript
-        wsSendCreateEntity(this.name, `Wait for TypeScript install...`)
+        log(`Wait for TypeScript install...`)
         await createEntity(entities, TypeScript.name, {isPrimary: false})
 
+        let tsc = 'tsc'
         if (React.isInit) {
             await React.installTS(this.name)
+        }
+        if (Vue.isInit) {
+            tsc = 'vue-tsc'
+            await Vue.installTS(TypeScript, log, this.name)
+            await installPackageSmart(this.name, [tsc])
         }
 
         await PackageJson.update(() => {
             const {scripts} = PackageJson.data
-            scripts[params.scriptName] = 'tsc --noEmit';
+            scripts[params.scriptName] = `${tsc} --noEmit`;
             if (params.useWatch) {
-                scripts[params.watchScriptName] = 'tsc --noEmit --watch';
+                scripts[params.watchScriptName] = `${tsc} --noEmit --watch`;
             }
-        }, (msg, t) => wsSendCreateEntity(this.name, msg, t))
+        }, log)
     }
 
     upgradeFormType = 'TypeCheck'
