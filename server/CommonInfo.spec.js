@@ -43,3 +43,33 @@ describe('CommonInfo', () => {
         expect(CommonInfo.getPreferStyler()).to.equal('LESS')
     })
 })
+
+describe('makeCodeExts', () => {
+    let oldTech
+    beforeEach(() => {
+        oldTech = JSON.stringify(CommonInfo.tech)
+    })
+    afterEach(() => {
+        CommonInfo.tech = JSON.parse(oldTech)
+    })
+    it('JavaScript', () => {
+        CommonInfo.tech = { language: 'JavaScript' }
+        expect(CommonInfo.makeCodeExts()).to.eql(new Set(['js']))
+    })
+    it('React+JS', () => {
+        CommonInfo.tech = { language: 'JavaScript', framework: 'React' }
+        expect(CommonInfo.makeCodeExts()).to.eql(new Set(['js', 'jsx']))
+    })
+    it('React+TS', () => {
+        CommonInfo.tech = { language: 'TypeScript', framework: 'React' }
+        expect(CommonInfo.makeCodeExts()).to.eql(new Set(['ts', 'tsx']))
+    })
+    it('Vue+JS', () => {
+        CommonInfo.tech = { language: 'JavaScript', framework: 'Vue' }
+        expect(CommonInfo.makeCodeExts()).to.eql(new Set(['js', 'jsx', 'vue']))
+    })
+    it('Vue+TS', () => {
+        CommonInfo.tech = { language: 'TypeScript', framework: 'Vue' }
+        expect(CommonInfo.makeCodeExts()).to.eql(new Set(['ts', 'tsx', 'vue']))
+    })
+})
