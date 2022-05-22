@@ -111,6 +111,9 @@ class CommonInfo {
         return ext
     }
 
+    /**
+     * @deprecated use getCodeExts
+     */
     static getExtsList() {
         const exts = {js:1}
         exts[CommonInfo.getExtension('logic')] = 1
@@ -136,6 +139,28 @@ class CommonInfo {
      */
     static async findPackageVersion(name) {
         return CommonInfo.packageManager.findPackageVersion(name)
+    }
+
+    /**
+     * 
+     * @param {Record<string, {isInit: boolean}>} entities 
+     * @returns {Set<string>} example: {'js', 'ts', 'tsx'}
+     */
+    static makeCodeExts() {
+        const result = new Set()
+        const { tech } = CommonInfo
+        const isTS = tech.language === 'TypeScript'
+        result.add(isTS ? 'ts' : 'js')
+        switch (tech.framework) {
+            case 'React':
+                result.add(isTS ? 'tsx' : 'jsx')
+                break
+            case 'Vue':
+                result.add('vue')
+                result.add(isTS ? 'tsx' : 'jsx')
+                break
+        }
+        return result
     }
 }
 

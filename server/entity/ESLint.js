@@ -1,9 +1,10 @@
 'use strict'
 const fs = require('fs')
-const { installPackage } = require('../commands/installPackage')
+const { installPackageSmart } = require('../commands/installPackage')
 const { makeFullName } = require('../fileUtils')
 const { CommonInfo } = require('../CommonInfo')
 const { wsSend } = require('../wsServer')
+const { wsSendCreateEntity } = require('../wsSend')
 
 // Awesome eslint
 // https://github.com/dustinspecker/awesome-eslint
@@ -104,7 +105,10 @@ class ESLint {
             packages.add('@typescript-eslint/eslint-plugin')
             packages.add('@typescript-eslint/parser ')
             this.addPlugin(config, "@typescript-eslint")
-            config.parser = '@typescript-eslint/parser'
+
+            if (CommonInfo.tech.framework !== 'Vue') {
+                config.parser = '@typescript-eslint/parser'
+            }
 
             // Если не отключить no-unused-vars, то будут ошибки там где их быть не должно.
             // Например interface { fun(param: string): void; }
@@ -130,7 +134,21 @@ class ESLint {
                 }],
             )            
         }
-
+        if (CommonInfo.tech.framework === "Vue") {
+            packages.add("eslint-plugin-vue");
+            packages.add("@rushstack/eslint-patch");
+            if (params.prettier) {
+              packages.add("@vue/eslint-config-prettier");
+              this.addExtend(config, "@vue/eslint-config-prettier");
+            }
+            if (CommonInfo.tech.language === "TypeScript") {
+              packages.add("@vue/eslint-config-typescript");
+              this.addExtend(config, "@vue/eslint-config-typescript/recommended");
+            }
+            this.addExtend(config, "plugin:vue/vue3-essential");
+            config.env["vue/setup-compiler-macros"] = true;
+        }
+      
         if (params.airbnb) {
             if (CommonInfo.tech.framework === 'React') {
                 packages
@@ -187,15 +205,13 @@ class ESLint {
             ])
         }
 
-        for (const packageName of Array.from(packages)) {
-            await installPackage(this.name, packageName)
-        }
+        await installPackageSmart(this.name, Array.from(packages))
 
-        wsSend('createEntityMsg', { name: this.name, message: 'Create config ' + this.getConfigName() })
+        wsSendCreateEntity(this.name, 'Create config ' + this.getConfigName())
         await this.saveConfig(config)
 
         if (packages.has('prettier')) {
-            wsSend('createEntityMsg', { name: this.name, message: 'Add prettier badge to README.md' })
+            wsSendCreateEntity(this.name, 'Add prettier badge to README.md')
             const badge = '[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)'
             await Readme.update(lines => Readme.addBadge(lines, badge))
         }
@@ -203,9 +219,8 @@ class ESLint {
         // Scripts
         if (params.useCheck || params.useFix) {
             wsSend('createEntityMsg', { name: this.name, message: 'Update scripts in package.json' })
-            const extList = CommonInfo.getExtsList()
-            const exts = extList.length === 1 ? extList[0] : `{${extList.join(',')}}`
-            const eslintCmd = `eslint "src/**/*.${exts}"`
+            const exts = Array.from(CommonInfo.makeCodeExts()).map(ext => `.${ext}`).join(',')
+            const eslintCmd = `eslint ./src --ext ${exts}`
             await PackageJson.update(pj => {
                 if (params.useCheck) {
                     pj.addScript(params.cmdCheck, eslintCmd)
