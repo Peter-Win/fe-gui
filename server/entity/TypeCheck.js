@@ -40,8 +40,10 @@ class TypeCheck {
         const {TypeScript, PackageJson, React, Vue} = entities
         const log = (msg, t) => wsSendCreateEntity(this.name, msg, t)
         // install non-primary TypeScript
-        log(`Wait for TypeScript install...`)
-        await createEntity(entities, TypeScript.name, {isPrimary: false})
+        if (!TypeScript.isInit) {
+            log(`Wait for TypeScript install...`)
+            await createEntity(entities, TypeScript.name, {isPrimary: false})
+        }
 
         let tsc = 'tsc'
         if (React.isInit) {

@@ -5,6 +5,7 @@ const { makeFullName } = require('../fileUtils')
 const { CommonInfo } = require('../CommonInfo')
 const { wsSend } = require('../wsServer')
 const { wsSendCreateEntity } = require('../wsSend')
+const { createEntity } = require('../commands/createEntity')
 
 // Awesome eslint
 // https://github.com/dustinspecker/awesome-eslint
@@ -23,7 +24,7 @@ class ESLint {
     }
 
     async init() {
-        const { entities: { PackageJson } } = require('./all')
+        const { entities: { PackageJson }, entities } = require('./all')
         this.isInit = PackageJson.isDevDependency('eslint')
         if (this.isInit) {
             CommonInfo.tech.codeStyle = this.name
@@ -77,8 +78,10 @@ class ESLint {
     }
 
     async create(params) {
-        const { entities: { Readme, PackageJson } } = require('./all')
+        const { entities } = require('./all')
+        const { Readme, PackageJson, TypeScript } = entities
         const config = {
+            root: true,
             env: { browser: true, commonjs: true },
             globals: {
                 // globalThis used for Jest+React18: globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -91,6 +94,7 @@ class ESLint {
         // TODO: Пока безусловно. Но могут выявиться ситуации, когда он не нужен
 
         const packages = new Set(['eslint'])
+        const isVue = CommonInfo.tech.framework === 'Vue'
 
         // К сожалению, TypeScript транспилируемый через Babel, не поддерживается. Поэтому используется tsc
         // https://www.npmjs.com/package/@babel/eslint-parser#typescript
@@ -101,12 +105,15 @@ class ESLint {
         // type-aware, which is something Babel doesn't have the ability to do.
 
         if (CommonInfo.tech.language === 'TypeScript') {
-            if (CommonInfo.tech.transpiler === 'Babel') packages.add('typescript')
+            if (CommonInfo.tech.transpiler !== TypeScript.name && !TypeScript.isInit) {
+                await createEntity(entities, TypeScript.name, {isPrimary: false})
+            }
             packages.add('@typescript-eslint/eslint-plugin')
-            packages.add('@typescript-eslint/parser ')
             this.addPlugin(config, "@typescript-eslint")
 
-            if (CommonInfo.tech.framework !== 'Vue') {
+            if (!isVue) {
+                // Без Vue он нужен, а с ним - нет
+                packages.add('@typescript-eslint/parser')
                 config.parser = '@typescript-eslint/parser'
             }
 
@@ -117,8 +124,10 @@ class ESLint {
             this.addRule(config, "no-unused-vars", "off")
             this.addRule(config, "@typescript-eslint/no-unused-vars", ["error"])
         } else if (CommonInfo.tech.transpiler === 'Babel') {
-            packages.add('@babel/eslint-parser')
-            config.parser = '@babel/eslint-parser'
+            if (!isVue) {
+                packages.add('@babel/eslint-parser')
+                config.parser = '@babel/eslint-parser'
+            }
         }
         if (CommonInfo.tech.framework === 'React') {
             packages.add('eslint-plugin-react').add('eslint-plugin-react-hooks')
