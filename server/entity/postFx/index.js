@@ -1,4 +1,5 @@
 const {aliasesJest} = require('./aliasesJest')
+const {esLintRTL} = require('./esLintRTL')
 const {jestStandard} = require('./jestStandard')
 const {jestESLint} = require('./jestESLint')
 const {jestSwc} = require('./jestSwc')
@@ -21,6 +22,7 @@ const postFx = [
     {ids: ['CssModules', 'Jest'], fn: cssModulesJest},
     {ids: ['CssModules', 'LESS'], fn: cssModulesLess},
     {ids: ['ESLint', 'Git'], fn: gitIgnoreUpdate},
+    {ids: ['ESLint', 'ReactTestingLibrary'], fn: esLintRTL},
     {ids: ['ESLint', 'Storybook'], fn: storybookESLint},
     {ids: ['Git', 'Jest'], fn: gitIgnoreUpdate},
     {ids: ['Jest', 'ESLint'], fn: jestESLint},
