@@ -22,6 +22,12 @@ const updateMainFrame = (rows, type, imgId, shortName) => {
  * @returns {Promise<void>} 
  */
  const createAssetExample = async (partName, type) => {
+    const mainFrameName = makeSrcName(`MainFrame.${CommonInfo.getExtension('render')}`)
+    if (! await isFileExists(mainFrameName)) {
+        wsSendCreateEntity(partName, `Example for ${type} is not supported for current framework`, 'warn')
+        return
+    }
+
     const imgId = `${type}Image`
     const shortName = `${imgId}.${type}`
 
@@ -37,7 +43,6 @@ const updateMainFrame = (rows, type, imgId, shortName) => {
     wsSendCreateEntity(partName, `Created example file: ${dstName}`)
 
     // Модифицировать src/MainFrame
-    const mainFrameName = makeSrcName(`MainFrame.${CommonInfo.getExtension('render')}`)
     const rows = await readRows(mainFrameName)
 
     await writeRows(mainFrameName, updateMainFrame(rows, type, imgId, shortName))
