@@ -108,6 +108,10 @@ class CommonInfo {
         if (type === 'render' && (tech.framework || '').startsWith('React')) {
             ext += 'x'
         }
+        // К сожалению, кое-где уже ожидается файл типа jsx/tsx. Если оставить vue, будут ошибки.
+        // if (type === 'render' && tech.framework === 'Vue') {
+        //     ext = 'vue'
+        // }
         return ext
     }
 

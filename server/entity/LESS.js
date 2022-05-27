@@ -35,10 +35,7 @@ class LESS {
         // webpack
         const webpackInjection = await loadTemplate('lessForWebpack.js')
         await WebPack.setPart(webpackInjection)
-
-        if (CommonInfo.getPreferStyler() === 'LESS') {
-            await this.checkStyleLess((msg) => wsSendCreateEntity(this.name, msg))
-        }
+        await this.checkStyleLess((msg) => wsSendCreateEntity(this.name, msg))
         this.isInit = true
         await CssModules.init()
     }
@@ -75,8 +72,11 @@ class LESS {
             if (log) log(`Created ${fullName}`)
 
             // Нужно внедрить импорт стиля в App.?sx
+            const dstName = CommonInfo.tech.framework === 'Vue'
+                ? `index.${CommonInfo.getExtension('logic')}`
+                : `App.${CommonInfo.getExtension('render')}`
             await injectStyleImport({
-                dstFileName: makeSrcName(`App.${CommonInfo.getExtension('render')}`),
+                dstFileName: makeSrcName(dstName),
                 styleNameForImport: `./${shortName}`,
                 log
             })
