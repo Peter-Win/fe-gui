@@ -414,6 +414,17 @@ describe('isLoaderInRule', () => {
     expect(isLoaderInRule(tx, 'less-loader')).to.equal(false)
     expect(isLoaderInRule(tx, 'babel-loader')).to.equal(false)
   })
+  it('use loader', () => {
+    const source = 
+    `{
+      test: /\.tsx?$/,
+      loader: 'ts-loader',
+      exclude: /node_modules/,
+    }`
+    const node = parseExpression(ReaderCtx.fromText(source))
+    const tx = node.createTaxon()
+    expect(isLoaderInRule(tx, 'ts-loader')).to.equal(true)
+  })
 })
 
 describe('accessObjectItem', () => {

@@ -27,20 +27,33 @@ class Vue {
         const { createEntity } = require('../../commands/createEntity')
 
         const { entities } = require('../all')
-        const { WebPack, TypeScript, CSS } = entities
+        const { WebPack, TypeScript, CSS, Babel } = entities
         const log = (msg, t) => wsSendCreateEntity(this.name, msg, t)
-        const isTS = CommonInfo.tech.transpiler === 'TypeScript'
+        const {tech} = CommonInfo
+        const isTS = tech.transpiler === 'TypeScript'
 
         if (!CSS.isInit) {
             await createEntity(entities, CSS.name, {})
         }
+        
+        let babelPreset = ''
+        const devDepends = ['vue-loader', 'vue-template-compiler', 'vue-style-loader']
+        if (tech.language === 'TypeScript' && tech.transpiler === 'Babel') {
+            // otherwise <script setup lang="ts"> dont work with Babel transpiler
+            babelPreset = 'babel-preset-typescript-vue3'
+            devDepends.push(babelPreset);
+        }
 
         await installPackageSmart(this.name, [vuePkName], false)
-        await installPackageSmart(this.name, ['vue-loader', 'vue-template-compiler', 'vue-style-loader'])
+        await installPackageSmart(this.name, devDepends)
         
         // webpack.config:
         await updateWebpack({ WebPack, isTS })
         log(`Updated ${WebPack.getConfigName()}`)
+
+        if (babelPreset) {
+            await Babel.updatePreset(babelPreset)
+        }
 
         if (isTS) {
             await this.installTS(TypeScript, log, this.name)
@@ -55,8 +68,8 @@ class Vue {
             techDescr += ` + ${CommonInfo.tech.language}`
         }
         const {title} = CommonInfo.extParams
-        const lang = CommonInfo.tech.language === 'TypeScript' ? 'ts' : 'js'
-        const tmParams = {techDescr, title, lang}
+        const langAttr = CommonInfo.tech.language === 'TypeScript' ? ` lang="ts"` : ''
+        const tmParams = {techDescr, title, langAttr}
 
         const appName = makeSrcName(`App.vue`)
         await buildTemplate('App.vue', appName, tmParams)

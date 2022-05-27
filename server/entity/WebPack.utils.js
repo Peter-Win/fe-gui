@@ -212,6 +212,9 @@ const findRule = (sourceTaxon, name, exclude) => {
 const isLoaderInRule = (ruleTaxon, loaderName) => {
     if (!ruleTaxon || ruleTaxon.type !== 'TxObject') return false
     const isConst = (tx) => tx && tx.type === 'TxConst' && tx.constType === 'string' && fromQuoted(tx.constValue) === loaderName
+    if (isConst(ruleTaxon.dict.loader)) {
+        return true
+    }
     const txUse = ruleTaxon.dict.use
     if (!txUse) return false
     if (isConst(txUse)) {

@@ -14,10 +14,12 @@ class AntdLayout {
     locales = []
 
     async init() {
-        const {entities: {Antd}} = require('../all')
+        const {entities: {Antd, React}} = require('../all')
         this.isInit = false
         this.isReady = false
         if (!Antd.isInit) return
+        // Временно только для React
+        if (!React.isInit) return
         const mfName = makeSrcName(`MainFrame.${CommonInfo.getExtension('render')}`)
         if (await isFileExists(mfName)) {
             // Будем считать, что если в файле MainFrame.?sx используется Layout, значит сущность инициализирована
@@ -27,7 +29,7 @@ class AntdLayout {
         this.isReady = !this.isInit
         if (this.isReady) {
             // read locales list
-            const dirName = makeFullName('node_modules/antd/lib/locale');
+            const dirName = makeFullName(`node_modules/${Antd.lib}/lib/locale`);
             const files = await fs.promises.readdir(dirName);
             this.locales = files.filter(f => /^[a-z]{2}_[A-Z]{2}\.js$/.test(f)).map(f => f.split('.')[0])
         }

@@ -1,6 +1,6 @@
 const fs = require('fs')
 const {CommonInfo} = require('../CommonInfo')
-const {installPackage} = require('../commands/installPackage')
+const {installPackageSmart} = require('../commands/installPackage')
 const {injectImport} = require('../parser/injectImport')
 const {makeSrcName, makeTemplateName, isFileExists} = require('../fileUtils')
 const {wsSend} = require('../wsServer')
@@ -11,17 +11,32 @@ const {parseExpression} = require('../parser/parseExpression')
 const {ReaderCtx} = require('../parser/ReaderCtx')
 const { wsSendCreateEntity } = require('../wsSend')
 
+const reactLib = 'antd'
+const vueLib = 'ant-design-vue'
+
 class Antd {
     name = 'Antd'
     depends = ['React']
     isInit = false
     isReady = false
+    fw = '' // 'React' | 'Vue'
+    lib = '' // reactLib | vueLib
 
     async init() {
-        const {entities: {PackageJson}} = require('./all')
-        this.isInit = PackageJson.isDependency('antd')
+        const {entities: {PackageJson, React, Vue}} = require('./all')
+        const forReact = PackageJson.isDependency(reactLib)
+        const forVue = PackageJson.isDependency(vueLib)
+        this.isInit = forReact || forVue
         if (!this.isInit) {
-            this.isReady = CommonInfo.tech.framework === 'React'
+            this.isReady = React.isInit || Vue.isInit
+            if (React.isInit) {
+              this.fw = 'React'
+              this.lib = reactLib
+            }
+            if (Vue.isInit) {
+              this.fw = 'Vue'
+              this.lib = vueLib
+            }
         }
     }
 
@@ -32,10 +47,14 @@ class Antd {
             await createEntity(entities, LESS.name, {})
         }
 
-        await installPackage(this.name, 'antd', false)
+        const onFW = (dict) => dict[this.fw] || ''
+
+        const packages = [onFW({ Vue: vueLib, React: reactLib})]
         if (params.icons) {
-            await installPackage(this.name, '@ant-design/icons', false)
+          packages.push(onFW({React: '@ant-design/icons', Vue: '@ant-design/icons-vue'}))
         }
+
+        await installPackageSmart(this.name, packages, false)
 
         // Необходимо модифицировать правило для less, чтобы избежать ошибки компиляции less-файлов ant
         const configTaxon = await WebPack.loadConfigTaxon()
@@ -59,7 +78,7 @@ class Antd {
 
         // Необходимо внедрить импорт стилей в файл приложения
         const antdStyles = [
-            "@import '~antd/dist/antd.less'; // Import Ant Design styles by less entry",
+            `@import '~${this.lib}/dist/antd.less'; // Import Ant Design styles by less entry`,
             "",
             "@primary-color: @blue-base; // primary color for all components",
         ]
@@ -80,18 +99,24 @@ class Antd {
         icons: true,
     }
 
-    description = `
-<div style="display: flex; align-items: center">
-  <img alt="logo" src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg" width="32" />
+    get description() {
+      return `
+<div style="display: flex; align-items: center; margin-bottom: 1.3rem;">
+  <img alt="logo" src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg" width="36" />
+  <span style="padding: 0 .4em; font-size: 150%; color: gray;">+</span>
+  ${this.fw === 'Vue' ? 
+  `<img width="34" src="https://qn.antdv.com/vue.png">`: 
+  `<img width="38" src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg">`}
   <span style="color:black; margin-left: .5em; font-size: 26px; font-weight: bold;">Ant Design</span>
 </div>
 <p>
   A design system for enterprise-level products. Create an efficient and enjoyable work experience.
 </p>
 <p>
-  <a href="https://ant.design" target="_blank">Official site</a>
+  <a href="${this.fw === 'Vue' ? 'https://antdv.com': 'https://ant.design'}" target="_blank">Official site</a>
 </p>
 `
+    }
     controls = `
 <div class="rn-ctrl" data-name="icons" data-type="Checkbox" data-title="Install icons library"></div>
 `

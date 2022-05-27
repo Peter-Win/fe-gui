@@ -1,4 +1,4 @@
-<script setup lang="<%= lang %>">
+<script setup<%= langAttr %>>
 </script>
 
 <template>
