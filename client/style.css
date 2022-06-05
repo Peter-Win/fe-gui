@@ -176,6 +176,8 @@ h1 {
     font-size: 90%;
     color: #555;
     padding: .6em 0;
+    max-height: 200px;
+    overflow: auto;
 }
 .package-version {
     padding: .6em 0;
@@ -196,4 +198,26 @@ h1 {
 .package-link-box {
     display: inline-block;
     margin: 0 .6em;
+}
+
+.loader {
+    display: block;
+    height: 10px;
+    animation: progress-bar-stripes 2s linear infinite;
+    background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+    background-size: 40px 40px;
+    background-color: #8bc540;
+    box-shadow: inset 0 -1px 0 rgb(0 0 0 / 15%);
+    transition: width .6s ease;
+}
+/* WebKit */
+@-webkit-keyframes progress-bar-stripes {
+    from  { background-position: 40px 0; }
+    to    { background-position: 0 0; }
+}
+
+/* Spec and IE10+ */
+@keyframes progress-bar-stripes {
+    from  { background-position: 40px 0; }
+    to    { background-position: 0 0; }
 }

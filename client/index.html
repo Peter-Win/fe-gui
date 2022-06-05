@@ -162,6 +162,9 @@
             <h2>Add package</h2>
             <div class="rn-form add-package-frame" data-name="addPackage" data-type="AddPackage">
                 <div class="rn-ctrl" data-name="packageName" data-type="String" data-title="Package name"></div>
+                <div id="package-wait" style="display: none">
+                    <div class="loader" style="margin-top: 5px;"></div>
+                </div>
                 <div class="rn-ctrl" data-name="dev" data-type="Checkbox" data-title="Dev dependency"></div>
                 <div class="rn-ctrl" data-name="types" data-type="Checkbox" data-title="Install @types" data-value0="true"></div>
                 <div id="found-packages"></div>
