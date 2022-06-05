@@ -93,6 +93,32 @@ const parseExpression = (reader, stoppers = [], options = {}) => {
     let state = 'start'
     let isNewLine = false
     let curStopper = ''
+    /**
+     * 
+     * @param {ParserNode} node 
+     * @param {ParserNode[]} argNodes 
+     */
+    const onArrow = (node, argNodes) => {
+        node.lexType = 'id'
+        node.value = '=>'
+        node.txType = 'TxArrowFunc'
+        const fnArgs = new ParserNode(Lex.empty, 'TxArguments')
+        node.args = [fnArgs]
+        fnArgs.args = argNodes
+        const nextLexem = reader.getNextLexem()
+        if (nextLexem && Lex.isEqual(nextLexem, Lex.cmd('{'))) {
+            // Full form with block
+            const fnBody = new ParserNode(Lex.cmd('{'), 'TxBody')
+            node.args.push(fnBody)
+            const [brLex] = skipSpaces(reader)
+            if (!brLex || brLex.value !== '{') reader.error('Expected "{"')
+            fnBody.args = parseBody(reader, '}')
+        } else {
+            // Short form with expression
+            node.args.push(parseExpression(reader, stoppers))
+        }
+    }
+
     while (true) {
         const lex = reader.readLexem()
         if (!lex) {
@@ -142,26 +168,8 @@ const parseExpression = (reader, stoppers = [], options = {}) => {
                 const argNodes = parseExprList(reader, ')', [','], {canEmpty: true})
                 const arrLexem = reader.getNextLexem()
                 if (arrLexem && Lex.isEqual(arrLexem, Lex.cmd('=>'))) {
-                    node.args = argNodes
-                    node.lexType = 'id'
-                    node.value = '=>'
-                    node.txType = 'TxArrowFunc'
-                    skipSpaces(reader) // =>
-                    const fnArgs = new ParserNode(Lex.empty, 'TxArguments')
-                    node.args = [fnArgs]
-                    fnArgs.args = argNodes
-                    const nextLexem = reader.getNextLexem()
-                    if (nextLexem && Lex.isEqual(nextLexem, Lex.cmd('{'))) {
-                        // Full form with block
-                        const fnBody = new ParserNode(Lex.cmd('{'), 'TxBody')
-                        node.args.push(fnBody)
-                        const [brLex] = skipSpaces(reader)
-                        if (!brLex || brLex.value !== '{') reader.error('Expected "{"')
-                        fnBody.args = parseBody(reader, '}')
-                    } else {
-                        // Short form with expression
-                        node.args.push(parseExpression(reader, stoppers))
-                    }        
+                    skipSpaces(reader)
+                    onArrow(node, argNodes)
                 } else if (argNodes.length === 1) {
                     node.initOp(reader)
                     node.args.push(argNodes[0])
@@ -217,16 +225,26 @@ const parseExpression = (reader, stoppers = [], options = {}) => {
                 node.args.push(midArg)
                 state = 'start'
             } else if (node.isOp()) {
-                // бинарный оператор или точка или постфикс
-                if (node.value === '++' || node.value === '--') {
-                    node.opcode = '#'+node.value
+                // бинарный оператор или точка или постфикс или стрелочная ф. с параметром без скобок
+                if (node.value == '=>') {
+                    const param = args.pop();
+                    if (!param || param.txType !== 'TxName') {
+                        reader.error('Expected parameter of an arrow function');
+                    }
+                    onArrow(node, [param]);
+                    args.push(node);
+                    state = 'postArg';
+                } else {
+                    if (node.value === '++' || node.value === '--') {
+                        node.opcode = '#'+node.value
+                    }
+                    if (!node.initOp(reader, asi && isNewLine)) {
+                        reader.backToBeginOfLine()
+                        curStopper = ';'
+                        break
+                    }
+                    checkPrior(node, ops, args, reader)
                 }
-                if (!node.initOp(reader, asi && isNewLine)) {
-                    reader.backToBeginOfLine()
-                    curStopper = ';'
-                    break
-                }
-                checkPrior(node, ops, args, reader)
                 state = 'start'
             } else {
                 if (asi && isNewLine) {
