@@ -104,6 +104,11 @@ describe('parseExpression', () => {
         }
         expect(reader.getNextLexem()).to.eql(Lex.cmd('=>'))
     })
+    it('arrow function without brackets', () => {
+        expect(testStr('first => second.toString(),', [','])).to.equal(
+            'TxArrowFunc:=> (TxArguments: (TxName:first), TxFnCall:call (TxBinOp:. (TxName:second, TxName:toString)))'
+        );
+    })
     it('ternop', () => {
         expect(testStr('a < c ? first : second')).to.equal(
             'TxTernOp:? (TxBinOp:< (TxName:a, TxName:c), TxName:first, TxName:second)')

@@ -36,7 +36,7 @@ class ParserNode {
     toString() {
         let s = `${this.txType}:${this.value}`
         if (this.args.length > 0) {
-            s += ` (${this.args.map(a => a.toString()).join(', ')})`
+            s += ` (${this.args.map(a => a ? a.toString() : 'undefined').join(', ')})`
         }
         return s
     }

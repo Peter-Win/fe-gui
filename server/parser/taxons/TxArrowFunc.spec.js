@@ -27,4 +27,18 @@ describe('TxArrowFunc', () => {
         const dst = '(x, y) => {\n  const x2 = x * x, y2 = y * y;\n  return x2 + y2;\n}'
         expect(write(parse(src), false)).to.equal(dst)
     })
+    it('single param without brackets, short form', () => {
+        const src = 'value => value.toString()'
+        const dst = '(value) => value.toString()'
+        expect(write(parse(src), false)).to.equal(dst)
+    })
+    it('single param without brackets, with body', () => {
+        const src = 'x => { const y = x*2 + 1; print(y); }'
+        const dst = 
+`(x) => {
+  const y = x * 2 + 1;
+  print(y);
+}`
+        expect(write(parse(src), false)).to.equal(dst)
+    })
 })
