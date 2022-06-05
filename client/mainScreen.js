@@ -127,7 +127,12 @@ Rn.F.AddPackage = function () {
         ctrlTypes.show(visTypes);
         $('<hr>').appendTo($box);
         $('<div>').addClass('page-version').appendTo($box).text('Version: '+curPackage.version);
-        $('<div>').addClass('package-description').appendTo($box).text(curPackage.description);
+        var desc = curPackage.description;
+        var $pdescr = $('<div>').addClass('package-description').appendTo($box).text(desc);
+        if (/^<img(\s+[-a-z\d]+=".*")*\s*\/>$/i.test(desc)) {
+            $pdescr.html(desc);
+            $('img', $pdescr).css('max-width', '100%');
+        }
 
         var linkBox = $('<div>').appendTo($box);
         Object.keys(curPackage.links || {}).forEach(function (key, i){
@@ -141,6 +146,7 @@ Rn.F.AddPackage = function () {
         });
     }
     this.drawList = function (list) {
+        $('#package-wait').hide();
         var form = this;
         form.curList = list;
         form.ctrls.dev.show(0);
@@ -166,6 +172,7 @@ Rn.F.AddPackage = function () {
                     this.drawList(list);
                 } else {
                     wsSend('searchPackagesList', name);
+                    $('#package-wait').show();
                 }
             } else {
                 this.curName = '';
