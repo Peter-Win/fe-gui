@@ -1,14 +1,20 @@
 /**
  * Jest and ESLint
  */
-const { wsSend } = require('../../wsServer')
+const {ruleNoExtraDepends} = require('../../sysUtils/esLintUtils')
+const { wsSendCreateEntity } = require('../../wsSend')
+
 module.exports.jestESLint = async (name, entities) => {
     const { ESLint } = entities
 
-    wsSend('createEntityMsg', { name: this.name, message: 'Update ESLint config' })
+    wsSendCreateEntity(name, 'Update ESLint config')
     await ESLint.updateConfig(config => {
         config.env = config.env || {}
         config.env.jest = true
+
+        // See https://github.com/Peter-Win/fe-gui/issues/40
+        ruleNoExtraDepends(config, (msg) => wsSendCreateEntity(name, msg))
+
         return config
     })
 }
