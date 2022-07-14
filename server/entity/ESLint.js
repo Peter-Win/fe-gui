@@ -117,12 +117,22 @@ class ESLint {
                 config.parser = '@typescript-eslint/parser'
             }
 
-            // Если не отключить no-unused-vars, то будут ошибки там где их быть не должно.
-            // Например interface { fun(param: string): void; }
-            // Здесь ошибочно будет указывать, что param объявлен, но не используется
-            // See https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md
-            this.addRule(config, "no-unused-vars", "off")
-            this.addRule(config, "@typescript-eslint/no-unused-vars", ["error"])
+            const rules = [
+                // Если не отключить no-unused-vars, то будут ошибки там где их быть не должно.
+                // Например interface { fun(param: string): void; }
+                // Здесь ошибочно будет указывать, что param объявлен, но не используется
+                // See https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md
+                ["no-unused-vars", "off"],
+                ["@typescript-eslint/no-unused-vars", ["error"]],
+                // See https://github.com/Peter-Win/fe-gui/issues/41
+                ["no-shadow", "off"],
+                ["@typescript-eslint/no-shadow", ["error"]],
+                ["no-useless-constructor", "off"],
+                ["@typescript-eslint/no-useless-constructor", ["error"]],
+                ["no-empty-function", "off"],
+                ["@typescript-eslint/no-empty-function", ["error"]],
+            ]
+            rules.forEach(([name, value]) => this.addRule(config, name, value))
         } else if (CommonInfo.tech.transpiler === 'Babel') {
             if (!isVue) {
                 packages.add('@babel/eslint-parser')
