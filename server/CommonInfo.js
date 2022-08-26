@@ -60,6 +60,7 @@ class CommonInfo {
             techVer: CommonInfo.techVer,
             props: CommonInfo.props,
             upgradeTarget: CommonInfo.upgradeTarget,
+            extParams: CommonInfo.extParams,
         })
     }
 

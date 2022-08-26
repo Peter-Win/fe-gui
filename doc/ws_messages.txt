@@ -2,10 +2,14 @@ Messages
 
 askScripts: void - Ask Scripts from package.json (client)
 
-commonInfo: object - Common information
+commonInfo: object - Common information (CommonInfo.js)
   common:
     folderName: string - project root folder name.
   tech:
+  techVer
+  props: object  ex: { WebPack: { localAddress: 'http://localhost:3333', port: 3333 } }
+  upgradeTarget
+  extParams: object ex: { port: 2222, title: 'Hello, World!' }
 
 componentExists: object - Is a component exist
   name: string      ex: "HelloWorld"
