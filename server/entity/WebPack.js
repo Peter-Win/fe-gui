@@ -34,7 +34,7 @@ class WebPack {
 
             const {plugins = []} = config
             plugins.forEach((item) => {
-                const {options = {}} = item
+                const options = item.options || item.userOptions || {}
                 if (options.template && options.title) {
                     const {title} = options
                     CommonInfo.extParams.title = String(title).trim()
