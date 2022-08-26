@@ -44,6 +44,8 @@ function startMainScreen() {
                 $('<li>').text(key.slice(5).toUpperCase()+' styling');
             }
         }
+
+        $("#project-title").text(data.extParams && data.extParams.title);
     }
 
     loadScripts();
