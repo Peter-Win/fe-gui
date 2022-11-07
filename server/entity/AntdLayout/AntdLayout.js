@@ -30,8 +30,10 @@ class AntdLayout {
         if (this.isReady) {
             // read locales list
             const dirName = makeFullName(`node_modules/${Antd.lib}/lib/locale`);
-            const files = await fs.promises.readdir(dirName);
-            this.locales = files.filter(f => /^[a-z]{2}_[A-Z]{2}\.js$/.test(f)).map(f => f.split('.')[0])
+            if (await isFileExists(dirName)) {
+                const files = await fs.promises.readdir(dirName);
+                this.locales = files.filter(f => /^[a-z]{2}_[A-Z]{2}\.js$/.test(f)).map(f => f.split('.')[0])
+            }
         }
     }
 
