@@ -28,6 +28,7 @@ const {MobX} = require('./MobX')
 const {Sass} = require('./Sass')
 const {TypeCheck} = require('./TypeCheck')
 const {ReactTestingLibrary} = require('./ReactTestingLibrary')
+const {Moment} = require('./Moment')
 
 const entities = {}
 
@@ -64,6 +65,7 @@ reg(Aliases)
 reg(CssModules)
 reg(ReactComponent)
 reg(MobX)
+reg(Moment)
 reg(TypeCheck)
 reg(ReactTestingLibrary)
 
