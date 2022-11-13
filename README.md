@@ -58,7 +58,7 @@ When creating a new project, the following options are used:
 * Package manager: Yarn, NPM or pnpm
 * Programming language: JavaScript or TypeScript.
 * Transpiler: Babel, TypeScript or SWC.
-* Framework: React ver 17 or React latest (18)
+* Framework: React or Vue
 * You can immediately install a style management system. But they can be installed later, and it becomes possible to specify additional options.
 
 ##  List of addons in alphabetical order
@@ -67,7 +67,7 @@ Some addons become available only under certain conditions.
 
 | Name | Conditions | Description |
 |------|------------|-------------|
-| Antd | Used by React | [Ant Design](https://ant.design/docs/react/introduce) |
+| Antd | Used by React or Vue | Ant Design [of React](https://ant.design/docs/react/introduce) or [Vue](https://antdv.com) |
 | AntdLayout | Installed Antd | Application homepage layout generator using Ant Design |
 | AssetModules |  | Setting up Webpack to include additional resources. For example, images or fonts. |
 | CSS | | Ability to import styles from CSS files. |
