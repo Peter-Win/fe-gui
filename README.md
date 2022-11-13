@@ -78,6 +78,7 @@ Some addons become available only under certain conditions.
 | Jest | | [Jest](https://jestjs.io/) unit testing |
 | LESS | | [Less](https://lesscss.org/) language extension for CSS |
 | MobX | | [MobX](https://mobx.js.org/) state manager |
+| Moment | | [Moment.js](https://momentjs.com/) Parse, validate, manipulate, and display dates and times. |
 | ReactComponent | React | Component source code generation. Allows you to reduce the time to create new components. Functionality depends on installed technologies: styles, Jest, MobX, ReactTestingLibrary, Storybook. |
 | ReactRouter | React | [ReactRouter](https://reactrouter.com/) The most popular navigation system for React. |
 | ReactTestingLibrary | React and Jest | [React Testing Library](https://testing-library.com/docs/react-testing-library/intro) |
