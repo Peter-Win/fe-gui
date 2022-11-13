@@ -8,11 +8,6 @@ const {conditionalReactDomAlias} = require('../commands/conditionalReactDomAlias
 
 const webpackConfigAddon = `{
     devServer: { historyApiFallback: true },
-    resolve: {
-        alias: {
-            'react-dom': '@hot-loader/react-dom',
-        },
-    },
 }`;
 
 class ReactRouter {
@@ -35,9 +30,7 @@ class ReactRouter {
         const {entities} = require('./all')
         const {WebPack} = entities
         const devPackages = []
-        // we are maintain 6 version of React Router
-        // https://github.com/gaearon/react-hot-loader/issues/1227
-        await installPackage(this.name, ['@hot-loader/react-dom'], true, { force: true })
+
         const packages = ['history', 'react-router-dom']
         if (CommonInfo.tech.language === 'TypeScript') {
             devPackages.push('@types/react-router-dom')
@@ -53,18 +46,6 @@ class ReactRouter {
             const dstName = makeSrcName('MainFrame.' + CommonInfo.getExtension('render'));
             await buildTemplate('RouterMainFrame.jsx', dstName);
             wsSendCreateEntity(this.name, `File "${dstName}" has been overwritten`);
-        }
-
-        // временный патч из-за отсутствия версии 18 @hot-loader/react-dom
-        // see https://github.com/Peter-Win/fe-gui/issues/11
-        const reactVer = await CommonInfo.findPackageVersion('react')
-        if (getHiVersion(reactVer) > 17) {
-            const fullIndexName = makeSrcName(`index.${CommonInfo.getExtension('render')}`)
-            await buildTemplate('reactRouterIndex18.jsx', fullIndexName)
-            wsSendCreateEntity(this.name, `Changed ${fullIndexName}`)
-            // Требуется добавлять alias react-dom только для development
-            await conditionalReactDomAlias(WebPack)
-            wsSendCreateEntity(this.name, `Changed ${WebPack.getConfigName()}`)
         }
     }
 

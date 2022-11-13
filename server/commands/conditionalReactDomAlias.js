@@ -53,6 +53,7 @@ const changeWebPackConfig = (wpConfig, style) => {
     configDecl.initCustom('const', configAssign)
     wpConfig.addTaxon(configDecl, pos)
 
+    
     // Новое выражение для экспорта в виде функции
     const srcFun = `(env, argv) => {
         if (argv.mode === 'development') {
