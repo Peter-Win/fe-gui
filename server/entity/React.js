@@ -39,7 +39,7 @@ class React {
         const ver = typeof params.ver === 'number' ? `@~${params.ver}.0.0` : ''
 
         // dependencies
-        const packages = `react${ver} react-dom${ver} react-hot-loader`
+        const packages = `react${ver} react-dom${ver}`
         await installPackage(this.name, packages, false)
 
         const {transpiler, language} = CommonInfo.tech
