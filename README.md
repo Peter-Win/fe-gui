@@ -1,6 +1,6 @@
 # fe-gui
 
-The **fe-gui** utility is designed to quickly create a project infrastructure using the following stack: (JavaScript or TypeScript) + React.
+The **fe-gui** utility is designed to quickly create a project infrastructure using the following stack: (JavaScript or TypeScript) + React or Vue.
 Unlike other similar utilities, it does not use the command line, but a graphical interface.
 
 The closest competitor to this utility is [create-react-app](https://create-react-app.dev/).
