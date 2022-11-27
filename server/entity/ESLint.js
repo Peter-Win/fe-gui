@@ -117,11 +117,8 @@ class ESLint {
                 config.parser = '@typescript-eslint/parser'
             }
 
+            // Отключаем те правила, которые несовместимы с TS, и заменяем на соответствующие для TS
             const rules = [
-                // Если не отключить no-unused-vars, то будут ошибки там где их быть не должно.
-                // Например interface { fun(param: string): void; }
-                // Здесь ошибочно будет указывать, что param объявлен, но не используется
-                // See https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md
                 ["no-unused-vars", "off"],
                 ["@typescript-eslint/no-unused-vars", ["error"]],
                 // See https://github.com/Peter-Win/fe-gui/issues/41
@@ -131,7 +128,14 @@ class ESLint {
                 ["@typescript-eslint/no-useless-constructor", ["error"]],
                 ["no-empty-function", "off"],
                 ["@typescript-eslint/no-empty-function", ["error"]],
+                ["no-redeclare", "off"],
+                ["@typescript-eslint/no-redeclare", ["error"]],
             ]
+            this.tsRules.forEach(([name, title, body]) => {
+                if (params[name]) {
+                    rules.push(["@typescript-eslint/"+name, body || ["error"]])
+                }
+            });
             rules.forEach(([name, value]) => this.addRule(config, name, value))
         } else if (CommonInfo.tech.transpiler === 'Babel') {
             if (!isVue) {
@@ -270,6 +274,10 @@ class ESLint {
     }
 
     description = `
+<style>
+.rules-row {display: flex; flex-direction: row; align-items: baseline;}
+.rules-grid {display: grid; grid-template-columns: 1fr 1fr;}
+</style>
 <div style="color: #777;font-size: 52px;">
 <img
   alt="ESLint"
@@ -286,7 +294,28 @@ ESLint is a tool for identifying and reporting on patterns found in ECMAScript/J
 You can get more details on the <a href="https://eslint.org/" target="_blank">official website of ESLint</a>.
 </div>
 `
-    controls = `
+    // закомменченные правила выдают ошибку:
+    // You have used a rule which requires parserServices to be generated. You must therefore provide a value for the "parserOptions.project" property for @typescript-eslint/parser.
+    tsRules = [
+        ["array-type", "array-type = array", ["error", { "default": "array", "readonly": "array" }]],
+        ["no-empty-interface", ""],
+        ["no-explicit-any", ""],
+        ["no-non-null-asserted-nullish-coalescing", ""],
+        ["no-non-null-asserted-optional-chain", ""],
+        // ["no-redundant-type-constituents", ""],
+        // ["no-unnecessary-boolean-literal-compare", ""],
+        // ["no-unnecessary-type-assertion", ""],
+        ["no-unnecessary-type-constraint", ""],
+        ["no-useless-empty-export", ""],
+        // ["prefer-includes", ""],
+        ["prefer-optional-chain", ""],
+        // ["prefer-readonly", ""],
+        // ["prefer-string-starts-ends-with", ""],
+        ["sort-type-constituents", ""],
+        ["unified-signatures", ""],
+    ]
+    get controls() {
+        return `
 <div class="rn-ctrl" data-name="prettier" data-type="Checkbox" data-title="Prettier"></div>
 <div class="rn-ctrl" data-name="airbnb" data-type="Checkbox" data-title="Airbnb Style"></div>
 <h3>Scripts to add in package.json</h3>
@@ -302,8 +331,14 @@ You can get more details on the <a href="https://eslint.org/" target="_blank">of
   <div class="rn-ctrl" data-name="cmdFix" data-type="String" data-title="Script for automatically format code" data-tm="TmScriptName">
     <b class="rn-validator" data-type="ScriptName" data-use="useFix"></b>  
   </div>
-</div>
-
-    `
+</div>` + 
+(CommonInfo.tech.language === "TypeScript" ? `
+<h3>The most useful rules for TypeScript</h3>
+<div class="rules-grid">
+${this.tsRules.map(([name, title]) => `<div class="rules-row">
+  <div class="rn-ctrl" data-name="${name}" data-type="Checkbox" data-value0="true" data-title="${title || name}"></div>
+  <a href="https://typescript-eslint.io/rules/${name}" target="_blank">info</a>
+</div>`).join("")}</div>` : "")
+}
 }
 module.exports = { ESLint }

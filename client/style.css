@@ -13,6 +13,7 @@ h1 {
     margin: 0 0 1em 0;
     box-shadow: 0 0 4px 4px #CCC;
 }
+h3 {padding-top: 0.3rem;}
 
 .page-content {
     padding: 0 1em;
