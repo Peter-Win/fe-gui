@@ -1,6 +1,6 @@
 # fe-gui
 
-The **fe-gui** utility is designed to quickly create a project infrastructure using the following stack: (JavaScript or TypeScript) + React.
+The **fe-gui** utility is designed to quickly create a project infrastructure using the following stack: (JavaScript or TypeScript) + React or Vue.
 Unlike other similar utilities, it does not use the command line, but a graphical interface.
 
 The closest competitor to this utility is [create-react-app](https://create-react-app.dev/).
@@ -58,7 +58,7 @@ When creating a new project, the following options are used:
 * Package manager: Yarn, NPM or pnpm
 * Programming language: JavaScript or TypeScript.
 * Transpiler: Babel, TypeScript or SWC.
-* Framework: React ver 17 or React latest (18)
+* Framework: React or Vue
 * You can immediately install a style management system. But they can be installed later, and it becomes possible to specify additional options.
 
 ##  List of addons in alphabetical order
@@ -67,7 +67,7 @@ Some addons become available only under certain conditions.
 
 | Name | Conditions | Description |
 |------|------------|-------------|
-| Antd | Used by React | [Ant Design](https://ant.design/docs/react/introduce) |
+| Antd | Used by React or Vue | Ant Design [of React](https://ant.design/docs/react/introduce) or [Vue](https://antdv.com) |
 | AntdLayout | Installed Antd | Application homepage layout generator using Ant Design |
 | AssetModules |  | Setting up Webpack to include additional resources. For example, images or fonts. |
 | CSS | | Ability to import styles from CSS files. |
@@ -78,6 +78,7 @@ Some addons become available only under certain conditions.
 | Jest | | [Jest](https://jestjs.io/) unit testing |
 | LESS | | [Less](https://lesscss.org/) language extension for CSS |
 | MobX | | [MobX](https://mobx.js.org/) state manager |
+| Moment | | [Moment.js](https://momentjs.com/) Parse, validate, manipulate, and display dates and times. |
 | ReactComponent | React | Component source code generation. Allows you to reduce the time to create new components. Functionality depends on installed technologies: styles, Jest, MobX, ReactTestingLibrary, Storybook. |
 | ReactRouter | React | [ReactRouter](https://reactrouter.com/) The most popular navigation system for React. |
 | ReactTestingLibrary | React and Jest | [React Testing Library](https://testing-library.com/docs/react-testing-library/intro) |
