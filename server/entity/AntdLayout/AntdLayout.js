@@ -8,16 +8,16 @@ const {wsSendCreateEntity} = require('../../wsSend')
 
 class AntdLayout {
     name = 'AntdLayout'
-    depends = ['Antd']
+    depends = ['Antd5']
     isReady = false
     isInit = false
     locales = []
 
     async init() {
-        const {entities: {Antd, React}} = require('../all')
+        const {entities: {Antd5, React}} = require('../all')
         this.isInit = false
         this.isReady = false
-        if (!Antd.isInit) return
+        if (!Antd5.isInit) return
         // Временно только для React
         if (!React.isInit) return
         const mfName = makeSrcName(`MainFrame.${CommonInfo.getExtension('render')}`)
@@ -29,7 +29,7 @@ class AntdLayout {
         this.isReady = !this.isInit
         if (this.isReady) {
             // read locales list
-            const dirName = makeFullName(`node_modules/${Antd.lib}/lib/locale`);
+            const dirName = makeFullName(`node_modules/${Antd5.lib}/locale`)
             if (await isFileExists(dirName)) {
                 const files = await fs.promises.readdir(dirName);
                 this.locales = files.filter(f => /^[a-z]{2}_[A-Z]{2}\.js$/.test(f)).map(f => f.split('.')[0])
@@ -57,6 +57,7 @@ class AntdLayout {
         await fs.promises.writeFile(mfName, mfText)
         wsSendCreateEntity(this.name, `Overwritten ${mfName}`)
 
+        /* Ant 5 больше не использует less
         // style
         const {entities} = require('../all')
         const {LESS} = entities
@@ -66,10 +67,11 @@ class AntdLayout {
         updateStyle(styleRows, params)
         await writeRows(styleName, styleRows)
         wsSendCreateEntity(this.name, `Updated ${styleName}`)
+        */
 
         // App
         if (params.locale) {
-            const appName = makeSrcName(`App.${CommonInfo.getExtension('render')}`)
+            const appName = makeSrcName(`App.${CommonInfo.getFwExt()}`)
             const appRows = await readRows(appName)
             updateApp(appRows, params)
             await writeRows(appName, appRows)
