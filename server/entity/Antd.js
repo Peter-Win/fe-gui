@@ -14,6 +14,12 @@ const { wsSendCreateEntity } = require('../wsSend')
 const reactLib = 'antd'
 const vueLib = 'ant-design-vue'
 
+/**
+ * Ant Design v4.x
+ * @deprecated use Antd5
+ * Для совместимости с проектами, где был использован Ant v4, надо было бы оставить.
+ * Но пока считаем, что мы не поддерживаем старые версии.
+ */
 class Antd {
     name = 'Antd'
     depends = ['React']

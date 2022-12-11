@@ -117,6 +117,21 @@ class CommonInfo {
     }
 
     /**
+     * @returns Расширение для текущего фреймвока
+     */
+    static getFwExt() {
+        const {tech} = CommonInfo
+        if (tech.framework === 'Vue') {
+            return 'vue'
+        }
+        let ext = tech.language === 'TypeScript' ? 'ts' : 'js'
+        if ((tech.framework || '').startsWith('React')) {
+            ext += 'x'
+        }
+        return ext
+    }
+
+    /**
      * @deprecated use getCodeExts
      */
     static getExtsList() {
