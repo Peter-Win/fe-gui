@@ -8,7 +8,7 @@ const { CommonInfo } = require('../CommonInfo')
 const { injectDemoCodeToMainFrame } = require('../sysUtils/injectDemoCode')
 
 const componentPreview = async (params) => {
-    const res = createReactComponent(makeCreateReactComponentParams(params))
+    const res = createReactComponent(await makeCreateReactComponentParams(params))
     if (params.useMainFrame) {
         const name = `MainFrame.${CommonInfo.getExtension('render')}`
         const rows = await readRows(makeSrcName(name))
