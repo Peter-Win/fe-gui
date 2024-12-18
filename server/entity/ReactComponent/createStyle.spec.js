@@ -44,4 +44,12 @@ describe('createStyle', () => {
         expect(res.styleFileName).to.equal('MyComponent.module.less')
         expect(res.styleCode).to.deep.equal(styleBody('myComponent'))
     })
+    it('LESS Module 7', () => {
+        const res = createStyle({name: 'MyComponent', styles: 'module.less', cssLoaderVer: '7.1.2'})
+        expect(res.className).to.equal('myComponent')
+        expect(res.classExpr).to.equal(' className={styles.myComponent}')
+        expect(res.styleImport).to.equal('import * as styles from "./MyComponent.module.less";')
+        expect(res.styleFileName).to.equal('MyComponent.module.less')
+        expect(res.styleCode).to.deep.equal(styleBody('myComponent'))
+    })
 })

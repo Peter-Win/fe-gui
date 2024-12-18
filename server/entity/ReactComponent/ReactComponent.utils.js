@@ -3,6 +3,7 @@ const { createJest } = require('./createJest')
 const { newMobxInstance } = require('./newMobxInstance')
 const { createMobxStore } = require('./createMobxStore')
 const { createStorybook } = require('./createStorybook')
+const { getHiVersion } = require("../../sysUtils/versions")
 
 const reactImport = 'import * as React from "react";';
 
@@ -148,17 +149,19 @@ const createComponentCode = ({name, isTS, useReturn, useForwardRef, refOwner, pr
  * @param {Object} params
  * @param {string} params.name Nameof the component
  * @param {""|"css"|"module.css"|"less"|"module.less"|"sass"|"scss"} params.styles
+ * @param {string|undefined} params.cssLoaderVer
  * @returns {{className: string; classExpr: string; styleImport: string; styleCode: string; styleFileName: string;}}
  */
-const createStyle = ({name, styles}) => {
+const createStyle = ({name, styles, cssLoaderVer}) => {
     const res = {
         className: '', classExpr: '', styleImport: '', styleFileName: '', styleCode: [],
     }
+    const stylesDir = getHiVersion(cssLoaderVer) >= 7 ? '* as styles' : 'styles'
     if (styles) {
         res.styleFileName = `${name}.${styles}`
         if (/^module\./.test(styles)) {
             res.className = camelToLower(name)
-            res.styleImport = `import styles from "./${res.styleFileName}";`
+            res.styleImport = `import ${stylesDir} from "./${res.styleFileName}";`
             res.classExpr = ` className={styles.${res.className}}`
         } else {
             res.className = camelToKebab(name)
@@ -198,6 +201,7 @@ const mobxInstanceCode = ({mobxClassName, mobx}) => {
  * @param {boolean} params.availInlineSnapshots Бывают конфигурации, где не работают inline snapshots
  * @param {boolean} params.useInlineSnapshot
  * @param {boolean} params.usePretty
+ * @param {string|undefined} params.cssLoaderVer От версии css-loader зависит способ импорта
  * @param {""|"css"|"less"|"module.css"|"module.less"} params.styles
  * @param {{propName:string; isRequired:boolean; type: string; defaultValue: string;}[]} params.props
  * @param {{language:string;}} params.tech
@@ -213,13 +217,14 @@ const createReactComponent = ({
     useStorybook, story,
     tech, techVer,
     isReactTestingLibrary,
+    cssLoaderVer,
 }) => {
     const isTS = tech.language === 'TypeScript'
     const codeExt = `${isTS ? 't':'j'}s`
     const renderExt = `${codeExt}x`
     const componentName = `${name}.${renderExt}`
     const filesDict = {}
-    const {className, classExpr, styleImport, styleCode, styleFileName} = createStyle({name, styles})
+    const {className, classExpr, styleImport, styleCode, styleFileName} = createStyle({name, styles, cssLoaderVer})
     const {mobxClassName, mobxStoreName, mobxFileName, mobxCode} = createMobxStore({ name, useMobX, mobx, isTS, mobx })
     filesDict[componentName] = createComponentCode({name, isTS, 
         createFolder, useReturn, useForwardRef, refOwner, props, classExpr, styleImport, mobxClassName, mobx 

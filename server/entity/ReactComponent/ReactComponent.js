@@ -9,9 +9,10 @@ const { injectDemoCode } = require('../../sysUtils/injectDemoCode')
 const { makeComponentCall } = require('./makeComponentCall')
 const { mainFrameUpdate } = require('./mainFrameUpdate')
 
-const makeCreateReactComponentParams = (clientParams) => {
+const makeCreateReactComponentParams = async (clientParams) => {
     const {entities} = require('../all')
     const usePretty = entities.PackageJson.isDependency('pretty')
+    const cssLoaderVer = await CommonInfo.findPackageVersion('css-loader')
     return {
         ...clientParams,
         tech: CommonInfo.tech,
@@ -19,6 +20,7 @@ const makeCreateReactComponentParams = (clientParams) => {
         availInlineSnapshots: entities.Jest.availInlineSnapshots(),
         techVer: CommonInfo.techVer,
         isReactTestingLibrary: entities.ReactTestingLibrary.isInit,
+        cssLoaderVer,
     }
 }
 
@@ -96,7 +98,7 @@ class ReactComponent {
         const {entities} = require('../all')
         const {PackageJson} = entities
         const makeFileName = (name) => path.normalize(path.join(makeFullName(params.folder), name))
-        const res = createReactComponent(makeCreateReactComponentParams(params))
+        const res = createReactComponent(await makeCreateReactComponentParams(params))
         wsSendCreateEntity(this.name, `New component: ${params.name}`)
         for (const folder of res.folders) {
             const fullName = makeFileName(folder)
